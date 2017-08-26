@@ -9,11 +9,11 @@ Benchmark driver for different Ruby executables
 ## Usage
 
 ```
-$ benchmark_driver -h
+$ exe/benchmark_driver -h
 Usage: benchmark_driver [options] [YAML]
-    -d, --duration [SECONDS]         Duration seconds to run each benchmark (default: 1)
     -e, --executables [EXECS]        Ruby executables (e1::path1; e2::path2; e3::path3;...)
-    -r, --result-format=FORMAT       Result output format [time|ips] (default: time)
+    -i, --ips [SECONDS]              Measure IPS in duration seconds (default: 1)
+    -l, --loop-count [COUNT]         Measure execution time with loop count (default: 100000)
     -v, --verbose
 ```
 
@@ -35,24 +35,24 @@ $ exe/benchmark_driver ruby_benchmark_set/example_single.yml -e ruby1::ruby -e r
 benchmark results:
 Execution time (sec)
 name             ruby1    ruby2
-example_single   0.986    1.009
+example_single   0.958    0.972
 
 Speedup ratio: compare with the result of `ruby1' (greater is better)
 name             ruby2
-example_single   0.978
+example_single   0.986
 ```
 
-And you can change benchmark output by `-r` option.
+And you can change benchmark output to IPS (iteration per second) by `-i` option.
 
 ```
-$ exe/benchmark_driver ruby_benchmark_set/example_single.yml -e ruby1::ruby -e ruby2::ruby -r ips
+$ exe/benchmark_driver ruby_benchmark_set/example_single.yml -e ruby1::ruby -e ruby2::ruby -i
 Result -------------------------------------------
                          ruby1          ruby2
-  example_single  104247.7 i/s   103797.0 i/s
+  example_single   99414.1 i/s    99723.3 i/s
 
 Comparison: example_single
-           ruby1:     104247.7 i/s
-           ruby2:     103797.0 i/s - 1.00x slower
+           ruby2:      99723.3 i/s
+           ruby1:      99414.1 i/s - 1.00x slower
 ```
 
 ### Running multiple scripts
@@ -80,30 +80,39 @@ $ exe/benchmark_driver ruby_benchmark_set/example_multi.yml -e ruby1::ruby -e ru
 benchmark results:
 Execution time (sec)
 name             ruby1    ruby2
-join             0.146    0.150
-interpolation    0.287    0.302
+join             0.022    0.022
+interpolation    0.026    0.026
 
 Speedup ratio: compare with the result of `ruby1' (greater is better)
 name             ruby2
-join             0.969
-interpolation    0.951
+join             1.045
+interpolation    1.002
 ```
 
 ```
-$ exe/benchmark_driver ruby_benchmark_set/example_multi.yml -e ruby1::ruby -e ruby2::ruby -r ips
+$ exe/benchmark_driver ruby_benchmark_set/example_multi.yml -e ruby1::ruby -e ruby2::ruby -i
 Result -------------------------------------------
                          ruby1          ruby2
-            join 4723764.9 i/s  4595744.3 i/s
-   interpolation 4265934.5 i/s  4189385.4 i/s
+            join 4701954.3 i/s  4639520.3 i/s
+   interpolation 4263170.0 i/s  4044083.0 i/s
 
 Comparison: join
-           ruby1:    4723764.9 i/s
-           ruby2:    4595744.3 i/s - 1.03x slower
+           ruby1:    4701954.3 i/s
+           ruby2:    4639520.3 i/s - 1.01x slower
 
 Comparison: interpolation
-           ruby1:    4265934.5 i/s
-           ruby2:    4189385.4 i/s - 1.02x slower
+           ruby1:    4263170.0 i/s
+           ruby2:    4044083.0 i/s - 1.05x slower
 ```
+
+### Configuring modes
+
+There are 2 modes:
+
+- Loop count: Enabled by `-l`. Optionally you can change count to loop by `-l COUNT`.
+- IPS: Enabled by `-i`. Optionally you can change duration by `-i DURATION`.
+
+Specifying both `-l` and `-i` is nonsense.
 
 ### Debugging
 
@@ -123,6 +132,12 @@ while i < 957780
 
 end
 ```
+
+## TODO
+
+- Measure multiple times and use minimum result
+- Retry and reject negative result in ips mode
+- Change not to take long time for iteration count estimation in ips mode
 
 ## Contributing
 

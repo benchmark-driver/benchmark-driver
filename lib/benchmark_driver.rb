@@ -3,17 +3,24 @@ require 'benchmark'
 require 'tempfile'
 
 class BenchmarkDriver
-  # @param [Integer] duration - Benchmark duration in seconds
+  MEASURE_TYPES = %w[loop_count ips]
+  DEFAULT_LOOP_COUNT = 100_000
+  DEFAULT_IPS_DURATION = 1
+
+  # @param [String] measure_type - "loop_count"|"ips"
+  # @param [Integer] measure_num - Loop count for "loop_type", duration seconds for "ips"
   # @param [Array<String>] execs - ["path1", "path2"] or `["ruby1::path1", "ruby2::path2"]`
-  # @param [String] result_format
   # @param [Boolean] verbose
-  def initialize(duration: 1, execs: ['ruby'], result_format: 'time', verbose: false)
-    @duration = duration
+  def initialize(measure_type: 'loop_count', measure_num: nil, execs: ['ruby'], verbose: false)
+    unless MEASURE_TYPES.include?(measure_type)
+      abort "unsupported measure type: #{measure_type.dump}"
+    end
+    @measure_type = measure_type
+    @measure_num = measure_num
     @execs = execs.map do |exec|
       name, path = exec.split('::', 2)
       Executable.new(name, path || name)
     end
-    @result_format = result_format
     @verbose = verbose
   end
 
@@ -36,13 +43,13 @@ class BenchmarkDriver
     end
     puts if @verbose
 
-    case @result_format
-    when 'time'
-      ExecutionTimeReporter.report(@execs, results)
+    case @measure_type
+    when 'loop_count'
+      LoopCountReporter.report(@execs, results)
     when 'ips'
       IpsReporter.report(@execs, results)
     else
-      raise "unsupported result format: #{@result_format.dump}"
+      raise "unexpected measure type: #{@measure_type.dump}"
     end
   end
 
@@ -50,10 +57,18 @@ class BenchmarkDriver
 
   # Estimate iterations to finish benchmark within `@duration`.
   def calc_iterations(exec, benchmark)
-    # TODO: Change to try from 1, 10, 100 ...
-    base = 1000
-    time = run_benchmark(exec, benchmark, base)
-    (@duration / time * base).to_i
+    case @measure_type
+    when 'loop_count'
+      @measure_num || benchmark.loop_count || DEFAULT_LOOP_COUNT
+    when 'ips'
+      # TODO: Change to try from 1, 10, 100 ...
+      base = 1000
+      time = run_benchmark(exec, benchmark, base)
+      duration = @measure_num || DEFAULT_IPS_DURATION
+      (duration / time * base).to_i
+    else
+      raise "unexpected measure type: #{@measure_type.dump}"
+    end
   end
 
   def run_benchmark(exec, benchmark, iterations)
@@ -75,9 +90,10 @@ class BenchmarkDriver
   class BenchmarkRoot
     # @param [String] name
     # @param [String] prelude
-    # @param [String,nil] benchmark   - For running single instant benchmark
+    # @param [Integer,nil] loop_count
+    # @param [String,nil]  benchmark  - For running single instant benchmark
     # @param [Array<Hash>] benchmarks - For running multiple benchmarks
-    def initialize(name:, prelude: '', benchmark: nil, benchmarks: [])
+    def initialize(name:, prelude: '', loop_count: nil, benchmark: nil, benchmarks: [])
       if benchmark
         unless benchmarks.empty?
           raise ArgumentError.new("Only either :benchmark or :benchmarks can be specified")
@@ -86,7 +102,7 @@ class BenchmarkDriver
       else
         @benchmarks = benchmarks.map do |hash|
           BenchmarkScript.new(Hash[hash.map { |k, v| [k.to_sym, v] }]).tap do |b|
-            b.prepend_prelude(prelude)
+            b.inherit_root(prelude: prelude, loop_count: loop_count)
           end
         end
       end
@@ -100,18 +116,24 @@ class BenchmarkDriver
     # @param [String] name
     # @param [String] prelude
     # @param [String] benchmark
-    def initialize(name:, prelude: '', benchmark:)
+    def initialize(name:, prelude: '', loop_count: nil, benchmark:)
       @name = name
       @prelude = prelude
+      @loop_count = loop_count
       @benchmark = benchmark
     end
 
-    # @return String
+    # @return [String]
     attr_reader :name
 
-    # For inheriting prelude from benchmark root
-    def prepend_prelude(prelude)
+    # @return [Integer]
+    attr_reader :loop_count
+
+    def inherit_root(prelude:, loop_count:)
       @prelude = "#{prelude}\n#{@prelude}"
+      if @loop_count.nil? && loop_count
+        @loop_count = loop_count
+      end
     end
 
     def overhead_script(iterations)
@@ -165,7 +187,7 @@ end
   )
   end
 
-  module ExecutionTimeReporter
+  module LoopCountReporter
     class << self
       # @param [Array<Executable>] execs
       # @param [Array<BenchmarkResult>] results

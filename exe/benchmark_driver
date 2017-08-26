@@ -8,17 +8,19 @@ require 'yaml'
 options = {}
 args = OptionParser.new do |o|
   o.banner = "Usage: #{File.basename($0, '.*')} [options] [YAML]"
-  o.on('-d', '--duration [SECONDS]', 'Duration seconds to run each benchmark (default: 1)') do |n|
-    options[:duration] = n.to_i
-  end
   o.on('-e', '--executables [EXECS]', 'Ruby executables (e1::path1; e2::path2; e3::path3;...)') do |e|
     options[:execs] ||= []
     e.split(/;/).each do |path|
       options[:execs] << path
     end
   end
-  o.on('-r', "--result-format=FORMAT", "Result output format [time|ips] (default: time)", %w[time ips]) do |r|
-    options[:result_format] = r
+  o.on('-i [DURATION]', '--ips [SECONDS]', "Measure IPS in duration seconds (default: #{BenchmarkDriver::DEFAULT_IPS_DURATION})") do |i|
+    options[:measure_type] = 'ips'
+    options[:measure_num]  = i if i
+  end
+  o.on('-l [COUNT]', '--loop-count [COUNT]', "Measure execution time with loop count (default: #{BenchmarkDriver::DEFAULT_LOOP_COUNT})") do |l|
+    options[:measure_type] = 'loop_count'
+    options[:measure_num]  = l if l
   end
   o.on('-v', '--verbose') do |v|
     options[:verbose] = v

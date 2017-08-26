@@ -19,6 +19,7 @@ prelude: |
 benchmarks:
   - name: ERB compiling
     benchmark: ERB.new(template)
+    loop_count: 10000
 
   - name: ERB rendering
     prelude: |
@@ -26,3 +27,4 @@ benchmarks:
       mod = Module.new
       mod.instance_eval(src, "(ERB)")
     benchmark: mod.render(title, content)
+    loop_count: 100000
