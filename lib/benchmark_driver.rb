@@ -25,7 +25,10 @@ class BenchmarkDriver
       metrics_by_exec = {}
       iterations = calc_iterations(@execs.first, benchmark)
       @execs.each do |exec|
-        puts "Running #{benchmark.name.dump} with #{exec.name.dump} #{iterations} times..." if @verbose
+        if @verbose
+          puts "--- Running #{benchmark.name.dump} with #{exec.name.dump} #{iterations} times ---"
+          puts "#{benchmark.benchmark_script(iterations)}\n"
+        end
         elapsed_time = run_benchmark(exec, benchmark, iterations)
         metrics_by_exec[exec] = BenchmarkMetrics.new(iterations, elapsed_time)
       end
