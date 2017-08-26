@@ -8,8 +8,18 @@ require 'yaml'
 options = {}
 args = OptionParser.new do |o|
   o.banner = "Usage: #{File.basename($0, '.*')} [options] [YAML]"
-  o.on('-d', '--duration [SECONDS]', 'Duration seconds to run benchmark (default: 5)') do |n|
+  o.on('-d', '--duration [SECONDS]', 'Duration seconds to run each benchmark (default: 1)') do |n|
     options[:duration] = n.to_i
+  end
+  o.on('-e', '--executables [EXECS]',
+       "Specify benchmark one or more targets (e1::path1; e2::path2; e3::path3;...)") do |e|
+    options[:execs] ||= []
+    e.split(/;/).each do |path|
+      options[:execs] << path
+    end
+  end
+  o.on('-v', '--verbose') do |v|
+    options[:verbose] = v
   end
 end.parse!(ARGV)
 abort "No YAML file is specified" if args.empty?

@@ -16,5 +16,5 @@ prelude: |
   </html>
   EOS
 
-script: |
+benchmark: |
   ERB.new(data).result(binding)

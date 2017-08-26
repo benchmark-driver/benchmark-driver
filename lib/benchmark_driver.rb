@@ -4,9 +4,14 @@ require 'tempfile'
 
 class BenchmarkDriver
   # @param [Integer] duration - Benchmark duration in seconds
-  def initialize(duration: 5)
-    @duration = 5
-    @execs = [Executable.new('ruby1', 'ruby'), Executable.new('ruby2', 'ruby')]
+  # @param [Array<String>] execs - ["path1", "path2"] or `["ruby1::path1", "ruby2::path2"]`
+  def initialize(duration: 1, execs: ['ruby'], verbose: false)
+    @duration = duration
+    @execs = execs.map do |exec|
+      name, path = exec.split('::', 2)
+      Executable.new(name, path || name)
+    end
+    @verbose = verbose
   end
 
   # @param [Hash,Array<Hash>] hashes
@@ -21,23 +26,32 @@ class BenchmarkDriver
 
     results = benchmarks.map do |benchmark|
       metrics_by_exec = {}
+      iterations = calc_iterations(@execs.first, benchmark)
       @execs.each do |exec|
-        iterations = calc_iterations(benchmark)
+        puts "Running #{benchmark.name.dump} with #{exec.name.dump} #{iterations} times..." if @verbose
         elapsed_time = run_benchmark(exec, benchmark, iterations)
         metrics_by_exec[exec] = BenchmarkMetrics.new(iterations, elapsed_time)
       end
       BenchmarkResult.new(benchmark.name, metrics_by_exec)
     end
+    puts if @verbose
+
+    # TODO: support showing ips by another reporter
     ExecutionTimeReporter.report(@execs, results)
   end
 
   private
 
-  def calc_iterations(benchmark)
-    1000
+  # Estimate iterations to finish benchmark within `@duration`.
+  def calc_iterations(exec, benchmark)
+    # TODO: Change to try from 1, 10, 100 ...
+    base = 1000
+    time = run_benchmark(exec, benchmark, base)
+    (@duration / time * base).to_i
   end
 
   def run_benchmark(exec, benchmark, iterations)
+    # TODO: raise error if negative
     measure_script(exec.path, benchmark.benchmark_script(iterations)) -
       measure_script(exec.path, benchmark.overhead_script(iterations))
   end
@@ -56,10 +70,10 @@ class BenchmarkDriver
     # @param [String] name
     # @param [String] prelude
     # @param [String] script
-    def initialize(name:, prelude: '', script:)
+    def initialize(name:, prelude: '', benchmark:)
       @name = name
       @prelude = prelude
-      @script = script
+      @benchmark = benchmark
     end
     attr_reader :name
 
@@ -79,7 +93,7 @@ end
 i = 0
 while i < #{iterations}
   i += 1
-#{@script}
+#{@benchmark}
 end
       RUBY
     end
@@ -95,6 +109,10 @@ end
 
     def elapsed_time_of(exec)
       metrics_by_exec.fetch(exec).elapsed_time
+    end
+
+    def ips_of(exec)
+      iterations_of(exec) / elapsed_time_of(exec)
     end
   end
 
@@ -143,7 +161,7 @@ end
         results.each do |result|
           print '%-16s ' % result.name
           puts rest.map { |exec|
-            "%-8s" % ("%.3f" % (result.elapsed_time_of(exec) / result.elapsed_time_of(compared)))
+            "%-8s" % ("%.3f" % (result.ips_of(exec) / result.ips_of(compared)))
           }.join(' ')
         end
         puts
