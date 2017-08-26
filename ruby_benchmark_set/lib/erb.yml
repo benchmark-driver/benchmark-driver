@@ -1,4 +1,4 @@
-- name: erb_compile
+- name: ERB compiling
   prelude: |
     require 'erb'
 
@@ -17,10 +17,9 @@
     </html>
     EOS
 
-  benchmark: |
-    ERB.new(data).src
+  benchmark: ERB.new(data).src
 
-- name: erb_render
+- name: ERB rendering
   prelude: |
     require 'erb'
 
@@ -43,5 +42,4 @@
     mod = Module.new
     mod.instance_eval(src, "(ERB)")
 
-  benchmark: |
-    mod.render(title, content)
+  benchmark: mod.render(title, content)

@@ -1,0 +1,12 @@
+- name: join
+  prelude: |
+    a = 'a' * 100
+    b = 'b' * 100
+  benchmark: |
+    [a, b].join
+- name: string interpolation
+  prelude: |
+    a = 'a' * 100
+    b = 'b' * 100
+  benchmark: |
+    "#{a}#{b}"
