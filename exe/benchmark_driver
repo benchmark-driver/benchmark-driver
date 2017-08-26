@@ -28,9 +28,6 @@ abort "No YAML file is specified" if args.empty?
 
 driver = BenchmarkDriver.new(options)
 args.each do |yaml|
-  benchmarks = YAML.load(File.read(yaml))
-  if benchmarks.is_a?(Hash)
-    benchmarks[:name] = File.basename(yaml, '.*')
-  end
-  driver.run(benchmarks)
+  default = { name: File.basename(yaml, '.*') }
+  driver.run(default.merge(YAML.load(File.read(yaml))))
 end

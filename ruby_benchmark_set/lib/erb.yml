@@ -1,45 +1,28 @@
-- name: ERB compiling
-  prelude: |
-    require 'erb'
+prelude: |
+  require 'erb'
 
-    title = "hello world!"
-    content = "hello world!\n" * 10
+  template = <<EOS
+  <html>
+    <head> <%= title %> </head>
+    <body>
+      <h1> <%= title %> </h1>
+      <p>
+        <%= content %>
+      </p>
+    </body>
+  </html>
+  EOS
 
-    data = <<EOS
-    <html>
-      <head> <%= title %> </head>
-      <body>
-        <h1> <%= title %> </h1>
-        <p>
-          <%= content %>
-        </p>
-      </body>
-    </html>
-    EOS
+  title = "hello world!"
+  content = "hello world!\n" * 10
 
-  benchmark: ERB.new(data).src
+benchmarks:
+  - name: ERB compiling
+    benchmark: ERB.new(template)
 
-- name: ERB rendering
-  prelude: |
-    require 'erb'
-
-    title = "hello world!"
-    content = "hello world!\n" * 10
-
-    data = <<EOS
-    <html>
-      <head> <%= title %> </head>
-      <body>
-        <h1> <%= title %> </h1>
-        <p>
-          <%= content %>
-        </p>
-      </body>
-    </html>
-    EOS
-
-    src = "def self.render(title, content); #{ERB.new(data).src}; end"
-    mod = Module.new
-    mod.instance_eval(src, "(ERB)")
-
-  benchmark: mod.render(title, content)
+  - name: ERB rendering
+    prelude: |
+      src = "def self.render(title, content); #{ERB.new(template).src}; end"
+      mod = Module.new
+      mod.instance_eval(src, "(ERB)")
+    benchmark: mod.render(title, content)

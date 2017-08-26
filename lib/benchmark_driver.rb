@@ -17,17 +17,11 @@ class BenchmarkDriver
     @verbose = verbose
   end
 
-  # @param [Hash,Array<Hash>] hashes
-  def run(hashes)
-    hashes = [hashes] if hashes.is_a?(Hash)
-    benchmarks = hashes.map do |hash|
-      BenchmarkScript.new(Hash[hash.map { |k, v| [k.to_sym, v] }])
-    end
-    if benchmarks.empty?
-      abort 'No benchmark is specified in YAML'
-    end
+  # @param [Hash] root_hash
+  def run(root_hash)
+    root = BenchmarkRoot.new(Hash[root_hash.map { |k, v| [k.to_sym, v] }])
 
-    results = benchmarks.map do |benchmark|
+    results = root.benchmarks.map do |benchmark|
       metrics_by_exec = {}
       iterations = calc_iterations(@execs.first, benchmark)
       @execs.each do |exec|
@@ -75,16 +69,47 @@ class BenchmarkDriver
     end
   end
 
+  class BenchmarkRoot
+    # @param [String] name
+    # @param [String] prelude
+    # @param [String,nil] benchmark   - For running single instant benchmark
+    # @param [Array<Hash>] benchmarks - For running multiple benchmarks
+    def initialize(name:, prelude: '', benchmark: nil, benchmarks: [])
+      if benchmark
+        unless benchmarks.empty?
+          raise ArgumentError.new("Only either :benchmark or :benchmarks can be specified")
+        end
+        @benchmarks = [BenchmarkScript.new(name: name, prelude: prelude, benchmark: benchmark)]
+      else
+        @benchmarks = benchmarks.map do |hash|
+          BenchmarkScript.new(Hash[hash.map { |k, v| [k.to_sym, v] }]).tap do |b|
+            b.prepend_prelude(prelude)
+          end
+        end
+      end
+    end
+
+    # @return [Array<BenchmarkScript>]
+    attr_reader :benchmarks
+  end
+
   class BenchmarkScript
     # @param [String] name
     # @param [String] prelude
-    # @param [String] script
+    # @param [String] benchmark
     def initialize(name:, prelude: '', benchmark:)
       @name = name
       @prelude = prelude
       @benchmark = benchmark
     end
+
+    # @return String
     attr_reader :name
+
+    # For inheriting prelude from benchmark root
+    def prepend_prelude(prelude)
+      @prelude = "#{prelude}\n#{@prelude}"
+    end
 
     def overhead_script(iterations)
       <<-RUBY
