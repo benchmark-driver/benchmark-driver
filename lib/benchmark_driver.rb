@@ -1,4 +1,6 @@
 require 'benchmark_driver/version'
+require 'benchmark'
+require 'tempfile'
 
 class BenchmarkDriver
   # @param [Integer] duration - Benchmark duration in seconds
@@ -11,16 +13,20 @@ class BenchmarkDriver
   def run(hashes)
     hashes = [hashes] if hashes.is_a?(Hash)
     benchmarks = hashes.map do |hash|
-      Benchmark.new(Hash[hash.map { |k, v| [k.to_sym, v] }])
+      BenchmarkScript.new(Hash[hash.map { |k, v| [k.to_sym, v] }])
     end
     if benchmarks.empty?
       abort 'No benchmark is specified in YAML'
     end
 
     results = benchmarks.map do |benchmark|
-      iterations = calc_iterations(benchmark)
-      time_by_exec = run_benchmark(benchmark, iterations)
-      BenchmarkResult.new(benchmark.name, iterations, time_by_exec)
+      metrics_by_exec = {}
+      @execs.each do |exec|
+        iterations = calc_iterations(benchmark)
+        elapsed_time = run_benchmark(exec, benchmark, iterations)
+        metrics_by_exec[exec] = BenchmarkMetrics.new(iterations, elapsed_time)
+      end
+      BenchmarkResult.new(benchmark.name, metrics_by_exec)
     end
     ExecutionTimeReporter.report(@execs, results)
   end
@@ -28,17 +34,25 @@ class BenchmarkDriver
   private
 
   def calc_iterations(benchmark)
-    9999
+    1000
   end
 
-  def run_benchmark(benchmark, iterations)
-    {}.tap do |time_by_exec|
-      time_by_exec['ruby1'] = 100
-      time_by_exec['ruby2'] = 200
+  def run_benchmark(exec, benchmark, iterations)
+    measure_script(exec.path, benchmark.benchmark_script(iterations)) -
+      measure_script(exec.path, benchmark.overhead_script(iterations))
+  end
+
+  def measure_script(ruby, script)
+    Tempfile.create do |f|
+      f.write(script)
+      f.close
+
+      cmd = "#{ruby} #{f.path}"
+      Benchmark.measure { system(cmd, out: File::NULL) }.real
     end
   end
 
-  class Benchmark
+  class BenchmarkScript
     # @param [String] name
     # @param [String] prelude
     # @param [String] script
@@ -47,13 +61,46 @@ class BenchmarkDriver
       @prelude = prelude
       @script = script
     end
-    attr_reader :name, :prelude, :script
+    attr_reader :name
+
+    def overhead_script(iterations)
+      <<-RUBY
+#{@prelude}
+i = 0
+while i < #{iterations}
+  i += 1
+end
+      RUBY
+    end
+
+    def benchmark_script(iterations)
+      <<-RUBY
+#{@prelude}
+i = 0
+while i < #{iterations}
+  i += 1
+#{@script}
+end
+      RUBY
+    end
   end
 
   class BenchmarkResult < Struct.new(
-    :name,         # @param [String]
+    :name,            # @param [String]
+    :metrics_by_exec, # @param [Hash{ Executable => BenchmarkMetrics }]
+  )
+    def iterations_of(exec)
+      metrics_by_exec.fetch(exec).iterations
+    end
+
+    def elapsed_time_of(exec)
+      metrics_by_exec.fetch(exec).elapsed_time
+    end
+  end
+
+  class BenchmarkMetrics < Struct.new(
     :iterations,   # @param [Integer]
-    :time_by_exec, # @param [Hash{ String => Float }]
+    :elapsed_time, # @param [Float] - Elapsed time in seconds
   )
   end
 
@@ -70,13 +117,13 @@ class BenchmarkDriver
       def report(execs, results)
         puts "benchmark results:"
         puts "Execution time (sec)"
-        puts "name       #{execs.map(&:name).join(' ')}"
+        puts "#{'%-16s' % 'name'} #{execs.map { |e| "%-8s" % e.name }.join(' ')}"
+
         results.each do |result|
-          print "#{result.name} "
-          execs.each do |exec|
-            print "#{result.time_by_exec.fetch(exec.name)}   "
-          end
-          puts
+          print '%-16s ' % result.name
+          puts execs.map { |exec|
+            "%-8s" % ("%.3f" % result.elapsed_time_of(exec))
+          }.join(' ')
         end
         puts
 
@@ -90,14 +137,14 @@ class BenchmarkDriver
       def report_speedup(execs, results)
         compared = execs.first
         rest = execs - [compared]
+
         puts "Speedup ratio: compare with the result of `#{compared.name}' (greater is better)"
-        puts "name       #{rest.map(&:name).join(' ')}"
+        puts "#{'%-16s' % 'name'} #{rest.map { |e| "%-8s" % e.name }.join(' ')}"
         results.each do |result|
-          print "#{result.name} "
-          rest.each do |exec|
-            print "#{result.time_by_exec.fetch(exec.name)}   "
-          end
-          puts
+          print '%-16s ' % result.name
+          puts rest.map { |exec|
+            "%-8s" % ("%.3f" % (result.elapsed_time_of(exec) / result.elapsed_time_of(compared)))
+          }.join(' ')
         end
         puts
       end

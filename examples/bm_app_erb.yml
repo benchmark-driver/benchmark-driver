@@ -1,8 +1,20 @@
 prelude: |
   require 'erb'
 
-  data = DATA.read
   title = "hello world!"
   content = "hello world!\n" * 10
+
+  data = <<EOS
+  <html>
+    <head> <%= title %> </head>
+    <body>
+      <h1> <%= title %> </h1>
+      <p>
+        <%= content %>
+      </p>
+    </body>
+  </html>
+  EOS
+
 script: |
   ERB.new(data).result(binding)
