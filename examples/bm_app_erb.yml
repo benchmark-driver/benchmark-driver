@@ -1,0 +1,8 @@
+prelude: |
+  require 'erb'
+
+  data = DATA.read
+  title = "hello world!"
+  content = "hello world!\n" * 10
+script: |
+  ERB.new(data).result(binding)

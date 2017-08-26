@@ -1,3 +1,3 @@
-module BenchmarkDriver
+class BenchmarkDriver
   VERSION = '0.1.0'
 end
