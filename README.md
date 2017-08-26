@@ -1,4 +1,4 @@
-# BenchmarkDriver
+# BenchmarkDriver [![Build Status](https://travis-ci.org/k0kubun/benchmark_driver.svg?branch=master)](https://travis-ci.org/k0kubun/benchmark_driver)
 
 Benchmark driver for different Ruby executables
 
