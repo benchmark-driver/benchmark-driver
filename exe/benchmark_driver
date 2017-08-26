@@ -11,14 +11,13 @@ args = OptionParser.new do |o|
   o.on('-d', '--duration [SECONDS]', 'Duration seconds to run each benchmark (default: 1)') do |n|
     options[:duration] = n.to_i
   end
-  o.on('-e', '--executables [EXECS]',
-       "Specify benchmark one or more targets (e1::path1; e2::path2; e3::path3;...)") do |e|
+  o.on('-e', '--executables [EXECS]', 'Ruby executables (e1::path1; e2::path2; e3::path3;...)') do |e|
     options[:execs] ||= []
     e.split(/;/).each do |path|
       options[:execs] << path
     end
   end
-  o.on('-r', "--result-format=FORMAT", "output format [time|ips] (default: time)", %w[time ips]) do |r|
+  o.on('-r', "--result-format=FORMAT", "Result output format [time|ips] (default: time)", %w[time ips]) do |r|
     options[:result_format] = r
   end
   o.on('-v', '--verbose') do |v|
