@@ -119,22 +119,22 @@ You can specify `benchmark:` or `benchmarks:`.
 
 #### Single
 ```yml
-name: String (default: file name)
-prelude: String
-loop_count: Integer
-benchmark: String
+name: String # optional (default: file name)
+prelude: String # optional
+loop_count: Integer # optional
+benchmark: String # required
 ```
 
 #### Multi
 
 ```yml
-prelude: String (shared)
-loop_count: Integer (shared)
+prelude: String # optional (shared)
+loop_count: Integer # optional (shared)
 benchmarks:
-  - name: String
-    prelude: String (benchmark specific)
-    loop_count: Integer (benchmark specific)
-    benchmark: String
+  - name: String # required
+    prelude: String # optional (benchmark specific)
+    loop_count: Integer # optional (benchmark specific)
+    benchmark: String # required
 ```
 
 ### Debugging
