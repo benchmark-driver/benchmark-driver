@@ -5,6 +5,6 @@ benchmarks:
   - name: join
     benchmark: |
       [a, b].join
-  - name: string interpolation
+  - name: interpolation
     benchmark: |
       "#{a}#{b}"

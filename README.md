@@ -19,145 +19,110 @@ Usage: benchmark_driver [options] [YAML]
 
 ### Running single script
 
-With following `bm_app_erb.yml`,
+With following `example_single.yml`,
 
 ```yml
 prelude: |
   require 'erb'
-
-  title = "hello world!"
-  content = "hello world!\n" * 10
-
-  data = <<EOS
-  <html>
-    <head> <%= title %> </head>
-    <body>
-      <h1> <%= title %> </h1>
-      <p>
-        <%= content %>
-      </p>
-    </body>
-  </html>
-  EOS
-
-benchmark: |
-  ERB.new(data).result(binding)
+  erb = ERB.new(%q[Hello <%= 'World' %>])
+benchmark: erb.result
 ```
 
 you can benchmark the script with multiple ruby executables.
 
 ```
-$ benchmark_driver bm_app_erb.yml -e ruby1::ruby -e ruby2::ruby
+$ exe/benchmark_driver ruby_benchmark_set/example_single.yml -e ruby1::ruby -e ruby2::ruby
 benchmark results:
 Execution time (sec)
 name             ruby1    ruby2
-bm_app_erb       1.028    1.010
+example_single   0.986    1.009
 
 Speedup ratio: compare with the result of `ruby1' (greater is better)
 name             ruby2
-bm_app_erb       1.018
+example_single   0.978
 ```
 
 And you can change benchmark output by `-r` option.
 
 ```
-$ benchmark_driver bm_app_erb.yml -e ruby1::ruby -e ruby2::ruby -r ips
+$ exe/benchmark_driver ruby_benchmark_set/example_single.yml -e ruby1::ruby -e ruby2::ruby -r ips
 Result -------------------------------------------
                          ruby1          ruby2
-      bm_app_erb   16082.8 i/s    15541.7 i/s
+  example_single  104247.7 i/s   103797.0 i/s
 
-Comparison: bm_app_erb
-           ruby1:      16082.8 i/s
-           ruby2:      15541.7 i/s - 1.03x slower
+Comparison: example_single
+           ruby1:     104247.7 i/s
+           ruby2:     103797.0 i/s - 1.00x slower
 ```
 
 ### Running multiple scripts
 
 One YAML file can contain multiple benchmark scripts.
-With following `erb_compile_render.yml`,
+With following `example_multi.yml`,
 
 ```yml
-- name: erb_compile
-  prelude: |
-    require 'erb'
-
-    title = "hello world!"
-    content = "hello world!\n" * 10
-
-    data = <<EOS
-    <html>
-      <head> <%= title %> </head>
-      <body>
-        <h1> <%= title %> </h1>
-        <p>
-          <%= content %>
-        </p>
-      </body>
-    </html>
-    EOS
-
-  benchmark: |
-    ERB.new(data).src
-
-- name: erb_render
-  prelude: |
-    require 'erb'
-
-    title = "hello world!"
-    content = "hello world!\n" * 10
-
-    data = <<EOS
-    <html>
-      <head> <%= title %> </head>
-      <body>
-        <h1> <%= title %> </h1>
-        <p>
-          <%= content %>
-        </p>
-      </body>
-    </html>
-    EOS
-
-    src = "def self.render(title, content); #{ERB.new(data).src}; end"
-    mod = Module.new
-    mod.instance_eval(src, "(ERB)")
-
-  benchmark: |
-    mod.render(title, content)
+prelude: |
+  a = 'a' * 100
+  b = 'b' * 100
+benchmarks:
+  - name: join
+    benchmark: |
+      [a, b].join
+  - name: interpolation
+    benchmark: |
+      "#{a}#{b}"
 ```
 
 you can benchmark the scripts with multiple ruby executables.
 
 ```
-$ benchmark_driver erb_compile_render.yml -e ruby1::ruby -e ruby2::ruby
+$ exe/benchmark_driver ruby_benchmark_set/example_multi.yml -e ruby1::ruby -e ruby2::ruby
 benchmark results:
 Execution time (sec)
 name             ruby1    ruby2
-erb_compile      0.987    0.985
-erb_render       0.834    0.809
+join             0.146    0.150
+interpolation    0.287    0.302
 
 Speedup ratio: compare with the result of `ruby1' (greater is better)
 name             ruby2
-erb_compile      1.002
-erb_render       1.031
+join             0.969
+interpolation    0.951
 ```
 
 ```
-$ benchmark_driver erb_compile_render.yml -e ruby1::ruby -e ruby2::ruby -r ips
+$ exe/benchmark_driver ruby_benchmark_set/example_multi.yml -e ruby1::ruby -e ruby2::ruby -r ips
 Result -------------------------------------------
                          ruby1          ruby2
-     erb_compile   30374.0 i/s    30832.1 i/s
-      erb_render  628403.5 i/s   624588.0 i/s
+            join 4723764.9 i/s  4595744.3 i/s
+   interpolation 4265934.5 i/s  4189385.4 i/s
 
-Comparison: erb_compile
-           ruby2:      30832.1 i/s
-           ruby1:      30374.0 i/s - 1.02x slower
+Comparison: join
+           ruby1:    4723764.9 i/s
+           ruby2:    4595744.3 i/s - 1.03x slower
 
-Comparison: erb_render
-           ruby1:     628403.5 i/s
-           ruby2:     624588.0 i/s - 1.01x slower
+Comparison: interpolation
+           ruby1:    4265934.5 i/s
+           ruby2:    4189385.4 i/s - 1.02x slower
 ```
 
+### Debugging
+
+If you have a trouble like an unexpectedly fast result, you should check benchmark script by `-v`.
+
+```
+$ exe/benchmark_driver ruby_benchmark_set/example_multi.yml -v
+--- Running "join" with "ruby" 957780 times ---
+a = 'a' * 100
+b = 'b' * 100
+
+
+i = 0
+while i < 957780
+  i += 1
+[a, b].join
+
+end
+```
 
 ## Contributing
 
