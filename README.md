@@ -114,6 +114,29 @@ There are 2 modes:
 
 Specifying both `-l` and `-i` is nonsense.
 
+### YAML syntax
+You can specify `benchmark:` or `benchmarks:`.
+
+#### Single
+```yml
+name: String (default: file name)
+prelude: String
+loop_count: Integer
+benchmark: String
+```
+
+#### Multi
+
+```yml
+prelude: String (shared)
+loop_count: Integer (shared)
+benchmarks:
+  - name: String
+    prelude: String (benchmark specific)
+    loop_count: Integer (benchmark specific)
+    benchmark: String
+```
+
 ### Debugging
 
 If you have a trouble like an unexpectedly fast result, you should check benchmark script by `-v`.
