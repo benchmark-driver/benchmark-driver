@@ -78,7 +78,7 @@ class BenchmarkDriver
   end
 
   def measure_script(ruby, script)
-    Tempfile.create do |f|
+    Tempfile.create(File.basename(__FILE__)) do |f|
       f.write(script)
       f.close
 
