@@ -16,7 +16,7 @@ class BenchmarkDriver
       abort "unsupported measure type: #{measure_type.dump}"
     end
     @measure_type = measure_type
-    @measure_num = measure_num
+    @measure_num = measure_num.to_i
     @execs = execs.map do |exec|
       name, path = exec.split('::', 2)
       Executable.new(name, path || name)
