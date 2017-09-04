@@ -7,7 +7,11 @@ task :ruby_benchmark_set do
 
   Dir.glob(File.expand_path('./ruby_benchmark_set/**/*.yml', __dir__)).sort.each do |path|
     Bundler.with_clean_env do
-      sh [File.expand_path('./exe/benchmark_driver', __dir__), path].shelljoin
+      sh [
+        File.expand_path('./exe/benchmark_driver', __dir__), path,
+        '-e', ENV.fetch('BENCH_RUBY', 'ruby'),
+        '-i', ENV.fetch('BENCH_DURATION', '1'),
+      ].shelljoin
     end
   end
 end

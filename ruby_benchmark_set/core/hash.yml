@@ -1,0 +1,2 @@
+benchmark: |
+  hash = {foo: 12, bar: 34, baz: 56}
