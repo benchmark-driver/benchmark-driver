@@ -3,3 +3,9 @@ language: ruby
 rvm:
   - 2.4.1
 before_install: gem install bundler -v 1.15.4
+script:
+  - bundle exec rake
+
+  # Test some options
+  - bundle exec exe/benchmark_driver ruby_benchmark_set/example_single.yml -e ruby1::ruby -e ruby2::ruby -i
+  - bundle exec exe/benchmark_driver ruby_benchmark_set/example_single.yml -e ruby1::ruby -e ruby2::ruby -i 2

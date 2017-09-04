@@ -16,7 +16,7 @@ args = OptionParser.new do |o|
   end
   o.on('-i [DURATION]', '--ips [SECONDS]', "Measure IPS in duration seconds (default: #{BenchmarkDriver::DEFAULT_IPS_DURATION})") do |i|
     options[:measure_type] = 'ips'
-    options[:measure_num]  = i if i
+    options[:measure_num]  = Integer(i) if i
   end
   o.on('-l [COUNT]', '--loop-count [COUNT]', "Measure execution time with loop count (default: #{BenchmarkDriver::DEFAULT_LOOP_COUNT})") do |l|
     options[:measure_type] = 'loop_count'

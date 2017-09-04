@@ -8,7 +8,7 @@ class BenchmarkDriver
   DEFAULT_IPS_DURATION = 1
 
   # @param [String] measure_type - "loop_count"|"ips"
-  # @param [Integer] measure_num - Loop count for "loop_type", duration seconds for "ips"
+  # @param [Integer,nil] measure_num - Loop count for "loop_type", duration seconds for "ips"
   # @param [Array<String>] execs - ["path1", "path2"] or `["ruby1::path1", "ruby2::path2"]`
   # @param [Boolean] verbose
   def initialize(measure_type: 'loop_count', measure_num: nil, execs: ['ruby'], verbose: false)
@@ -16,7 +16,7 @@ class BenchmarkDriver
       abort "unsupported measure type: #{measure_type.dump}"
     end
     @measure_type = measure_type
-    @measure_num = measure_num.to_i
+    @measure_num = measure_num
     @execs = execs.map do |exec|
       name, path = exec.split('::', 2)
       Executable.new(name, path || name)
