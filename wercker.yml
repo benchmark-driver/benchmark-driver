@@ -1,0 +1,7 @@
+box: k0kubun/ruby24-miniruby
+build:
+  steps:
+    - bundle-install
+    - script:
+        name: bench miniruby vs ruby
+        code: BENCH_RUBY="ruby::./ruby;miniruby::./miniruby" BENCH_DURATION=5 bundle exec rake
