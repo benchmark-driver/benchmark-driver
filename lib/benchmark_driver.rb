@@ -139,9 +139,9 @@ class BenchmarkDriver
     def overhead_script(iterations)
       <<-RUBY
 #{@prelude}
-i = 0
-while i < #{iterations}
-  i += 1
+__benchmark_driver_i = 0
+while __benchmark_driver_i < #{iterations}
+  __benchmark_driver_i += 1
 end
       RUBY
     end
@@ -149,9 +149,9 @@ end
     def benchmark_script(iterations)
       <<-RUBY
 #{@prelude}
-i = 0
-while i < #{iterations}
-  i += 1
+__benchmark_driver_i = 0
+while __benchmark_driver_i < #{iterations}
+  __benchmark_driver_i += 1
 #{@benchmark}
 end
       RUBY
