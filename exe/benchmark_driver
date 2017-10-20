@@ -20,7 +20,7 @@ args = OptionParser.new do |o|
   end
   o.on('-l [COUNT]', '--loop-count [COUNT]', "Measure execution time with loop count (default: #{BenchmarkDriver::DEFAULT_LOOP_COUNT})") do |l|
     options[:measure_type] = 'loop_count'
-    options[:measure_num]  = l if l
+    options[:measure_num]  = Integer(l) if l
   end
   o.on('-v', '--verbose') do |v|
     options[:verbose] = v
