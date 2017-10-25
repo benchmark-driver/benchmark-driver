@@ -16,7 +16,9 @@ args = OptionParser.new do |o|
   end
   o.on('-r', '--rbenv [VERSION]', 'Ruby executable in rbenv') do |r|
     options[:execs] ||= []
-    options[:execs] << "#{r}::RBENV_VERSION='#{r}' ruby"
+    r.split(/;/).each do |version|
+      options[:execs] << "#{version}::#{`RBENV_VERSION='#{version}' rbenv which ruby`.rstrip}"
+    end
   end
   o.on('-i [DURATION]', '--ips [SECONDS]', "Measure IPS in duration seconds (default: #{BenchmarkDriver::DEFAULT_IPS_DURATION})") do |i|
     options[:measure_type] = 'ips'
