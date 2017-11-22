@@ -1,4 +1,4 @@
-# Benchmark::Driver
+# Benchmark::Driver [![Build Status](https://travis-ci.org/k0kubun/benchmark_driver.svg?branch=master)](https://travis-ci.org/k0kubun/benchmark_driver)
 
 Fully-featured accurate benchmark driver for Ruby
 
