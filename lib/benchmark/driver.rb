@@ -1,4 +1,4 @@
-require "benchmark/driver/version"
+require 'benchmark/driver/version'
 
 module Benchmark
   module Driver

@@ -1,0 +1,1 @@
+require 'benchmark/driver'

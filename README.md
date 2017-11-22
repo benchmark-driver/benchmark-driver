@@ -1,38 +1,95 @@
 # Benchmark::Driver
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/benchmark/driver`. To experiment with that code, run `bin/console` for an interactive prompt.
+Fully-featured accurate benchmark driver for Ruby
 
-TODO: Delete this and the text above, and describe your gem
+## Project Status
+
+**Under Construction**
+
+## Features
+### Accurate Measurement
+
+- Low overhead benchmark by running generated script instead of calling Proc
+- Profiling memory, high-precision real time, user time and system time
+- Running multiple times to minimize measurement errors
+
+### Pluggable & Fully Featured
+
+- Flexible and real-time output format in ips, execution time, markdown table, etc.
+- Benchmark with various profiling/running options
+- Integrated benchmark support using external libraries
+- Runner, profiler and output format are all pluggable
+
+### Flexible Interface
+
+- Ruby interface similar to benchmark stdlib, benchmark-ips
+- YAML input to easily manage structured benchmark set
+- Comparing multiple Ruby binaries, even with miniruby
 
 ## Installation
 
-Add this line to your application's Gemfile:
-
-```ruby
-gem 'benchmark-driver'
 ```
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install benchmark-driver
+$ gem install benchmark_driver
+```
 
 ## Usage
 
-TODO: Write usage instructions here
+### Ruby Interface: Compatible Mode
 
-## Development
+This interface is compatible with `Benchmark.bm` and `Benchmark.ips`, so it's good for migration.
 
-After checking out the repo, run `bin/setup` to install dependencies. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+```rb
+require 'benchmark_driver'
+require 'active_support/all'
+array = []
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+Benchmark.drive do |x|
+  x.report('blank?') { array.blank? }
+  x.report('empty?') { array.empty? }
+end
+```
+
+### Ruby Interface: Low Overhead Mode
+
+This interface generates code to profile with low overhead and executes it.
+
+```rb
+require 'benchmark_driver'
+
+Benchmark.drive do |x|
+  x.prelude = <<~RUBY
+    require 'active_support/all'
+    array = []
+  RUBY
+
+  x.report('blank?', script: 'array.blank?')
+  x.report('empty?', script: 'array.empty?')
+end
+```
+
+or simply:
+
+```rb
+require 'benchmark_driver'
+
+Benchmark.drive do |x|
+  x.prelude = <<~RUBY
+    require 'active_support/all'
+    array = []
+  RUBY
+
+  x.report(script: 'array.blank?')
+  x.report(script: 'array.empty?')
+end
+```
+
+### Structured YAML Input
+
+TBD
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/benchmark-driver.
+Bug reports and pull requests are welcome on GitHub at https://github.com/k0kubun/benchmark_driver.
 
 ## License
 

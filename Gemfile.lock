@@ -1,0 +1,20 @@
+PATH
+  remote: .
+  specs:
+    benchmark_driver (0.1.0)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    rake (12.3.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  benchmark_driver!
+  bundler
+  rake
+
+BUNDLED WITH
+   1.16.0
