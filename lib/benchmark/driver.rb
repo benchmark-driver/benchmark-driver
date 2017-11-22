@@ -1,5 +1,6 @@
 require 'benchmark'
 require 'benchmark/driver/version'
+require 'benchmark/output'
 require 'tempfile'
 
 class Benchmark::Driver
@@ -45,9 +46,9 @@ class Benchmark::Driver
 
     case @measure_type
     when 'loop_count'
-      LoopCountReporter.report(@execs, results)
+      Benchmark::Output::ExecutionTime.report(@execs, results)
     when 'ips'
-      IpsReporter.report(@execs, results)
+      Benchmark::Output::Ips.report(@execs, results)
     else
       raise "unexpected measure type: #{@measure_type.dump}"
     end
@@ -185,89 +186,5 @@ end
     :name, # @param [String]
     :path, # @param [String]
   )
-  end
-
-  module LoopCountReporter
-    class << self
-      # @param [Array<Executable>] execs
-      # @param [Array<BenchmarkResult>] results
-      def report(execs, results)
-        puts "benchmark results:"
-        puts "Execution time (sec)"
-        puts "#{'%-16s' % 'name'} #{execs.map { |e| "%-8s" % e.name }.join(' ')}"
-
-        results.each do |result|
-          print '%-16s ' % result.name
-          puts execs.map { |exec|
-            "%-8s" % ("%.3f" % result.elapsed_time_of(exec))
-          }.join(' ')
-        end
-        puts
-
-        if execs.size > 1
-          report_speedup(execs, results)
-        end
-      end
-
-      private
-
-      def report_speedup(execs, results)
-        compared = execs.first
-        rest = execs - [compared]
-
-        puts "Speedup ratio: compare with the result of `#{compared.name}' (greater is better)"
-        puts "#{'%-16s' % 'name'} #{rest.map { |e| "%-8s" % e.name }.join(' ')}"
-        results.each do |result|
-          print '%-16s ' % result.name
-          puts rest.map { |exec|
-            "%-8s" % ("%.3f" % (result.ips_of(exec) / result.ips_of(compared)))
-          }.join(' ')
-        end
-        puts
-      end
-    end
-  end
-
-  module IpsReporter
-    class << self
-      # @param [Array<Executable>] execs
-      # @param [Array<BenchmarkResult>] results
-      def report(execs, results)
-        puts "Result -------------------------------------------"
-        puts "#{' ' * 16} #{execs.map { |e| "%13s" % e.name }.join('  ')}"
-
-        results.each do |result|
-          print '%16s ' % result.name
-          puts execs.map { |exec|
-            "%13s" % ("%.1f i/s" % result.ips_of(exec))
-          }.join('  ')
-        end
-        puts
-
-        if execs.size > 1
-          compare(execs, results)
-        end
-      end
-
-      private
-
-      def compare(execs, results)
-        results.each do |result|
-          puts "Comparison: #{result.name}"
-
-          sorted = execs.sort_by { |e| -result.ips_of(e) }
-          first = sorted.first
-
-          sorted.each do |exec|
-            if exec == first
-              puts "%16s: %12s i/s" % [first.name, "%.1f" % result.ips_of(first)]
-            else
-              puts "%16s: %12s i/s - %.2fx slower" % [exec.name, "%.1f" % result.ips_of(exec), result.ips_of(first) / result.ips_of(exec)]
-            end
-          end
-          puts
-        end
-      end
-    end
   end
 end
