@@ -1,4 +1,4 @@
-# BenchmarkDriver [![Build Status](https://travis-ci.org/k0kubun/benchmark_driver.svg?branch=master)](https://travis-ci.org/k0kubun/benchmark_driver)
+# Benchmark::Driver [![Build Status](https://travis-ci.org/k0kubun/benchmark_driver.svg?branch=master)](https://travis-ci.org/k0kubun/benchmark_driver)
 
 Benchmark driver for different Ruby executables
 
@@ -9,8 +9,8 @@ Benchmark driver for different Ruby executables
 ## Usage
 
 ```
-$ exe/benchmark_driver -h
-Usage: benchmark_driver [options] [YAML]
+$ benchmark-driver -h
+Usage: benchmark-driver [options] [YAML]
     -e, --executables [EXECS]        Ruby executables (e1::path1; e2::path2; e3::path3;...)
     -i, --ips [SECONDS]              Measure IPS in duration seconds (default: 1)
     -l, --loop-count [COUNT]         Measure execution time with loop count (default: 100000)
@@ -31,7 +31,7 @@ benchmark: erb.result
 you can benchmark the script with multiple ruby executables.
 
 ```
-$ exe/benchmark_driver benchmarks/example_single.yml -e ruby1::ruby -e ruby2::ruby
+$ benchmark-driver benchmarks/example_single.yml -e ruby1::ruby -e ruby2::ruby
 benchmark results:
 Execution time (sec)
 name             ruby1    ruby2
@@ -45,7 +45,7 @@ example_single   0.986
 And you can change benchmark output to IPS (iteration per second) by `-i` option.
 
 ```
-$ exe/benchmark_driver benchmarks/example_single.yml -e ruby1::ruby -e ruby2::ruby -i
+$ benchmark-driver benchmarks/example_single.yml -e ruby1::ruby -e ruby2::ruby -i
 Result -------------------------------------------
                          ruby1          ruby2
   example_single   99414.1 i/s    99723.3 i/s
@@ -76,7 +76,7 @@ benchmarks:
 you can benchmark the scripts with multiple ruby executables.
 
 ```
-$ exe/benchmark_driver benchmarks/example_multi.yml -e ruby1::ruby -e ruby2::ruby
+$ benchmark-driver benchmarks/example_multi.yml -e ruby1::ruby -e ruby2::ruby
 benchmark results:
 Execution time (sec)
 name             ruby1    ruby2
@@ -90,7 +90,7 @@ interpolation    1.002
 ```
 
 ```
-$ exe/benchmark_driver benchmarks/example_multi.yml -e ruby1::ruby -e ruby2::ruby -i
+$ benchmark-driver benchmarks/example_multi.yml -e ruby1::ruby -e ruby2::ruby -i
 Result -------------------------------------------
                          ruby1          ruby2
             join 4701954.3 i/s  4639520.3 i/s
@@ -142,7 +142,7 @@ benchmarks:
 If you have a trouble like an unexpectedly fast result, you should check benchmark script by `-v`.
 
 ```
-$ exe/benchmark_driver benchmarks/example_multi.yml -v
+$ benchmark-driver benchmarks/example_multi.yml -v
 --- Running "join" with "ruby" 957780 times ---
 a = 'a' * 100
 b = 'b' * 100

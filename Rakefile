@@ -7,7 +7,7 @@ task :benchmarks do
 
   Dir.glob(File.expand_path('./benchmarks/**/*.yml', __dir__)).sort.each do |path|
     Bundler.with_clean_env do
-      sh [File.expand_path('./exe/benchmark_driver', __dir__), path].shelljoin
+      sh [File.expand_path('./exe/benchmark-driver', __dir__), path].shelljoin
     end
   end
 end

@@ -7,5 +7,5 @@ script:
   - bundle exec rake
 
   # Test some options
-  - bundle exec exe/benchmark_driver benchmarks/example_single.yml -e ruby1::ruby -e ruby2::ruby -i
-  - bundle exec exe/benchmark_driver benchmarks/example_single.yml -e ruby1::ruby -e ruby2::ruby -i 2
+  - bundle exec exe/benchmark-driver benchmarks/example_single.yml -e ruby1::ruby -e ruby2::ruby -i
+  - bundle exec exe/benchmark-driver benchmarks/example_single.yml -e ruby1::ruby -e ruby2::ruby -i 2

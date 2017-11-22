@@ -20,11 +20,11 @@ args = OptionParser.new do |o|
       options[:execs] << "#{version}::#{`RBENV_VERSION='#{version}' rbenv which ruby`.rstrip}"
     end
   end
-  o.on('-i [DURATION]', '--ips [SECONDS]', "Measure IPS in duration seconds (default: #{BenchmarkDriver::DEFAULT_IPS_DURATION})") do |i|
+  o.on('-i [DURATION]', '--ips [SECONDS]', "Measure IPS in duration seconds (default: #{Benchmark::Driver::DEFAULT_IPS_DURATION})") do |i|
     options[:measure_type] = 'ips'
     options[:measure_num]  = Integer(i) if i
   end
-  o.on('-l [COUNT]', '--loop-count [COUNT]', "Measure execution time with loop count (default: #{BenchmarkDriver::DEFAULT_LOOP_COUNT})") do |l|
+  o.on('-l [COUNT]', '--loop-count [COUNT]', "Measure execution time with loop count (default: #{Benchmark::Driver::DEFAULT_LOOP_COUNT})") do |l|
     options[:measure_type] = 'loop_count'
     options[:measure_num]  = Integer(l) if l
   end
@@ -34,7 +34,7 @@ args = OptionParser.new do |o|
 end.parse!(ARGV)
 abort "No YAML file is specified" if args.empty?
 
-driver = BenchmarkDriver.new(options)
+driver = Benchmark::Driver.new(options)
 args.each do |yaml|
   default = { name: File.basename(yaml, '.*') }
   driver.run(default.merge(YAML.load(File.read(yaml))))

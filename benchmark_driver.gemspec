@@ -1,11 +1,11 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'benchmark_driver/version'
+require 'benchmark/driver/version'
 
 Gem::Specification.new do |spec|
   spec.name          = 'benchmark_driver'
-  spec.version       = BenchmarkDriver::VERSION
+  spec.version       = Benchmark::Driver::VERSION
   spec.authors       = ['Takashi Kokubun']
   spec.email         = ['takashikkbn@gmail.com']
 
