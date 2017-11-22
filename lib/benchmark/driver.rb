@@ -1,7 +1,15 @@
-require 'benchmark/driver/version'
-
 module Benchmark
   module Driver
-    # Your code goes here...
+  end
+
+  def self.drive(&block)
+    dsl = Driver::DSL.new
+    block.call(dsl)
+
+    Driver::Engine.new.run(dsl.configuration)
   end
 end
+
+require 'benchmark/driver/dsl'
+require 'benchmark/driver/engine'
+require 'benchmark/driver/version'

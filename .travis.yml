@@ -8,3 +8,4 @@ branches:
 before_install: gem install bundler -v 1.15.4
 script:
   - bundle exec exe/benchmark-driver
+  - bundle exec rake run_examples
