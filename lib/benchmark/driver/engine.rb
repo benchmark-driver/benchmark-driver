@@ -8,7 +8,7 @@ class Benchmark::Driver::Engine
     validate_config(config)
 
     without_stdout_buffering do
-      output   = Benchmark::Output::Ips.new
+      output   = Benchmark::Output::Ips.new(config.output_options)
       runner   = Benchmark::Runner::Call.new(output)
       profiler = Benchmark::Profiler::RealTime.new
 

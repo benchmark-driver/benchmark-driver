@@ -39,13 +39,14 @@ $ gem install benchmark_driver
 This interface is compatible with `Benchmark.bm` and `Benchmark.ips`, so it's good for migration.
 
 ```rb
-require 'benchmark_driver'
+require 'benchmark/driver'
 require 'active_support/all'
 array = []
 
 Benchmark.drive do |x|
   x.report('blank?') { array.blank? }
   x.report('empty?') { array.empty? }
+  x.compare!
 end
 ```
 
@@ -54,7 +55,7 @@ end
 This interface generates code to profile with low overhead and executes it.
 
 ```rb
-require 'benchmark_driver'
+require 'benchmark/driver'
 
 Benchmark.drive do |x|
   x.prelude = <<~RUBY
@@ -70,7 +71,7 @@ end
 or simply:
 
 ```rb
-require 'benchmark_driver'
+require 'benchmark/driver'
 
 Benchmark.drive do |x|
   x.prelude = <<~RUBY
@@ -86,6 +87,25 @@ end
 ### Structured YAML Input
 
 TBD
+
+## TODO
+### Runner
+- [x] Call
+  - [x] Duration
+  - [ ] Loop Count
+- [ ] Ruby Exec
+  - [ ] Duration
+  - [ ] Loop Count
+
+### Profiler
+- [ ] Real Time
+- [ ] CPU/System/Real Time
+- [ ] Memory
+
+### Output
+- [x] IPS
+- [ ] Execution Time
+- [ ] Markdown Table
 
 ## Contributing
 

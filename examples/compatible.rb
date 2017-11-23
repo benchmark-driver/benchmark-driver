@@ -1,6 +1,6 @@
-require 'benchmark_driver'
+require 'benchmark/driver'
 
-Benchmark.drive do |x|
+Benchmark.driver do |x|
   large_a = "Hellooooooooooooooooooooooooooooooooooooooooooooooooooo"
   large_b = "Wooooooooooooooooooooooooooooooooooooooooooooooooooorld"
 

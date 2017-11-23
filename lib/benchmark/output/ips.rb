@@ -1,6 +1,12 @@
 class Benchmark::Output::Ips
   NAME_LENGTH = 20
 
+  # @param [TrueClass,FalseClass] compare
+  def initialize(compare: false)
+    @compare = compare
+    @results = []
+  end
+
   def start_warming
     $stdout.puts 'Warming up --------------------------------------'
   end
@@ -28,6 +34,13 @@ class Benchmark::Output::Ips
   # @param [Benchmark::Driver::BenchmarkResult] result
   def benchmark_stats(result)
     $stdout.puts("#{humanize(result.ips)} i/s - #{humanize(result.iterations)} in %3.6fs" % result.duration)
+    @results << result
+  end
+
+  def finish
+    if @results.size > 1 && @compare
+      compare
+    end
   end
 
   private
@@ -46,5 +59,22 @@ class Benchmark::Output::Ips
         ' '
       end
     "%10.3f#{suffix}" % (value.to_f / (1000 ** scale))
+  end
+
+  def compare
+    $stdout.puts("\nComparison:")
+    results = @results.sort_by { |r| -r.ips }
+    first   = results.first
+
+    results.each do |result|
+      if result == first
+        slower = ''
+      else
+        slower = '- %.2fx  slower' % (first.ips / result.ips)
+      end
+
+      $stdout.puts("%#{NAME_LENGTH}s: %10.1f i/s #{slower}" % [result.job.name, result.ips])
+    end
+    $stdout.puts
   end
 end

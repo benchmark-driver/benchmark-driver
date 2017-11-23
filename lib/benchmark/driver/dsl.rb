@@ -4,12 +4,15 @@ class Benchmark::Driver::DSL
   def initialize
     @prelude = nil
     @jobs = []
+    @output_options = {}
   end
 
   # API to fetch configuration parsed from DSL
   # @return [Benchmark::Driver::Configuration]
   def configuration
-    Benchmark::Driver::Configuration.new(@prelude, @jobs)
+    Benchmark::Driver::Configuration.new(@prelude, @jobs).tap do |config|
+      config.output_options = @output_options
+    end
   end
 
   # @param [String] prelude - Script required for benchmark whose execution time is not measured.
@@ -41,5 +44,9 @@ class Benchmark::Driver::DSL
     end
 
     @jobs << Benchmark::Driver::Configuration::Job.new(name, script || block)
+  end
+
+  def compare!
+    @output_options[:compare] = true
   end
 end

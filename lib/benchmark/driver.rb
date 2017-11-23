@@ -2,7 +2,7 @@ module Benchmark
   module Driver
   end
 
-  def self.drive(&block)
+  def self.driver(&block)
     dsl = Driver::DSL.new
     block.call(dsl)
 

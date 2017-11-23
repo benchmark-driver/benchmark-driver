@@ -78,6 +78,8 @@ class Benchmark::Runner::Call
       result = Benchmark::Driver::BenchmarkResult.new(warmup.job, duration, iterations)
       @output.benchmark_stats(result)
     end
+
+    @output.finish
   end
 
   def call_times(script, times)
