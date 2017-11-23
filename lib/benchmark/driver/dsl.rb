@@ -3,13 +3,13 @@ require 'benchmark/driver/configuration'
 class Benchmark::Driver::DSL
   def initialize
     @prelude = nil
-    @reports = []
+    @jobs = []
   end
 
   # API to fetch configuration parsed from DSL
   # @return [Benchmark::Driver::Configuration]
   def configuration
-    Benchmark::Driver::Configuration.new(@prelude, @reports)
+    Benchmark::Driver::Configuration.new(@prelude, @jobs)
   end
 
   # @param [String] prelude - Script required for benchmark whose execution time is not measured.
@@ -40,6 +40,6 @@ class Benchmark::Driver::DSL
       raise ArgumentError.new("script must be String but got #{script.inspect}")
     end
 
-    @reports << Benchmark::Driver::Configuration::Report.new(name, script || block)
+    @jobs << Benchmark::Driver::Configuration::Job.new(name, script || block)
   end
 end

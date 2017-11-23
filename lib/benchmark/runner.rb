@@ -1,4 +1,4 @@
 module Benchmark::Runner
 end
 
-require 'benchmark/runner/eval'
+require 'benchmark/runner/call'
