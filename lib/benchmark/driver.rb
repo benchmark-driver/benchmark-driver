@@ -2,11 +2,11 @@ module Benchmark
   module Driver
   end
 
-  def self.driver(&block)
-    dsl = Driver::DSL.new
+  def self.driver(*args, &block)
+    dsl = Driver::DSL.new(*args)
     block.call(dsl)
 
-    Driver::Engine.new.run(dsl.configuration)
+    Driver::Engine.run(dsl.configuration)
   end
 end
 

@@ -1,7 +1,8 @@
 require 'benchmark/driver/configuration'
 
 class Benchmark::Driver::DSL
-  def initialize
+  def initialize(runner: :call)
+    @runner = runner
     @prelude = nil
     @jobs = []
     @output_options = {}
@@ -10,8 +11,12 @@ class Benchmark::Driver::DSL
   # API to fetch configuration parsed from DSL
   # @return [Benchmark::Driver::Configuration]
   def configuration
-    Benchmark::Driver::Configuration.new(@prelude, @jobs).tap do |config|
-      config.output_options = @output_options
+    @jobs.each do |job|
+      job.prelude = @prelude
+    end
+    Benchmark::Driver::Configuration.new(@jobs).tap do |c|
+      c.runner = @runner
+      c.output_options = @output_options
     end
   end
 
@@ -39,11 +44,11 @@ class Benchmark::Driver::DSL
       raise ArgumentError.new('name must be specified if block is given')
     elsif !name.nil? && !name.is_a?(String)
       raise ArgumentError.new("name must be String but got #{name.inspect}")
-    elsif !script.nil? && script.is_a?(String)
+    elsif !script.nil? && !script.is_a?(String)
       raise ArgumentError.new("script must be String but got #{script.inspect}")
     end
 
-    @jobs << Benchmark::Driver::Configuration::Job.new(name, script || block)
+    @jobs << Benchmark::Driver::Configuration::Job.new(name || script, script || block)
   end
 
   def compare!

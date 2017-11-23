@@ -1,7 +1,7 @@
 require 'benchmark/driver/benchmark_result'
 require 'benchmark/driver/time'
 
-# Run benchmark with calling #call on running ruby.
+# Run benchmark by calling #call on running ruby.
 #
 # Multiple Ruby binaries: x
 # Memory profiler: x
@@ -29,13 +29,13 @@ class Benchmark::Runner::Call
     config.jobs.each do |job|
       unless job.script.respond_to?(:call)
         raise NotImplementedError.new(
-          "Benchmark::Runner::Call only accepts objects that respond to :call, but got #{job.script.inspect}"
+          "#{self.class.name} only accepts objects that respond to :call, but got #{job.script.inspect}"
         )
       end
     end
   end
 
-  # @param [Array<Benchmark::Driver::Configuration::Job>] config.jobs
+  # @param [Array<Benchmark::Driver::Configuration::Job>] jobs
   # @return [Array<Benchmark::Driver::BenchmarkResult>]
   def run_warmup(jobs)
     @output.start_warming
@@ -65,8 +65,8 @@ class Benchmark::Runner::Call
 
     warmups.each do |warmup|
       @output.running(warmup.job.name)
-      iterations = 0
       duration   = 0.0
+      iterations = 0
       unit_iters = warmup.ip100ms.to_i
 
       benchmark_until = Benchmark::Driver::Time.now + BENCHMARK_DURATION

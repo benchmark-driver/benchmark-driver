@@ -93,9 +93,10 @@ TBD
 - [x] Call
   - [x] Duration
   - [ ] Loop Count
-- [ ] Ruby Exec
-  - [ ] Duration
+- [x] Exec
+  - [x] Duration
   - [ ] Loop Count
+  - [ ] While <=> Long script
 
 ### Profiler
 - [ ] Real Time
@@ -104,7 +105,8 @@ TBD
 
 ### Output
 - [x] IPS
-- [ ] Execution Time
+  - [x] Compare
+- [ ] Time
 - [ ] Markdown Table
 
 ## Contributing

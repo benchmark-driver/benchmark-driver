@@ -73,7 +73,7 @@ class Benchmark::Output::Ips
         slower = '- %.2fx  slower' % (first.ips / result.ips)
       end
 
-      $stdout.puts("%#{NAME_LENGTH}s: %10.1f i/s #{slower}" % [result.job.name, result.ips])
+      $stdout.puts("%#{NAME_LENGTH}s: %11.1f i/s #{slower}" % [result.job.name, result.ips])
     end
     $stdout.puts
   end
