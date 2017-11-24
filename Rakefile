@@ -1,7 +1,7 @@
 require 'bundler/gem_tasks'
 require 'shellwords'
 
-task :run_examples do
+task :ruby_examples do
   Dir.glob(File.expand_path('./examples/*.rb', __dir__)).sort.each do |file|
     Bundler.with_clean_env do
       sh ['bundle', 'exec', 'ruby', file].shelljoin
@@ -9,4 +9,12 @@ task :run_examples do
   end
 end
 
-task default: :run_examples
+task :yaml_examples do
+  Dir.glob(File.expand_path('./examples/yaml/*.yml', __dir__)).sort.each do |file|
+    Bundler.with_clean_env do
+      sh ['bundle', 'exec', 'exe/benchmark-driver', file].shelljoin
+    end
+  end
+end
+
+task default: [:ruby_examples, :yaml_examples]
