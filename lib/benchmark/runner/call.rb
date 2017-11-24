@@ -1,4 +1,5 @@
 require 'benchmark/driver/benchmark_result'
+require 'benchmark/driver/job_runner'
 require 'benchmark/driver/time'
 
 # Run benchmark by calling #call on running ruby.
@@ -42,20 +43,15 @@ class Benchmark::Runner::Call
 
     jobs.map do |job|
       @output.warming(job.name)
-      iterations = 0
 
-      before = Benchmark::Driver::Time.now
-      warmup_until = before + WARMUP_DURATION
-      while Benchmark::Driver::Time.now < warmup_until
-        job.script.call
-        iterations += 1
-      end
-      after = Benchmark::Driver::Time.now
+      result = Benchmark::Driver::JobRunner.new(job).run(
+        seconds:    WARMUP_DURATION,
+        unit_iters: 1,
+        runner:     method(:call_times),
+      )
 
-      duration = after.to_f - before.to_f
-      Benchmark::Driver::BenchmarkResult.new(job, duration, iterations).tap do |result|
-        @output.warmup_stats(result)
-      end
+      @output.warmup_stats(result)
+      result
     end
   end
 
@@ -65,24 +61,21 @@ class Benchmark::Runner::Call
 
     warmups.each do |warmup|
       @output.running(warmup.job.name)
-      duration   = 0.0
-      iterations = 0
-      unit_iters = warmup.ip100ms.to_i
 
-      benchmark_until = Benchmark::Driver::Time.now + BENCHMARK_DURATION
-      while Benchmark::Driver::Time.now < benchmark_until
-        duration   += call_times(warmup.job.script, unit_iters)
-        iterations += unit_iters
-      end
+      result = Benchmark::Driver::JobRunner.new(warmup.job).run(
+        seconds:    BENCHMARK_DURATION,
+        unit_iters: warmup.ip100ms.to_i,
+        runner:     method(:call_times),
+      )
 
-      result = Benchmark::Driver::BenchmarkResult.new(warmup.job, duration, iterations)
       @output.benchmark_stats(result)
     end
 
     @output.finish
   end
 
-  def call_times(script, times)
+  def call_times(job, times)
+    script = job.script
     i = 0
 
     before = Benchmark::Driver::Time.now

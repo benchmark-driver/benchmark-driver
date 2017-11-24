@@ -9,4 +9,5 @@ Benchmark.driver do |x|
 
   x.report('large') { "#{large_a}, #{large_b}!" }
   x.report('small') { "#{small_a}, #{small_b}!" }
+  x.compare!
 end

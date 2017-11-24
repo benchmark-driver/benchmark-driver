@@ -44,19 +44,15 @@ class Benchmark::Runner::Exec
 
     jobs.map do |job|
       @output.warming(job.name)
-      duration   = 0.0
-      iterations = 0
-      unit_iters = guess_ip100ms(job)
 
-      warmup_until = Benchmark::Driver::Time.now + WARMUP_DURATION
-      while Benchmark::Driver::Time.now < warmup_until
-        duration += script_only_seconds(job, unit_iters)
-        iterations += unit_iters
-      end
+      result = Benchmark::Driver::JobRunner.new(job).run(
+        seconds:    WARMUP_DURATION,
+        unit_iters: guess_ip100ms(job),
+        runner:     method(:script_only_seconds),
+      )
 
-      Benchmark::Driver::BenchmarkResult.new(job, duration, iterations).tap do |result|
-        @output.warmup_stats(result)
-      end
+      @output.warmup_stats(result)
+      result
     end
   end
 
@@ -66,17 +62,13 @@ class Benchmark::Runner::Exec
 
     warmups.each do |warmup|
       @output.running(warmup.job.name)
-      duration   = 0.0
-      iterations = 0
-      unit_iters = warmup.ips.ceil
 
-      benchmark_until = Benchmark::Driver::Time.now + BENCHMARK_DURATION
-      while Benchmark::Driver::Time.now < benchmark_until
-        duration   += script_only_seconds(warmup.job, unit_iters)
-        iterations += unit_iters
-      end
+      result = Benchmark::Driver::JobRunner.new(warmup.job).run(
+        seconds:    BENCHMARK_DURATION,
+        unit_iters: warmup.ips.ceil,
+        runner:     method(:script_only_seconds),
+      )
 
-      result = Benchmark::Driver::BenchmarkResult.new(warmup.job, duration, iterations)
       @output.benchmark_stats(result)
     end
 
