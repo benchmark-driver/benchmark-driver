@@ -1,20 +1,43 @@
 module Benchmark::Driver::YamlDriver
+  # In YamlDriver, we can't use :call.
+  DEFAULT_RUNNER = :exec
+
   class << self
     # @param [String] prelude
     # @param [String,Array<String,Hash{ Symbol => String }>,Hash{ Symbol => String }] benchmark
-    def run(prelude: '', benchmark:)
+    # @param [String,Symbol,Hash{ Symbol => Integer,TrueClass,FalseClass }] runner
+    def run(prelude: '', benchmark:, runner: {})
       jobs = parse_benchmark(benchmark)
       jobs.each do |job|
         job.prelude = prelude
       end
 
       config = Benchmark::Driver::Configuration.new(jobs)
-      config.runner = :exec                     # TODO: support other runners
+      config.runner_options = parse_runner(runner)
       config.output_options = { compare: true } # TODO: support other options
       Benchmark::Driver::Engine.run(config)
     end
 
     private
+
+    # @param [String,Symbol,Hash{ Symbol => Integer,TrueClass,FalseClass }] runner
+    def parse_runner(runner)
+      case runner
+      when String, Symbol
+        Benchmark::Driver::Configuration::RunnerOptions.new(runner.to_sym)
+      when Hash
+        parse_runner_options(runner)
+      else
+        raise ArgumentError.new("Expected String, Symbol or Hash in runner, but got: #{runner.inspect}")
+      end
+    end
+
+    def parse_runner_options(type: DEFAULT_RUNNER, loop_count: nil)
+      Benchmark::Driver::Configuration::RunnerOptions.new.tap do |r|
+        r.type = type.to_sym
+        r.loop_count = loop_count
+      end
+    end
 
     # Parse "benchmark" declarative. This may have multiple benchmarks.
     # @param [String,Array<String,Hash{ Symbol => String }>,Hash{ Symbol => String }] benchmark

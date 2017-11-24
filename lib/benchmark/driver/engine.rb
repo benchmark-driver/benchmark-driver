@@ -9,11 +9,12 @@ module Benchmark::Driver::Engine
       validate_config(config)
 
       without_stdout_buffering do
-        output   = Benchmark::Output::Ips.new(config.output_options)
-        runner   = Benchmark::Runner.find(config.runner).new(output)
-        profiler = Benchmark::Profiler::RealTime.new
-
-        runner.run(config, profiler: profiler)
+        runner = Benchmark::Runner.find(config.runner_options.type).new(
+          config.runner_options,
+          output:   Benchmark::Output::Ips.new(config.output_options),
+          profiler: Benchmark::Profiler::RealTime.new,
+        )
+        runner.run(config)
       end
     end
 

@@ -1,4 +1,4 @@
-class Benchmark::Driver::JobRunner
+class Benchmark::Driver::DurationRunner
   # @param [Benchmark::Driver::Configuration::Job] job
   def initialize(job)
     @job = job

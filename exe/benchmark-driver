@@ -30,5 +30,12 @@ abort "No YAML file is specified" if args.empty?
 args.each do |yaml|
   config = YAML.load(File.read(yaml))
   Benchmark::Driver::Configuration.symbolize_keys!(config)
-  Benchmark::Driver::YamlDriver.run(config)
+  begin
+    Benchmark::Driver::YamlDriver.run(config)
+  rescue ArgumentError
+    $stderr.puts "benchmark-driver: Failed to run #{yaml.dump}."
+    $stderr.puts '  YAML format may be wrong. See error below:'
+    $stderr.puts
+    raise
+  end
 end

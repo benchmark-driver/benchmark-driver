@@ -15,7 +15,7 @@ class Benchmark::Driver::DSL
       job.prelude = @prelude
     end
     Benchmark::Driver::Configuration.new(@jobs).tap do |c|
-      c.runner = @runner
+      c.runner_options = Benchmark::Driver::Configuration::RunnerOptions.new(@runner)
       c.output_options = @output_options
     end
   end

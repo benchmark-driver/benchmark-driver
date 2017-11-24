@@ -1,6 +1,7 @@
 require 'tempfile'
 require 'shellwords'
 require 'benchmark/driver/benchmark_result'
+require 'benchmark/driver/duration_runner'
 require 'benchmark/driver/time'
 
 # Run benchmark by executing another Ruby process.
@@ -11,18 +12,24 @@ class Benchmark::Runner::Exec
   WARMUP_DURATION    = 1
   BENCHMARK_DURATION = 4
 
+  # @param [Benchmark::Driver::Configuration::RunnerOptions] options
   # @param [Benchmark::Output::*] output - Object that responds to methods used in this class
-  def initialize(output)
-    @output = output
+  # @param [Benchmark::Profiler::*] profiler - Object that responds to methods used in this class
+  def initialize(options, output:, profiler:)
+    @options  = options
+    @output   = output
+    @profiler = profiler # TODO: use this
   end
 
   # @param [Benchmark::Driver::Configuration] config
-  # @param [Benchmark::Profiler::*] profiler - Object that responds to methods used in this class
-  def run(config, profiler:)
+  def run(config)
     validate_config(config)
 
-    warmups = run_warmup(config.jobs)
-    run_benchmark(warmups)
+    unless @options.loop_count
+      iters_by_job = run_warmup(config.jobs)
+    end
+
+    run_benchmark(config.jobs, iters_by_job: iters_by_job)
   end
 
   private
@@ -38,36 +45,45 @@ class Benchmark::Runner::Exec
   end
 
   # @param [Array<Benchmark::Driver::Configuration::Job>] jobs
-  # @return [Array<Benchmark::Driver::BenchmarkResult>]
+  # @return [Hash{ Benchmark::Driver::Configuration::Job => Integer }] iters_by_job
   def run_warmup(jobs)
     @output.start_warming
+    iters_by_job = {}
 
-    jobs.map do |job|
+    jobs.each do |job|
       @output.warming(job.name)
 
-      result = Benchmark::Driver::JobRunner.new(job).run(
+      result = Benchmark::Driver::DurationRunner.new(job).run(
         seconds:    WARMUP_DURATION,
         unit_iters: guess_ip100ms(job),
         runner:     method(:script_only_seconds),
       )
+      iters_by_job[job] = result.ips.ceil
 
       @output.warmup_stats(result)
-      result
     end
+
+    iters_by_job
   end
 
-  # @param [Array<Benchmark::Driver::BenchmarkResult>] warmups
-  def run_benchmark(warmups)
+  # @param [Array<Benchmark::Driver::Configuration::Job>] jobs
+  # @param [Hash{ Benchmark::Driver::Configuration::Job => Integer },nil] iters_by_job - This is not used if @options.loop_count is given.
+  def run_benchmark(jobs, iters_by_job: nil)
     @output.start_running
 
-    warmups.each do |warmup|
-      @output.running(warmup.job.name)
+    jobs.each do |job|
+      @output.running(job.name)
 
-      result = Benchmark::Driver::JobRunner.new(warmup.job).run(
-        seconds:    BENCHMARK_DURATION,
-        unit_iters: warmup.ips.ceil,
-        runner:     method(:script_only_seconds),
-      )
+      if @options.loop_count
+        duration = script_only_seconds(job, @options.loop_count)
+        result = Benchmark::Driver::BenchmarkResult.new(job, duration, @options.loop_count)
+      else
+        result = Benchmark::Driver::DurationRunner.new(job).run(
+          seconds:    BENCHMARK_DURATION,
+          unit_iters: iters_by_job.fetch(job),
+          runner:     method(:script_only_seconds),
+        )
+      end
 
       @output.benchmark_stats(result)
     end
