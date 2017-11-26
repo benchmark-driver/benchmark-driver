@@ -44,7 +44,7 @@ require 'benchmark/driver'
 require 'active_support/all'
 array = []
 
-Benchmark.drive do |x|
+Benchmark.driver do |x|
   x.report('blank?') { array.blank? }
   x.report('empty?') { array.empty? }
   x.compare!
@@ -58,7 +58,7 @@ This interface generates code to profile with low overhead and executes it.
 ```rb
 require 'benchmark/driver'
 
-Benchmark.drive do |x|
+Benchmark.driver do |x|
   x.prelude = <<~RUBY
     require 'active_support/all'
     array = []
@@ -74,7 +74,7 @@ or simply:
 ```rb
 require 'benchmark/driver'
 
-Benchmark.drive do |x|
+Benchmark.driver do |x|
   x.prelude = <<~RUBY
     require 'active_support/all'
     array = []
