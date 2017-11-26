@@ -5,18 +5,16 @@ require 'benchmark/driver/time'
 # Run benchmark by calling #call on running ruby.
 #
 # Multiple Ruby binaries: x
-# Memory profiler: x
+# Memory output: x
 class Benchmark::Runner::Call
   WARMUP_DURATION    = 2
   BENCHMARK_DURATION = 5
 
   # @param [Benchmark::Driver::Configuration::RunnerOptions] options
   # @param [Benchmark::Output::*] output - Object that responds to methods used in this class
-  # @param [Benchmark::Profiler::*] profiler - Object that responds to methods used in this class
-  def initialize(options, output:, profiler:)
+  def initialize(options, output:)
     @options  = options
     @output   = output
-    @profiler = profiler # TODO: use this
   end
 
   # @param [Benchmark::Driver::Configuration] config

@@ -18,7 +18,7 @@ Fully-featured accurate benchmark driver for Ruby
 - Flexible and real-time output format in ips, execution time, markdown table, etc.
 - Benchmark with various profiling/running options
 - Integrated benchmark support using external libraries
-- Runner, profiler and output format are all pluggable
+- Runner and output are all pluggable
 
 ### Flexible Interface
 
@@ -92,21 +92,18 @@ TBD
 ### Runner
 - [x] Call
   - [x] Duration
-  - [ ] Loop Count
+  - [x] Loop Count
 - [x] Exec
   - [x] Duration
-  - [ ] Loop Count
+  - [x] Loop Count
   - [ ] While <=> Long script
-
-### Profiler
-- [ ] Real Time
-- [ ] CPU/System/Real Time
-- [ ] Memory
 
 ### Output
 - [x] IPS
   - [x] Compare
-- [ ] Time
+- [x] Time
+- [ ] CPU/System/Real Time
+- [ ] Memory
 - [ ] Markdown Table
 
 ## Contributing

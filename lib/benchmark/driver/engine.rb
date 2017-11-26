@@ -1,5 +1,4 @@
 require 'benchmark/output'
-require 'benchmark/profiler'
 require 'benchmark/runner'
 
 module Benchmark::Driver::Engine
@@ -12,7 +11,6 @@ module Benchmark::Driver::Engine
         runner = Benchmark::Runner.find(config.runner_options.type).new(
           config.runner_options,
           output: Benchmark::Output.create(config),
-          profiler: Benchmark::Profiler::RealTime.new,
         )
         runner.run(config)
       end

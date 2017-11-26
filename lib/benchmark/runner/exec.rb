@@ -7,18 +7,16 @@ require 'benchmark/driver/time'
 # Run benchmark by executing another Ruby process.
 #
 # Multiple Ruby binaries: o
-# Memory profiler: o
+# Memory output: o
 class Benchmark::Runner::Exec
   WARMUP_DURATION    = 1
   BENCHMARK_DURATION = 4
 
   # @param [Benchmark::Driver::Configuration::RunnerOptions] options
   # @param [Benchmark::Output::*] output - Object that responds to methods used in this class
-  # @param [Benchmark::Profiler::*] profiler - Object that responds to methods used in this class
-  def initialize(options, output:, profiler:)
+  def initialize(options, output:)
     @options  = options
     @output   = output
-    @profiler = profiler # TODO: use this
   end
 
   # @param [Benchmark::Driver::Configuration] config
