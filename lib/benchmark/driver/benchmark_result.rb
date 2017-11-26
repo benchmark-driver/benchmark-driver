@@ -1,18 +1,12 @@
-class Benchmark::Driver
-  class BenchmarkResult < Struct.new(
-    :name,            # @param [String]
-    :metrics_by_exec, # @param [Hash{ Executable => BenchmarkMetrics }]
-  )
-    def iterations_of(exec)
-      metrics_by_exec.fetch(exec).iterations
-    end
+# @param [Benchmark::Driver::Configuration::Job] job
+# @param [Float] duration - Duration in seconds
+# @param [Integer] iterations
+class Benchmark::Driver::BenchmarkResult < Struct.new(:job, :duration, :iterations)
+  def ips
+    iterations / duration
+  end
 
-    def elapsed_time_of(exec)
-      metrics_by_exec.fetch(exec).elapsed_time
-    end
-
-    def ips_of(exec)
-      iterations_of(exec) / elapsed_time_of(exec)
-    end
+  def ip100ms
+    ips / 10
   end
 end

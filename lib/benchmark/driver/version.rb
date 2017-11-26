@@ -1,5 +1,5 @@
 module Benchmark
-  class Driver
-    VERSION = '0.3.0'
+  module Driver
+    VERSION = '0.1.0'
   end
 end

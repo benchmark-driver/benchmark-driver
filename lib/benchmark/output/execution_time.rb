@@ -1,40 +1,52 @@
-module Benchmark::Output::ExecutionTime
-  class << self
-    # @param [Array<Executable>] execs
-    # @param [Array<BenchmarkResult>] results
-    def report(execs, results)
-      puts "benchmark results:"
-      puts "Execution time (sec)"
-      puts "#{'%-16s' % 'name'} #{execs.map { |e| "%-8s" % e.name }.join(' ')}"
+class Benchmark::Output::ExecutionTime
+  # @param [Array<Benchmark::Driver::Configuration::Job>] jobs - not used
+  # @param [Array<Benchmark::Driver::Configuration::Executable>] executables
+  # @param [Benchmark::Driver::Configuration::OutputOptions] options
+  def initialize(jobs:, executables:, options:)
+    @executables = executables
+    @options = options
+    @name_length = jobs.map { |j| j.name.size }.max
+  end
 
-      results.each do |result|
-        print '%-16s ' % result.name
-        puts execs.map { |exec|
-          "%-8s" % ("%.3f" % result.elapsed_time_of(exec))
-        }.join(' ')
-      end
-      puts
+  def start_warming
+    $stdout.print 'warming up...'
+  end
 
-      if execs.size > 1
-        report_speedup(execs, results)
-      end
+  # @param [String] name
+  def warming(name)
+    # noop
+  end
+
+  # @param [Benchmark::Driver::BenchmarkResult] result
+  def warmup_stats(result)
+    $stdout.print '.'
+  end
+
+  def start_running
+    $stdout.puts "\nbenchmark results (s):"
+    $stdout.print("%-#{@name_length}s  " % 'ruby')
+    @executables.each do |executable|
+      $stdout.print('%-6s  ' % executable.name)
     end
+    $stdout.puts
+  end
 
-    private
+  # @param [String] name
+  def running(name)
+    $stdout.print("%-#{@name_length}s  " % name)
+    @ran_num = 0
+  end
 
-    def report_speedup(execs, results)
-      compared = execs.first
-      rest = execs - [compared]
-
-      puts "Speedup ratio: compare with the result of `#{compared.name}' (greater is better)"
-      puts "#{'%-16s' % 'name'} #{rest.map { |e| "%-8s" % e.name }.join(' ')}"
-      results.each do |result|
-        print '%-16s ' % result.name
-        puts rest.map { |exec|
-          "%-8s" % ("%.3f" % (result.ips_of(exec) / result.ips_of(compared)))
-        }.join(' ')
-      end
-      puts
+  # @param [Benchmark::Driver::BenchmarkResult] result
+  def benchmark_stats(result)
+    $stdout.print('%-6.3f  ' % result.duration)
+    @ran_num += 1
+    if @ran_num == @executables.size
+      $stdout.puts
     end
+  end
+
+  def finish
+    # compare is not implemented yet
   end
 end

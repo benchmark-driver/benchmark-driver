@@ -1,23 +1,102 @@
 # Benchmark::Driver [![Build Status](https://travis-ci.org/k0kubun/benchmark_driver.svg?branch=master)](https://travis-ci.org/k0kubun/benchmark_driver)
 
-Benchmark driver for different Ruby executables
+Fully-featured accurate benchmark driver for Ruby
+
+## Project Status
+
+**Under Construction**
+
+## Features
+### Accurate Measurement
+
+- Low overhead benchmark by running generated script instead of calling Proc
+- Profiling memory, high-precision real time, user time and system time
+- Running multiple times to minimize measurement errors
+
+### Pluggable & Fully Featured
+
+- Flexible and real-time output format in ips, execution time, markdown table, etc.
+- Benchmark with various profiling/running options
+- Integrated benchmark support using external libraries
+- Runner and output are all pluggable
+
+### Flexible Interface
+
+- Ruby interface similar to benchmark stdlib, benchmark-ips
+- YAML input to easily manage structured benchmark set
+- Comparing multiple Ruby binaries, even with miniruby
 
 ## Installation
 
-    $ gem install benchmark_driver
+```
+$ gem install benchmark_driver
+```
 
 ## Usage
 
-```
-$ benchmark-driver -h
-Usage: benchmark-driver [options] [YAML]
-    -e, --executables [EXECS]        Ruby executables (e1::path1; e2::path2; e3::path3;...)
-    -i, --ips [SECONDS]              Measure IPS in duration seconds (default: 1)
-    -l, --loop-count [COUNT]         Measure execution time with loop count (default: 100000)
-    -v, --verbose
+### Ruby Interface: Compatible Mode
+
+This interface is compatible with `Benchmark.bm` and `Benchmark.ips`, so it's good for migration.
+
+```rb
+require 'benchmark/driver'
+require 'active_support/all'
+array = []
+
+Benchmark.drive do |x|
+  x.report('blank?') { array.blank? }
+  x.report('empty?') { array.empty? }
+  x.compare!
+end
 ```
 
-### Running single script
+### Ruby Interface: Low Overhead Mode
+
+This interface generates code to profile with low overhead and executes it.
+
+```rb
+require 'benchmark/driver'
+
+Benchmark.drive do |x|
+  x.prelude = <<~RUBY
+    require 'active_support/all'
+    array = []
+  RUBY
+
+  x.report('blank?', script: 'array.blank?')
+  x.report('empty?', script: 'array.empty?')
+end
+```
+
+or simply:
+
+```rb
+require 'benchmark/driver'
+
+Benchmark.drive do |x|
+  x.prelude = <<~RUBY
+    require 'active_support/all'
+    array = []
+  RUBY
+
+  x.report(script: 'array.blank?')
+  x.report(script: 'array.empty?')
+end
+```
+
+### Structured YAML Input
+
+With `benchmark-driver` command, you can describe benchmark with YAML input.
+
+```
+$ exe/benchmark-driver -h
+Usage: benchmark-driver [options] [YAML]
+    -e, --executables [EXECS]        Ruby executables (e1::path1; e2::path2; e3::path3;...)
+        --rbenv [VERSIONS]           Ruby executables in rbenv (2.3.5;2.4.2;...)
+    -c, --compare
+```
+
+#### Running single script
 
 With following `example_single.yml`,
 
@@ -31,31 +110,19 @@ benchmark: erb.result
 you can benchmark the script with multiple ruby executables.
 
 ```
-$ benchmark-driver benchmarks/example_single.yml -e ruby1::ruby -e ruby2::ruby
-benchmark results:
-Execution time (sec)
-name             ruby1    ruby2
-example_single   0.958    0.972
+$ exe/benchmark-driver examples/yaml/example_single.yml --rbenv '2.4.2;trunk' --compare
+Warming up --------------------------------------
+          erb.result    10.973k i/100ms
+Calculating -------------------------------------
+                          2.4.2       trunk
+          erb.result   109.268k    123.611k i/s -    548.675k in 4.017080s 4.438720s
 
-Speedup ratio: compare with the result of `ruby1' (greater is better)
-name             ruby2
-example_single   0.986
+Comparison:
+  erb.result (trunk):    123611.1 i/s
+  erb.result (2.4.2):    109268.4 i/s - 1.13x  slower
 ```
 
-And you can change benchmark output to IPS (iteration per second) by `-i` option.
-
-```
-$ benchmark-driver benchmarks/example_single.yml -e ruby1::ruby -e ruby2::ruby -i
-Result -------------------------------------------
-                         ruby1          ruby2
-  example_single   99414.1 i/s    99723.3 i/s
-
-Comparison: example_single
-           ruby2:      99723.3 i/s
-           ruby1:      99414.1 i/s - 1.00x slower
-```
-
-### Running multiple scripts
+#### Running multiple scripts
 
 One YAML file can contain multiple benchmark scripts.
 With following `example_multi.yml`,
@@ -64,103 +131,45 @@ With following `example_multi.yml`,
 prelude: |
   a = 'a' * 100
   b = 'b' * 100
-benchmarks:
-  - name: join
-    benchmark: |
-      [a, b].join
-  - name: interpolation
-    benchmark: |
-      "#{a}#{b}"
+benchmark:
+  join: '[a, b].join'
+  str-interp: '"#{a}#{b}"'
 ```
 
 you can benchmark the scripts with multiple ruby executables.
 
 ```
-$ benchmark-driver benchmarks/example_multi.yml -e ruby1::ruby -e ruby2::ruby
-benchmark results:
-Execution time (sec)
-name             ruby1    ruby2
-join             0.022    0.022
-interpolation    0.026    0.026
+$ exe/benchmark-driver examples/yaml/example_multi.yml --rbenv '2.4.2;trunk' --compare
+Warming up --------------------------------------
+                join   515.787k i/100ms
+          str-interp   438.646k i/100ms
+Calculating -------------------------------------
+                          2.4.2       trunk
+                join     5.200M      4.740M i/s -     20.631M in 3.967750s 4.352565s
+          str-interp     4.306M      6.034M i/s -     21.932M in 4.075159s 3.634986s
 
-Speedup ratio: compare with the result of `ruby1' (greater is better)
-name             ruby2
-join             1.045
-interpolation    1.002
-```
-
-```
-$ benchmark-driver benchmarks/example_multi.yml -e ruby1::ruby -e ruby2::ruby -i
-Result -------------------------------------------
-                         ruby1          ruby2
-            join 4701954.3 i/s  4639520.3 i/s
-   interpolation 4263170.0 i/s  4044083.0 i/s
-
-Comparison: join
-           ruby1:    4701954.3 i/s
-           ruby2:    4639520.3 i/s - 1.01x slower
-
-Comparison: interpolation
-           ruby1:    4263170.0 i/s
-           ruby2:    4044083.0 i/s - 1.05x slower
-```
-
-### Configuring modes
-
-There are 2 modes:
-
-- Loop count: Enabled by `-l`. Optionally you can change count to loop by `-l COUNT`.
-- IPS: Enabled by `-i`. Optionally you can change duration by `-i DURATION`.
-
-Specifying both `-l` and `-i` is nonsense.
-
-### YAML syntax
-You can specify `benchmark:` or `benchmarks:`.
-
-#### Single
-```yml
-name: String # optional (default: file name)
-prelude: String # optional
-loop_count: Integer # optional
-benchmark: String # required
-```
-
-#### Multi
-
-```yml
-prelude: String # optional (shared)
-loop_count: Integer # optional (shared)
-benchmarks:
-  - name: String # required
-    prelude: String # optional (benchmark specific)
-    loop_count: Integer # optional (benchmark specific)
-    benchmark: String # required
-```
-
-### Debugging
-
-If you have a trouble like an unexpectedly fast result, you should check benchmark script by `-v`.
-
-```
-$ benchmark-driver benchmarks/example_multi.yml -v
---- Running "join" with "ruby" 957780 times ---
-a = 'a' * 100
-b = 'b' * 100
-
-
-i = 0
-while i < 957780
-  i += 1
-[a, b].join
-
-end
+Comparison:
+  str-interp (trunk):   6033674.6 i/s
+        join (2.4.2):   5199794.6 i/s - 1.16x  slower
+        join (trunk):   4740075.1 i/s - 1.27x  slower
+  str-interp (2.4.2):   4305563.1 i/s - 1.40x  slower
 ```
 
 ## TODO
+### Runner
+- [x] Call
+  - [x] Duration
+- [x] Exec
+  - [x] Duration
+  - [ ] While <=> Long script
 
-- Measure multiple times and use minimum result
-- Retry and reject negative result in ips mode
-- Change not to take long time for iteration count estimation in ips mode
+### Output
+- [x] IPS
+  - [x] Compare
+- [x] Time
+- [ ] CPU/System/Real Time
+- [ ] Memory
+- [ ] Markdown Table
 
 ## Contributing
 
@@ -168,4 +177,4 @@ Bug reports and pull requests are welcome on GitHub at https://github.com/k0kubu
 
 ## License
 
-The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
+The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).

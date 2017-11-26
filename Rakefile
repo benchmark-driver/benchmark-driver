@@ -1,15 +1,20 @@
 require 'bundler/gem_tasks'
+require 'shellwords'
 
-desc 'Run benchmarks in benchmarks'
-task :benchmarks do
-  require 'bundler'
-  require 'shellwords'
-
-  Dir.glob(File.expand_path('./benchmarks/**/*.yml', __dir__)).sort.each do |path|
+task :ruby_examples do
+  Dir.glob(File.expand_path('./examples/*.rb', __dir__)).sort.each do |file|
     Bundler.with_clean_env do
-      sh [File.expand_path('./exe/benchmark-driver', __dir__), path].shelljoin
+      sh ['bundle', 'exec', 'ruby', file].shelljoin
     end
   end
 end
 
-task default: :benchmarks
+task :yaml_examples do
+  Dir.glob(File.expand_path('./examples/yaml/*.yml', __dir__)).sort.each do |file|
+    Bundler.with_clean_env do
+      sh ['bundle', 'exec', 'exe/benchmark-driver', file].shelljoin
+    end
+  end
+end
+
+task default: [:ruby_examples, :yaml_examples]

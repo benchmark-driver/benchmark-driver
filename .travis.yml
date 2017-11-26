@@ -1,11 +1,15 @@
-sudo: false
 language: ruby
 rvm:
+  - 2.1.10
+  - 2.2.8
+  - 2.3.5
   - 2.4.2
+  - ruby-head
+cache: bundler
+branches:
+  only:
+    - master
 before_install: gem install bundler -v 1.15.4
 script:
-  - bundle exec rake
-
-  # Test some options
-  - bundle exec exe/benchmark-driver benchmarks/example_single.yml -e ruby1::ruby -e ruby2::ruby -i
-  - bundle exec exe/benchmark-driver benchmarks/example_single.yml -e ruby1::ruby -e ruby2::ruby -i 2
+  - bundle exec rake ruby_examples
+  - bundle exec rake yaml_examples
