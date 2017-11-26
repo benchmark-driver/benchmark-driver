@@ -23,7 +23,7 @@ class Benchmark::Runner::Exec
   def run(config)
     validate_config(config)
 
-    unless @options.loop_count
+    if config.jobs.any? { |job| job.loop_count.nil? }
       iters_by_job = run_warmup(config.jobs)
     end
 
@@ -32,9 +32,9 @@ class Benchmark::Runner::Exec
     config.jobs.each do |job|
       @output.running(job.name)
 
-      if @options.loop_count
-        duration = script_only_seconds(job, @options.loop_count)
-        result = Benchmark::Driver::BenchmarkResult.new(job, duration, @options.loop_count)
+      if job.loop_count
+        duration = script_only_seconds(job, job.loop_count)
+        result = Benchmark::Driver::BenchmarkResult.new(job, duration, job.loop_count)
       else
         result = Benchmark::Driver::DurationRunner.new(job).run(
           seconds:    BENCHMARK_DURATION,
@@ -68,6 +68,7 @@ class Benchmark::Runner::Exec
     iters_by_job = {}
 
     jobs.each do |job|
+      next if job.loop_count
       @output.warming(job.name)
 
       result = Benchmark::Driver::DurationRunner.new(job).run(

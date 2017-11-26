@@ -5,11 +5,11 @@ class Benchmark::Driver::Configuration < Struct.new(:jobs, :runner_options, :out
   # @param [String,nil] name
   # @param [String,Proc] sctipt
   # @param [String,nil] prelude
-  Job = Struct.new(:name, :script, :prelude)
+  # @param [Integer,nil] loop_count - If this is nil, loop count is automatically estimated by warmup.
+  Job = Struct.new(:name, :script, :prelude, :loop_count)
 
   # @param [Symbol] type - Type of runner
-  # @param [Integer,nil] loop_count - If this is nil, loop count is automatically estimated by warmup.
-  RunnerOptions = Struct.new(:type, :loop_count)
+  RunnerOptions = Struct.new(:type)
 
   # @param [Symbol] type - Type of output
   # @param [TrueClass,FalseClass] compare

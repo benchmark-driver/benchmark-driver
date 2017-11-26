@@ -4,13 +4,15 @@ module Benchmark::Driver::YamlDriver
 
   class << self
     # @param [String] prelude
+    # @param [Integer,nil] loop_count
     # @param [String,Array<String,Hash{ Symbol => String }>,Hash{ Symbol => String }] benchmark
     # @param [String,Symbol,Hash{ Symbol => Integer,TrueClass,FalseClass }] runner
     # @param [String,Symbol,Hash{ Symbol => Integer,TrueClass,FalseClass }] output
-    def run(prelude: '', benchmark:, runner: {}, output: {})
+    def run(prelude: '', loop_count: nil, benchmark:, runner: {}, output: {})
       jobs = parse_benchmark(benchmark)
       jobs.each do |job|
         job.prelude = prelude
+        job.loop_count ||= loop_count
       end
 
       config = Benchmark::Driver::Configuration.new(jobs)
@@ -33,10 +35,9 @@ module Benchmark::Driver::YamlDriver
       end
     end
 
-    def parse_runner_options(type: DEFAULT_RUNNER, loop_count: nil)
+    def parse_runner_options(type: DEFAULT_RUNNER)
       Benchmark::Driver::Configuration::RunnerOptions.new.tap do |r|
         r.type = type.to_sym
-        r.loop_count = loop_count
       end
     end
 

@@ -13,15 +13,15 @@ class Benchmark::Runner::Call
   # @param [Benchmark::Driver::Configuration::RunnerOptions] options
   # @param [Benchmark::Output::*] output - Object that responds to methods used in this class
   def initialize(options, output:)
-    @options  = options
-    @output   = output
+    @options = options
+    @output  = output
   end
 
   # @param [Benchmark::Driver::Configuration] config
   def run(config)
     validate_config(config)
 
-    unless @options.loop_count
+    if config.jobs.any? { |job| job.loop_count.nil? }
       iters_by_job = run_warmup(config.jobs)
     end
 
@@ -30,9 +30,9 @@ class Benchmark::Runner::Call
     config.jobs.each do |job|
       @output.running(job.name)
 
-      if @options.loop_count
-        duration = call_times(job, @options.loop_count)
-        result = Benchmark::Driver::BenchmarkResult.new(job, duration, @options.loop_count)
+      if job.loop_count
+        duration = call_times(job, job.loop_count)
+        result = Benchmark::Driver::BenchmarkResult.new(job, duration, job.loop_count)
       else
         result = Benchmark::Driver::DurationRunner.new(job).run(
           seconds:    BENCHMARK_DURATION,
@@ -66,6 +66,7 @@ class Benchmark::Runner::Call
     iters_by_job = {}
 
     jobs.each do |job|
+      next if job.loop_count
       @output.warming(job.name)
 
       result = Benchmark::Driver::DurationRunner.new(job).run(
