@@ -15,8 +15,8 @@ class Benchmark::Runner::Exec
   # @param [Benchmark::Driver::Configuration::RunnerOptions] options
   # @param [Benchmark::Output::*] output - Object that responds to methods used in this class
   def initialize(options, output:)
-    @options  = options
-    @output   = output
+    @options = options
+    @output  = output
   end
 
   # @param [Benchmark::Driver::Configuration] config
@@ -32,18 +32,22 @@ class Benchmark::Runner::Exec
     config.jobs.each do |job|
       @output.running(job.name)
 
-      if job.loop_count
-        duration = script_only_seconds(job, job.loop_count)
-        result = Benchmark::Driver::BenchmarkResult.new(job, duration, job.loop_count)
-      else
-        result = Benchmark::Driver::DurationRunner.new(job).run(
-          seconds:    BENCHMARK_DURATION,
-          unit_iters: iters_by_job.fetch(job),
-          runner:     method(:script_only_seconds),
-        )
-      end
+      @options.executables.each do |executable|
+        runner = build_runner(executable.path)
 
-      @output.benchmark_stats(result)
+        if job.loop_count
+          duration = runner.call(job, job.loop_count)
+          result = Benchmark::Driver::BenchmarkResult.new(job, duration, job.loop_count)
+        else
+          result = Benchmark::Driver::DurationRunner.new(job).run(
+            seconds:    BENCHMARK_DURATION,
+            unit_iters: iters_by_job.fetch(job),
+            runner:     runner,
+          )
+        end
+
+        @output.benchmark_stats(result)
+      end
     end
 
     @output.finish
@@ -74,7 +78,7 @@ class Benchmark::Runner::Exec
       result = Benchmark::Driver::DurationRunner.new(job).run(
         seconds:    WARMUP_DURATION,
         unit_iters: guess_ip100ms(job),
-        runner:     method(:script_only_seconds),
+        runner:     build_runner, # TODO: should use executables instead of RbConfig.ruby
       )
       iters_by_job[job] = result.ips.ceil
 
@@ -88,7 +92,7 @@ class Benchmark::Runner::Exec
   def guess_ip100ms(job)
     ip100ms = 0
     [1, 1_000, 1_000_000, 10_000_000, 100_000_000].each do |times|
-      seconds = script_only_seconds(job, times)
+      seconds = build_runner.call(job, times) # TODO: should use executables instead of RbConfig.ruby
       ip100ms = (times.to_f / (seconds * 10.0)).ceil # ceil for times=1
       if 0.2 < seconds # 200ms theshold
         return ip100ms
@@ -97,10 +101,14 @@ class Benchmark::Runner::Exec
     ip100ms
   end
 
-  def script_only_seconds(job, times)
-    benchmark = BenchmarkScript.new(job.prelude, job.script)
-    measure_seconds(RbConfig.ruby, benchmark.full_script(times)) -
-      measure_seconds(RbConfig.ruby, benchmark.overhead_script(times))
+  # @param [String] path - Path to Ruby executable
+  # @return [Proc] - Lambda to run benchmark
+  def build_runner(path = RbConfig.ruby)
+    lambda do |job, times|
+      benchmark = BenchmarkScript.new(job.prelude, job.script)
+      measure_seconds(path, benchmark.full_script(times)) -
+        measure_seconds(path, benchmark.overhead_script(times))
+    end
   end
 
   def measure_seconds(ruby, script)

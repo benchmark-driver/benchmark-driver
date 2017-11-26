@@ -92,10 +92,8 @@ TBD
 ### Runner
 - [x] Call
   - [x] Duration
-  - [x] Loop Count
 - [x] Exec
   - [x] Duration
-  - [x] Loop Count
   - [ ] While <=> Long script
 
 ### Output

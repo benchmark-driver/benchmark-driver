@@ -3,8 +3,9 @@ module Benchmark::Output
     # @param [Benchmark::Driver::Configuration] config
     def create(config)
       find(config.output_options.type).new(
-        jobs: config.jobs,
-        options: config.output_options,
+        jobs:        config.jobs,
+        executables: config.runner_options.executables,
+        options:     config.output_options,
       )
     end
 

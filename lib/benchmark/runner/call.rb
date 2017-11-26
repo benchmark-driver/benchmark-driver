@@ -50,6 +50,10 @@ class Benchmark::Runner::Call
   private
 
   def validate_config(config)
+    if config.runner_options.executables_specified?
+      raise ArgumentError.new("Benchmark::Runner::Call can't run other Ruby executables")
+    end
+
     config.jobs.each do |job|
       unless job.script.respond_to?(:call)
         raise NotImplementedError.new(

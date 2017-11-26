@@ -1,7 +1,9 @@
 class Benchmark::Output::ExecutionTime
   # @param [Array<Benchmark::Driver::Configuration::Job>] jobs - not used
+  # @param [Array<Benchmark::Driver::Configuration::Executable>] executables
   # @param [Benchmark::Driver::Configuration::OutputOptions] options
-  def initialize(jobs:, options:)
+  def initialize(jobs:, executables:, options:)
+    @executables = executables
     @options = options
     @name_length = jobs.map { |j| j.name.size }.max
   end
@@ -21,19 +23,27 @@ class Benchmark::Output::ExecutionTime
   end
 
   def start_running
-    $stdout.puts "\nbenchmark results:"
-    $stdout.print("%-#{@name_length}s  " % 'name')
-    $stdout.puts 'ruby' # TODO: print multiple rubies
+    $stdout.puts "\nbenchmark results (s):"
+    $stdout.print("%-#{@name_length}s  " % 'ruby')
+    @executables.each do |executable|
+      $stdout.print('%-6s  ' % executable.name)
+    end
+    $stdout.puts
   end
 
   # @param [String] name
   def running(name)
     $stdout.print("%-#{@name_length}s  " % name)
+    @ran_num = 0
   end
 
   # @param [Benchmark::Driver::BenchmarkResult] result
   def benchmark_stats(result)
-    $stdout.puts('%.3fs' % result.duration)
+    $stdout.print('%-6.3f  ' % result.duration)
+    @ran_num += 1
+    if @ran_num == @executables.size
+      $stdout.puts
+    end
   end
 
   def finish

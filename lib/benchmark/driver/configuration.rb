@@ -8,8 +8,24 @@ class Benchmark::Driver::Configuration < Struct.new(:jobs, :runner_options, :out
   # @param [Integer,nil] loop_count - If this is nil, loop count is automatically estimated by warmup.
   Job = Struct.new(:name, :script, :prelude, :loop_count)
 
+  # @param [String] name
+  # @param [String] path
+  Executable = Struct.new(:name, :path)
+
+  DEFAULT_EXECUTABLES = [Executable.new(RUBY_VERSION, RbConfig.ruby)]
+
   # @param [Symbol] type - Type of runner
-  RunnerOptions = Struct.new(:type)
+  # @param [Array<Benchmark::Driver::Configuration::Executable>] executables
+  class RunnerOptions < Struct.new(:type, :executables)
+    def initialize(*)
+      super
+      self.executables = DEFAULT_EXECUTABLES
+    end
+
+    def executables_specified?
+      executables != DEFAULT_EXECUTABLES
+    end
+  end
 
   # @param [Symbol] type - Type of output
   # @param [TrueClass,FalseClass] compare

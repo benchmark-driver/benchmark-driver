@@ -1,6 +1,6 @@
 require 'benchmark/driver/configuration'
 
-class Benchmark::Driver::DslParser
+class Benchmark::Driver::RubyDslParser
   def initialize(runner: :call, output: :ips)
     @prelude = nil
     @jobs = []
