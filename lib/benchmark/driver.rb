@@ -36,14 +36,14 @@ module Benchmark
 
   # RubyDriver entrypoint.
   def self.driver(*args, &block)
-    ruby_driver = Driver::RubyDriver.new(*args)
-    block.call(ruby_driver)
+    dsl = Driver::DslParser.new(*args)
+    block.call(dsl)
 
-    Driver.run(ruby_driver.configuration)
+    Driver.run(dsl.configuration)
   end
 end
 
 require 'benchmark/output'
 require 'benchmark/runner'
-require 'benchmark/driver/ruby_driver'
+require 'benchmark/driver/dsl_parser'
 require 'benchmark/driver/version'

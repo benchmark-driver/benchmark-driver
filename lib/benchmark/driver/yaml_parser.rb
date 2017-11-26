@@ -1,5 +1,5 @@
-module Benchmark::Driver::YamlDriver
-  DEFAULT_RUNNER = :exec # In YamlDriver, we can't use :call.
+module Benchmark::Driver::YamlParser
+  DEFAULT_RUNNER = :exec # In YamlParser, we can't use :call.
   DEFAULT_OUTPUT = :ips
 
   class << self
@@ -8,7 +8,8 @@ module Benchmark::Driver::YamlDriver
     # @param [String,Array<String,Hash{ Symbol => String }>,Hash{ Symbol => String }] benchmark
     # @param [String,Symbol,Hash{ Symbol => Integer,TrueClass,FalseClass }] runner
     # @param [String,Symbol,Hash{ Symbol => Integer,TrueClass,FalseClass }] output
-    def run(prelude: '', loop_count: nil, benchmark:, runner: {}, output: {})
+    # @return [Benchmark::Driver::Configuration]
+    def parse(prelude: '', loop_count: nil, benchmark:, runner: {}, output: {})
       jobs = parse_benchmark(benchmark)
       jobs.each do |job|
         job.prelude = prelude
@@ -18,7 +19,7 @@ module Benchmark::Driver::YamlDriver
       config = Benchmark::Driver::Configuration.new(jobs)
       config.runner_options = parse_runner(runner)
       config.output_options = parse_output(output)
-      Benchmark::Driver.run(config)
+      config
     end
 
     private

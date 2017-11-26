@@ -2,7 +2,7 @@
 $:.unshift File.expand_path('../lib', __dir__)
 
 require 'benchmark/driver'
-require 'benchmark/driver/yaml_driver'
+require 'benchmark/driver/yaml_parser'
 require 'optparse'
 require 'yaml'
 
@@ -21,21 +21,28 @@ args = OptionParser.new do |o|
       options[:execs] << "#{version}::#{`RBENV_VERSION='#{version}' rbenv which ruby`.rstrip}"
     end
   end
-  o.on('-v', '--verbose') do |v|
-    options[:verbose] = v
+  o.on('-c', '--compare') do |v|
+    options[:compare] = v
   end
 end.parse!(ARGV)
 abort "No YAML file is specified" if args.empty?
 
 args.each do |yaml|
-  config = YAML.load(File.read(yaml))
-  Benchmark::Driver::Configuration.symbolize_keys!(config)
+  yaml = YAML.load(File.read(yaml))
+  Benchmark::Driver::Configuration.symbolize_keys!(yaml)
+
   begin
-    Benchmark::Driver::YamlDriver.run(config)
+    config = Benchmark::Driver::YamlParser.parse(yaml)
   rescue ArgumentError
-    $stderr.puts "benchmark-driver: Failed to run #{yaml.dump}."
+    $stderr.puts "benchmark-driver: Failed to parse #{yaml.dump}."
     $stderr.puts '  YAML format may be wrong. See error below:'
     $stderr.puts
     raise
   end
+
+  if options.key?(:compare)
+    config.output_options.compare = options[:compare]
+  end
+
+  Benchmark::Driver.run(config)
 end
