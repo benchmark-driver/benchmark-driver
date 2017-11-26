@@ -1,6 +1,6 @@
 # @param [Array<Benchmark::Driver::Configuration::Job>] jobs
 # @param [Benchmark::Driver::Configuration::RunnerOptions] runner_options
-# @param [Hash{ Symbol => TrueClass,FalseClass }] output_options
+# @param [Benchmark::Driver::Configuration::OutputOptions] output_options
 class Benchmark::Driver::Configuration < Struct.new(:jobs, :runner_options, :output_options)
   # @param [String,nil] name
   # @param [String,Proc] sctipt
@@ -11,10 +11,9 @@ class Benchmark::Driver::Configuration < Struct.new(:jobs, :runner_options, :out
   # @param [Integer,nil] loop_count - If this is nil, loop count is automatically estimated by warmup.
   RunnerOptions = Struct.new(:type, :loop_count)
 
-  def initialize(*)
-    super
-    self.output_options = {} if output_options.nil?
-  end
+  # @param [Symbol] type - Type of output
+  # @param [TrueClass,FalseClass] compare
+  OutputOptions = Struct.new(:type, :compare)
 
   # @param [Object] config
   def self.symbolize_keys!(config)

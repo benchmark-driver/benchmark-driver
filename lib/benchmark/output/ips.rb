@@ -1,9 +1,11 @@
 class Benchmark::Output::Ips
   NAME_LENGTH = 20
 
-  # @param [TrueClass,FalseClass] compare
-  def initialize(compare: false)
-    @compare = compare
+  # @param [Array<Benchmark::Driver::Configuration::Job>] jobs
+  # @param [Benchmark::Driver::Configuration::OutputOptions] options
+  def initialize(jobs:, options:)
+    @jobs    = jobs
+    @options = options
     @results = []
   end
 
@@ -38,7 +40,7 @@ class Benchmark::Output::Ips
   end
 
   def finish
-    if @results.size > 1 && @compare
+    if @results.size > 1 && @options.compare
       compare
     end
   end

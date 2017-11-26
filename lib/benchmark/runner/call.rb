@@ -27,7 +27,26 @@ class Benchmark::Runner::Call
       iters_by_job = run_warmup(config.jobs)
     end
 
-    run_benchmark(config.jobs, iters_by_job: iters_by_job)
+    @output.start_running
+
+    config.jobs.each do |job|
+      @output.running(job.name)
+
+      if @options.loop_count
+        duration = call_times(job, @options.loop_count)
+        result = Benchmark::Driver::BenchmarkResult.new(job, duration, @options.loop_count)
+      else
+        result = Benchmark::Driver::DurationRunner.new(job).run(
+          seconds:    BENCHMARK_DURATION,
+          unit_iters: iters_by_job.fetch(job),
+          runner:     method(:call_times),
+        )
+      end
+
+      @output.benchmark_stats(result)
+    end
+
+    @output.finish
   end
 
   private
@@ -62,31 +81,6 @@ class Benchmark::Runner::Call
     end
 
     iters_by_job
-  end
-
-  # @param [Array<Benchmark::Driver::Configuration::Job>] jobs
-  # @param [Hash{ Benchmark::Driver::Configuration::Job => Integer },nil] iters_by_job - This is not used if @options.loop_count is given.
-  def run_benchmark(jobs, iters_by_job: nil)
-    @output.start_running
-
-    jobs.each do |job|
-      @output.running(job.name)
-
-      if @options.loop_count
-        duration = call_times(job, @options.loop_count)
-        result = Benchmark::Driver::BenchmarkResult.new(job, duration, @options.loop_count)
-      else
-        result = Benchmark::Driver::DurationRunner.new(job).run(
-          seconds:    BENCHMARK_DURATION,
-          unit_iters: iters_by_job.fetch(job),
-          runner:     method(:call_times),
-        )
-      end
-
-      @output.benchmark_stats(result)
-    end
-
-    @output.finish
   end
 
   def call_times(job, times)

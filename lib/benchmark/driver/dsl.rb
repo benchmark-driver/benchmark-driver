@@ -1,11 +1,11 @@
 require 'benchmark/driver/configuration'
 
 class Benchmark::Driver::DSL
-  def initialize(runner: :call)
-    @runner = runner
+  def initialize(runner: :call, output: :ips)
     @prelude = nil
     @jobs = []
-    @output_options = {}
+    @runner_options = Benchmark::Driver::Configuration::RunnerOptions.new(runner)
+    @output_options = Benchmark::Driver::Configuration::OutputOptions.new(output)
   end
 
   # API to fetch configuration parsed from DSL
@@ -15,7 +15,7 @@ class Benchmark::Driver::DSL
       job.prelude = @prelude
     end
     Benchmark::Driver::Configuration.new(@jobs).tap do |c|
-      c.runner_options = Benchmark::Driver::Configuration::RunnerOptions.new(@runner)
+      c.runner_options = @runner_options
       c.output_options = @output_options
     end
   end
@@ -52,6 +52,6 @@ class Benchmark::Driver::DSL
   end
 
   def compare!
-    @output_options[:compare] = true
+    @output_options.compare = true
   end
 end

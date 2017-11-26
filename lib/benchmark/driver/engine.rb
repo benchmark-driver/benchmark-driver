@@ -11,7 +11,7 @@ module Benchmark::Driver::Engine
       without_stdout_buffering do
         runner = Benchmark::Runner.find(config.runner_options.type).new(
           config.runner_options,
-          output:   Benchmark::Output::Ips.new(config.output_options),
+          output: Benchmark::Output.create(config),
           profiler: Benchmark::Profiler::RealTime.new,
         )
         runner.run(config)
