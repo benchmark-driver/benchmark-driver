@@ -1,0 +1,6 @@
+prelude: |
+  a = 'a' * 100
+  b = 'b' * 100
+benchmark:
+  join: '[a, b].join'
+  str-interp: '"#{a}#{b}"'
