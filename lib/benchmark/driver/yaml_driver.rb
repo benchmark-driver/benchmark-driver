@@ -16,7 +16,7 @@ module Benchmark::Driver::YamlDriver
       config = Benchmark::Driver::Configuration.new(jobs)
       config.runner_options = parse_runner(runner)
       config.output_options = parse_output(output)
-      Benchmark::Driver::Engine.run(config)
+      Benchmark::Driver.run(config)
     end
 
     private

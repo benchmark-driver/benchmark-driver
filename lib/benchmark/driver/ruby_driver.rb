@@ -1,6 +1,6 @@
 require 'benchmark/driver/configuration'
 
-class Benchmark::Driver::DSL
+class Benchmark::Driver::RubyDriver
   def initialize(runner: :call, output: :ips)
     @prelude = nil
     @jobs = []
