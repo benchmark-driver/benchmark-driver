@@ -7,18 +7,19 @@ Fully-featured accurate benchmark driver for Ruby
 **Under Construction**
 
 ## Features
+NOTE: Pending ones are ~slashed~.
+
 ### Accurate Measurement
 
 - Low overhead benchmark by running generated script instead of calling Proc
-- Profiling memory, high-precision real time, user time and system time
-- Running multiple times to minimize measurement errors
+- ~Profiling memory, high-precision real time, user time and system time~
+- ~Running multiple times to minimize measurement errors~
 
 ### Pluggable & Fully Featured
 
-- Flexible and real-time output format in ips, execution time, markdown table, etc.
-- Benchmark with various profiling/running options
-- Integrated benchmark support using external libraries
-- Runner and output are all pluggable
+- Flexible and real-time output format in ips, execution time, ~markdown table, etc~.
+- ~Integrated benchmark support using external libraries~
+- ~Runner and output are all pluggable~
 
 ### Flexible Interface
 
