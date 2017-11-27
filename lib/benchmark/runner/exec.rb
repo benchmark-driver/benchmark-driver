@@ -2,6 +2,7 @@ require 'tempfile'
 require 'shellwords'
 require 'benchmark/driver/benchmark_result'
 require 'benchmark/driver/duration_runner'
+require 'benchmark/driver/error'
 require 'benchmark/driver/time'
 
 # Run benchmark by executing another Ruby process.
@@ -11,6 +12,7 @@ require 'benchmark/driver/time'
 class Benchmark::Runner::Exec
   WARMUP_DURATION    = 1
   BENCHMARK_DURATION = 4
+  GUESS_TIMES = [1, 1_000, 1_000_000, 10_000_000, 100_000_000]
 
   # @param [Benchmark::Driver::Configuration::RunnerOptions] options
   # @param [Benchmark::Output::*] output - Object that responds to methods used in this class
@@ -46,6 +48,9 @@ class Benchmark::Runner::Exec
           )
         end
 
+        if result.duration < 0
+          raise Benchmark::Driver::ExecutionTimeTooShort.new(job, result.iterations)
+        end
         @output.benchmark_stats(result)
       end
     end
@@ -82,6 +87,9 @@ class Benchmark::Runner::Exec
       )
       iters_by_job[job] = result.ips.ceil
 
+      if result.duration < 0
+        raise Benchmark::Driver::ExecutionTimeTooShort.new(job, result.iterations)
+      end
       @output.warmup_stats(result)
     end
 
@@ -91,12 +99,15 @@ class Benchmark::Runner::Exec
   # @param [Benchmark::Driver::Configuration::Job] job
   def guess_ip100ms(job)
     ip100ms = 0
-    [1, 1_000, 1_000_000, 10_000_000, 100_000_000].each do |times|
+    GUESS_TIMES.each do |times|
       seconds = build_runner.call(job, times) # TODO: should use executables instead of RbConfig.ruby
       ip100ms = (times.to_f / (seconds * 10.0)).ceil # ceil for times=1
       if 0.2 < seconds # 200ms theshold
         return ip100ms
       end
+    end
+    if ip100ms < 0
+      raise Benchmark::Driver::ExecutionTimeTooShort.new(job, GUESS_TIMES.last)
     end
     ip100ms
   end
@@ -127,6 +138,7 @@ class Benchmark::Runner::Exec
 
   class BenchmarkScript < Struct.new(:prelude, :script)
     def overhead_script(times)
+      raise ArgumentError.new("Negative times: #{times}") if times < 0
       <<-RUBY
 #{prelude}
 __benchmark_driver_i = 0
@@ -137,6 +149,7 @@ end
     end
 
     def full_script(times)
+      raise ArgumentError.new("Negative times: #{times}") if times < 0
       <<-RUBY
 #{prelude}
 __benchmark_driver_i = 0

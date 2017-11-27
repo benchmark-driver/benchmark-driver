@@ -13,6 +13,9 @@ module Benchmark
           )
           runner.run(config)
         end
+      rescue Benchmark::Driver::Error => e
+        $stderr.puts "\n\nFailed to execute benchmark!\n\n#{e.class.name}:\n  #{e.message}"
+        exit 1
       end
 
       private
@@ -45,5 +48,6 @@ end
 
 require 'benchmark/output'
 require 'benchmark/runner'
+require 'benchmark/driver/error'
 require 'benchmark/driver/ruby_dsl_parser'
 require 'benchmark/driver/version'
