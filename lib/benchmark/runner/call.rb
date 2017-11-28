@@ -30,8 +30,10 @@ class Benchmark::Runner::Call
     config.jobs.each do |job|
       @output.running(job.name)
 
-      duration = call_times(job, job.loop_count)
-      result = Benchmark::Driver::BenchmarkResult.new(job, duration, job.loop_count)
+      result = Benchmark::Driver::RepeatableRunner.new(job).run(
+        runner: method(:call_times),
+        repeat_count: @options.repeat_count,
+      )
 
       @output.benchmark_stats(result)
     end

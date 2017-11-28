@@ -12,8 +12,8 @@ NOTE: Pending ones are ~slashed~.
 ### Accurate Measurement
 
 - Low overhead benchmark by running generated script instead of calling Proc
+- Running multiple times to minimize measurement errors
 - ~Profiling memory, high-precision real time, user time and system time~
-- ~Running multiple times to minimize measurement errors~
 
 ### Pluggable & Fully Featured
 

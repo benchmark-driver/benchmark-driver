@@ -2,6 +2,7 @@ require 'tempfile'
 require 'shellwords'
 require 'benchmark/driver/benchmark_result'
 require 'benchmark/driver/duration_runner'
+require 'benchmark/driver/repeatable_runner'
 require 'benchmark/driver/error'
 require 'benchmark/driver/time'
 
@@ -36,8 +37,10 @@ class Benchmark::Runner::Exec
       @output.running(job.name)
 
       @options.executables.each do |executable|
-        duration = build_runner(executable.path).call(job, job.loop_count)
-        result = Benchmark::Driver::BenchmarkResult.new(job, duration, job.loop_count)
+        result = Benchmark::Driver::RepeatableRunner.new(job).run(
+          runner: build_runner(executable.path),
+          repeat_count: @options.repeat_count,
+        )
 
         if result.duration < 0
           raise Benchmark::Driver::ExecutionTimeTooShort.new(job, result.iterations)
