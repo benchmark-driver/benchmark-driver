@@ -13,6 +13,7 @@ class Benchmark::Runner::Exec
   WARMUP_DURATION    = 1
   BENCHMARK_DURATION = 4
   GUESS_TIMES = [1, 1_000, 1_000_000, 10_000_000, 100_000_000]
+  GUESS_THRESHOLD = 0.3 # 300ms
 
   # @param [Benchmark::Driver::Configuration::RunnerOptions] options
   # @param [Benchmark::Output::*] output - Object that responds to methods used in this class
@@ -102,7 +103,7 @@ class Benchmark::Runner::Exec
     GUESS_TIMES.each do |times|
       seconds = build_runner.call(job, times) # TODO: should use executables instead of RbConfig.ruby
       ip100ms = (times.to_f / (seconds * 10.0)).ceil # ceil for times=1
-      if 0.2 < seconds # 200ms theshold
+      if GUESS_THRESHOLD < seconds
         return ip100ms
       end
     end
