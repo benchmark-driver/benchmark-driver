@@ -24,8 +24,15 @@ args = OptionParser.new do |o|
       options[:execs] << Benchmark::Driver::Configuration::Executable.new(version, path)
     end
   end
-  o.on('-c', '--compare') do |v|
+  o.on('-c', '--compare', 'Compare results (currently only supported in ips output)') do |v|
     options[:compare] = v
+  end
+  o.on('-r', '--repeat-count [NUM]', 'Try benchmark NUM times and use the fastest result') do |v|
+    begin
+      options[:repeat_count] = Integer(v)
+    rescue ArgumentError
+      abort "-r, --repeat-count must take Integer, but got #{v.inspect}"
+    end
   end
 end.parse!(ARGV)
 abort "No YAML file is specified" if args.empty?
@@ -43,11 +50,17 @@ args.each do |yaml|
     raise
   end
 
-  if options.key?(:compare)
-    config.output_options.compare = options[:compare]
-  end
-  if options.key?(:execs)
-    config.runner_options.executables = options[:execs]
+  options.each do |key, value|
+    case key
+    when :compare
+      config.output_options.compare = value
+    when :execs
+      config.runner_options.executables = value
+    when :repeat_count
+      config.runner_options.repeat_count = value
+    else
+      raise "Unhandled option: #{key.inspect}"
+    end
   end
 
   Benchmark::Driver.run(config)

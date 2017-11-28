@@ -36,9 +36,10 @@ module Benchmark::Driver::YamlParser
       end
     end
 
-    def parse_runner_options(type: DEFAULT_RUNNER)
+    def parse_runner_options(type: DEFAULT_RUNNER, repeat_count: nil)
       Benchmark::Driver::Configuration::RunnerOptions.new.tap do |r|
         r.type = type.to_sym
+        r.repeat_count = Integer(repeat_count) if repeat_count
       end
     end
 
