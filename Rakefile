@@ -6,6 +6,7 @@ task :ruby_examples do
     Bundler.with_clean_env do
       sh ['bundle', 'exec', 'ruby', file].shelljoin
     end
+    puts
   end
 end
 
@@ -14,6 +15,7 @@ task :yaml_examples do
     Bundler.with_clean_env do
       sh ['bundle', 'exec', 'exe/benchmark-driver', file].shelljoin
     end
+    puts
   end
 end
 
