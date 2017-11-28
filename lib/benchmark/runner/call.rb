@@ -21,7 +21,7 @@ class Benchmark::Runner::Call
   def run(config)
     validate_config(config)
 
-    if config.jobs.any? { |job| job.loop_count.nil? }
+    if config.jobs.any?(&:warmup_needed?)
       iters_by_job = run_warmup(config.jobs)
     end
 

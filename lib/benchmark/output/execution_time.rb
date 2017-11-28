@@ -1,8 +1,9 @@
 class Benchmark::Output::ExecutionTime
-  # @param [Array<Benchmark::Driver::Configuration::Job>] jobs - not used
+  # @param [Array<Benchmark::Driver::Configuration::Job>] jobs
   # @param [Array<Benchmark::Driver::Configuration::Executable>] executables
   # @param [Benchmark::Driver::Configuration::OutputOptions] options
   def initialize(jobs:, executables:, options:)
+    @jobs = jobs
     @executables = executables
     @options = options
     @name_length = jobs.map { |j| j.name.size }.max
@@ -23,7 +24,8 @@ class Benchmark::Output::ExecutionTime
   end
 
   def start_running
-    $stdout.puts "\nbenchmark results (s):"
+    $stdout.puts if @jobs.any?(&:warmup_needed?)
+    $stdout.puts 'benchmark results (s):'
     $stdout.print("%-#{@name_length}s  " % 'ruby')
     @executables.each do |executable|
       $stdout.print('%-6s  ' % executable.name)

@@ -6,7 +6,11 @@ class Benchmark::Driver::Configuration < Struct.new(:jobs, :runner_options, :out
   # @param [String,Proc] sctipt
   # @param [String,nil] prelude
   # @param [Integer,nil] loop_count - If this is nil, loop count is automatically estimated by warmup.
-  Job = Struct.new(:name, :script, :prelude, :loop_count)
+  class Job < Struct.new(:name, :script, :prelude, :loop_count)
+    def warmup_needed?
+      loop_count.nil?
+    end
+  end
 
   # @param [String] name
   # @param [String] path

@@ -159,14 +159,11 @@ Comparison:
 ## TODO
 ### Runner
 - [x] Call
-  - [x] Duration
 - [x] Exec
-  - [x] Duration
-  - [ ] While <=> Long script
+- [ ] Eval
 
 ### Output
 - [x] IPS
-  - [x] Compare
 - [x] Time
 - [ ] CPU/System/Real Time
 - [ ] Memory
