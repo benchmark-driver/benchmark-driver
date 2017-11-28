@@ -1,14 +1,11 @@
 module Benchmark::Runner
-  # TODO: make this dynamic to be pluggable
-  def self.find(symbol)
-    case symbol
-    when :call
-      Call
-    when :exec
-      Exec
-    else
-      raise NotImplementedError.new("Benchmark::Runner for #{symbol.inspect} is not found")
-    end
+  # Benchmark::Runner is pluggable.
+  # Create `Benchmark::Runner::FooBar` as benchmark-runner-foo_bar.gem and specify `runner: foo_bar`.
+  #
+  # @param [Symbol] name
+  def self.find(name)
+    class_name = Benchmark::Driver::Configuration.camelize(name.to_s)
+    Benchmark::Runner.const_get(class_name, false)
   end
 end
 

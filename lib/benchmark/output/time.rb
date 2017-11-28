@@ -1,4 +1,4 @@
-class Benchmark::Output::ExecutionTime
+class Benchmark::Output::Time
   # @param [Array<Benchmark::Driver::Configuration::Job>] jobs
   # @param [Array<Benchmark::Driver::Configuration::Executable>] executables
   # @param [Benchmark::Driver::Configuration::OutputOptions] options

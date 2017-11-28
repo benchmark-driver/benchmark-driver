@@ -1,5 +1,6 @@
 require 'benchmark/driver/benchmark_result'
 require 'benchmark/driver/duration_runner'
+require 'benchmark/driver/repeatable_runner'
 require 'benchmark/driver/time'
 
 # Run benchmark by calling #call on running ruby.

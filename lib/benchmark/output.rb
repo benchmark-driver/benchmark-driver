@@ -11,19 +11,16 @@ module Benchmark::Output
 
     private
 
-    # TODO: make this dynamic to be pluggable
-    def find(symbol)
-      case symbol
-      when :ips
-        Ips
-      when :time
-        ExecutionTime
-      else
-        raise NotImplementedError.new("Benchmark::Output for #{symbol.inspect} is not found")
-      end
+    # Benchmark::Output is pluggable.
+    # Create `Benchmark::Output::FooBar` as benchmark-output-foo_bar.gem and specify `output: foo_bar`.
+    #
+    # @param [Symbol] name
+    def find(name)
+      class_name = Benchmark::Driver::Configuration.camelize(name.to_s)
+      Benchmark::Output.const_get(class_name, false)
     end
   end
 end
 
 require 'benchmark/output/ips'
-require 'benchmark/output/execution_time'
+require 'benchmark/output/time'

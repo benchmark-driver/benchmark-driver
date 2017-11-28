@@ -48,4 +48,10 @@ class Benchmark::Driver::Configuration < Struct.new(:jobs, :runner_options, :out
     end
     config
   end
+
+  # @param [String] str
+  def self.camelize(str)
+    return str if str !~ /_/ && str =~ /[A-Z]+.*/
+    str.split('_').map { |e| e.capitalize }.join
+  end
 end

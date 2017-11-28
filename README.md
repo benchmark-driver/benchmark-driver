@@ -17,9 +17,9 @@ NOTE: Pending ones are ~slashed~.
 
 ### Pluggable & Fully Featured
 
-- Flexible and real-time output format in ips, execution time, ~markdown table, etc~.
+- Flexible and real-time output format in ips, execution time, ~markdown table~, etc.
+- Runner and output are all pluggable
 - ~Integrated benchmark support using external libraries~
-- ~Runner and output are all pluggable~
 
 ### Flexible Interface
 
