@@ -75,7 +75,7 @@ class Benchmark::Runner::Call
         unit_iters: 1,
         runner:     method(:call_times),
       )
-      job.loop_count = (result.ips.to_f * BENCHMARK_DURATION).to_i
+      job.guessed_count = (result.ips.to_f * BENCHMARK_DURATION).to_i
 
       @output.warmup_stats(result)
     end

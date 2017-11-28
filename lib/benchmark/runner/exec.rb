@@ -105,7 +105,7 @@ class Benchmark::Runner::Exec
         unit_iters: guess_ip100ms(job),
         runner:     build_runner, # TODO: should use executables instead of RbConfig.ruby
       )
-      job.loop_count = (result.ips.to_f * BENCHMARK_DURATION).to_i
+      job.guessed_count = (result.ips.to_f * BENCHMARK_DURATION).to_i
 
       if result.duration < 0
         raise Benchmark::Driver::ExecutionTimeTooShort.new(job, result.iterations)

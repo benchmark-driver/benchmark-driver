@@ -5,10 +5,18 @@ class Benchmark::Driver::Configuration < Struct.new(:jobs, :runner_options, :out
   # @param [String,nil] name
   # @param [String,Proc] sctipt
   # @param [String,nil] prelude
-  # @param [Integer,nil] loop_count - If this is nil, loop count is automatically estimated and set by warmup.
+  # @param [Integer,nil] loop_count - If this is nil, loop count is automatically estimated by warmup.
   class Job < Struct.new(:name, :script, :prelude, :loop_count)
+    # @param [Integer,nil] guessed_count - Set by runner only when loop_count is nil. This is not configuration.
+    attr_accessor :guessed_count
+
     def warmup_needed?
-      loop_count.nil?
+      # This needs to check original configuration
+      self[:loop_count].nil?
+    end
+
+    def loop_count
+      super || guessed_count
     end
   end
 
