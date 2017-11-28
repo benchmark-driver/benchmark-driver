@@ -6,10 +6,25 @@ module Benchmark
       def run(config)
         validate_config(config)
 
+        runner_class = Runner.find(config.runner_options.type)
+        output_class = Output.find(config.output_options.type)
+
+        missing_fields = output_class::REQUIRED_FIELDS - runner_class::SUPPORTED_FIELDS
+        unless missing_fields.empty?
+          raise ArgumentError.new(
+            "#{output_class.name} requires #{missing_fields.inspect} fields "\
+            "which are not supported by #{runner_class.name}. Try using another runner."
+          )
+        end
+
         without_stdout_buffering do
-          runner = Runner.find(config.runner_options.type).new(
+          runner = runner_class.new(
             config.runner_options,
-            output: Output.create(config),
+            output: output_class.new(
+              jobs:        config.jobs,
+              executables: config.runner_options.executables,
+              options:     config.output_options,
+            ),
           )
           runner.run(config)
         end

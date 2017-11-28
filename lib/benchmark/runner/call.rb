@@ -8,6 +8,9 @@ require 'benchmark/driver/time'
 # Multiple Ruby binaries: x
 # Memory output: x
 class Benchmark::Runner::Call
+  # This class can provide fields in `Benchmark::Driver::BenchmarkResult` if required by output plugins.
+  SUPPORTED_FIELDS = [:real]
+
   WARMUP_DURATION    = 2
   BENCHMARK_DURATION = 5
 

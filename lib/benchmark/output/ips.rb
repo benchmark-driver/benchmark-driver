@@ -1,4 +1,7 @@
 class Benchmark::Output::Ips
+  # This class requires runner to measure following fields in `Benchmark::Driver::BenchmarkResult` to show output.
+  REQUIRED_FIELDS = [:real]
+
   NAME_LENGTH = 20
 
   # @param [Array<Benchmark::Driver::Configuration::Job>] jobs
@@ -56,7 +59,7 @@ class Benchmark::Output::Ips
     if @row_results.size == @executables.size
       $stdout.print("i/s - #{humanize(result.iterations)} in")
       @row_results.each do |r|
-        $stdout.print(" %3.6fs" % r.duration)
+        $stdout.print(" %3.6fs" % r.real)
       end
       $stdout.puts
     end

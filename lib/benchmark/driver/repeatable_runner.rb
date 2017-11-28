@@ -8,10 +8,11 @@ class Benchmark::Driver::RepeatableRunner
   # @param [Proc] runner - should take (job, unit_iters) and return duration.
   # @return [Benchmark::Driver::BenchmarkResult]
   def run(repeat_count:, runner:)
-    durations = (repeat_count || 1).times.map do
+    real_times = (repeat_count || 1).times.map do
       runner.call(@job, @job.loop_count)
     end
-    duration = durations.select { |d| d > 0 }.min || durations.max
-    result = Benchmark::Driver::BenchmarkResult.new(@job, duration, @job.loop_count)
+    Benchmark::Driver::BenchmarkResult.new(@job).tap do |result|
+      result.real = real_times.select { |d| d > 0 }.min || real_times.max
+    end
   end
 end

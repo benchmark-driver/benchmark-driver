@@ -11,6 +11,9 @@ require 'benchmark/driver/time'
 # Multiple Ruby binaries: o
 # Memory output: o
 class Benchmark::Runner::Exec
+  # This class can provide fields in `Benchmark::Driver::BenchmarkResult` if required by output plugins.
+  SUPPORTED_FIELDS = [:real, :max_rss]
+
   WARMUP_DURATION    = 1
   BENCHMARK_DURATION = 4
   GUESS_TIMES = [1, 1_000, 1_000_000, 10_000_000, 100_000_000]
@@ -37,14 +40,7 @@ class Benchmark::Runner::Exec
       @output.running(job.name)
 
       @options.executables.each do |executable|
-        result = Benchmark::Driver::RepeatableRunner.new(job).run(
-          runner: build_runner(executable.path),
-          repeat_count: @options.repeat_count,
-        )
-
-        if result.duration < 0
-          raise Benchmark::Driver::ExecutionTimeTooShort.new(job, result.iterations)
-        end
+        result = run_benchmark(job, executable)
         @output.benchmark_stats(result)
       end
     end
@@ -61,6 +57,37 @@ class Benchmark::Runner::Exec
           "#{self.class.name} only accepts String, but got #{job.script.inspect}"
         )
       end
+    end
+  end
+
+  # @param [Benchmark::Driver::Configuration::Job] job
+  # @param [Benchmark::Driver::Configuration::Executable] executable
+  def run_benchmark(job, executable)
+    fields = @output.class::REQUIRED_FIELDS
+    if fields == [:real]
+      Benchmark::Driver::RepeatableRunner.new(job).run(
+        runner: build_runner(executable.path),
+        repeat_count: @options.repeat_count,
+      ).tap do |result|
+        if result.real < 0
+          raise Benchmark::Driver::ExecutionTimeTooShort.new(job, result.iterations)
+        end
+      end
+    elsif fields == [:max_rss] # TODO: we can also capture other metrics with /usr/bin/time
+      raise '/usr/bin/time is not available' unless File.exist?('/usr/bin/time')
+
+      script = BenchmarkScript.new(job.prelude, job.script).full_script(job.loop_count)
+      with_file(script) do |script_path|
+        out = IO.popen(['/usr/bin/time', executable.path, script_path], err: [:child, :out], &:read)
+        match_data = /^(?<user>\d+.\d+)user\s+(?<system>\d+.\d+)system\s+(?<elapsed1>\d+):(?<elapsed2>\d+.\d+)elapsed.+\([^\s]+\s+(?<maxresident>\d+)maxresident\)k$/.match(out)
+        raise "Unexpected format given from /usr/bin/time:\n#{out}" unless match_data[:maxresident]
+
+        Benchmark::Driver::BenchmarkResult.new(job).tap do |result|
+          result.max_rss = Integer(match_data[:maxresident])
+        end
+      end
+    else
+      raise "Unexpected REQUIRED_FIELDS for #{self.class.name}: #{fields.inspect}"
     end
   end
 
@@ -113,11 +140,17 @@ class Benchmark::Runner::Exec
     end
   end
 
-  def measure_seconds(ruby, script)
+  def with_file(content, &block)
     Tempfile.create(File.basename(__FILE__)) do |f|
-      f.write(script)
+      f.write(content)
       f.close
-      cmd = [ruby, f.path].shelljoin
+      block.call(f.path)
+    end
+  end
+
+  def measure_seconds(ruby, script)
+    with_file(script) do |path|
+      cmd = [ruby, path].shelljoin
 
       before = Benchmark::Driver::Time.now
       system(cmd, out: File::NULL)

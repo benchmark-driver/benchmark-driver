@@ -13,7 +13,7 @@ NOTE: Pending ones are ~slashed~.
 
 - Low overhead benchmark by running generated script instead of calling Proc
 - Running multiple times to minimize measurement errors
-- ~Profiling memory, high-precision real time, user time and system time~
+- Profiling memory, high-precision real time, ~user time and system time~
 
 ### Pluggable & Fully Featured
 
@@ -90,11 +90,12 @@ end
 With `benchmark-driver` command, you can describe benchmark with YAML input.
 
 ```
-$ exe/benchmark-driver -h
+$ benchmark-driver -h
 Usage: benchmark-driver [options] [YAML]
     -e, --executables [EXECS]        Ruby executables (e1::path1; e2::path2; e3::path3;...)
         --rbenv [VERSIONS]           Ruby executables in rbenv (2.3.5;2.4.2;...)
-    -c, --compare
+    -c, --compare                    Compare results (currently only supported in ips output)
+    -r, --repeat-count [NUM]         Try benchmark NUM times and use the fastest result
 ```
 
 #### Running single script

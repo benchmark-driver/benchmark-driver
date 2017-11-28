@@ -1,6 +1,6 @@
-class Benchmark::Output::Time
+class Benchmark::Output::Memory
   # This class requires runner to measure following fields in `Benchmark::Driver::BenchmarkResult` to show output.
-  REQUIRED_FIELDS = [:real]
+  REQUIRED_FIELDS = [:max_rss]
 
   # @param [Array<Benchmark::Driver::Configuration::Job>] jobs
   # @param [Array<Benchmark::Driver::Configuration::Executable>] executables
@@ -28,7 +28,7 @@ class Benchmark::Output::Time
 
   def start_running
     $stdout.puts if @jobs.any?(&:warmup_needed?)
-    $stdout.puts 'benchmark results (s):'
+    $stdout.puts 'max resident memory (KB):'
     $stdout.print("%-#{@name_length}s  " % 'ruby')
     @executables.each do |executable|
       $stdout.print('%-6s  ' % executable.name)
@@ -44,7 +44,7 @@ class Benchmark::Output::Time
 
   # @param [Benchmark::Driver::BenchmarkResult] result
   def benchmark_stats(result)
-    $stdout.print('%-6.3f  ' % result.real)
+    $stdout.print('%-6d  ' % result.max_rss)
     @ran_num += 1
     if @ran_num == @executables.size
       $stdout.puts
