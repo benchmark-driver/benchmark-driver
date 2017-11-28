@@ -17,7 +17,7 @@ class Benchmark::Runner::Exec
   WARMUP_DURATION    = 1
   BENCHMARK_DURATION = 4
   GUESS_TIMES = [1, 1_000, 1_000_000, 10_000_000, 100_000_000]
-  GUESS_THRESHOLD = 0.3 # 300ms
+  GUESS_THRESHOLD = 0.4 # 400ms
 
   # @param [Benchmark::Driver::Configuration::RunnerOptions] options
   # @param [Benchmark::Output::*] output - Object that responds to methods used in this class
