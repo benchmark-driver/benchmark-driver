@@ -1,4 +1,4 @@
-loop_count: 6000000
+loop_count: 20000000
 prelude: |
   class Array
     alias_method :blank?, :empty?
