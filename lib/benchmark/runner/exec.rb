@@ -27,7 +27,7 @@ class Benchmark::Runner::Exec
     validate_config(config)
 
     if config.jobs.any?(&:warmup_needed?)
-      iters_by_job = run_warmup(config.jobs)
+      run_warmup(config.jobs)
     end
 
     @output.start_running
@@ -36,18 +36,8 @@ class Benchmark::Runner::Exec
       @output.running(job.name)
 
       @options.executables.each do |executable|
-        runner = build_runner(executable.path)
-
-        if job.loop_count
-          duration = runner.call(job, job.loop_count)
-          result = Benchmark::Driver::BenchmarkResult.new(job, duration, job.loop_count)
-        else
-          result = Benchmark::Driver::DurationRunner.new(job).run(
-            seconds:    BENCHMARK_DURATION,
-            unit_iters: iters_by_job.fetch(job),
-            runner:     runner,
-          )
-        end
+        duration = build_runner(executable.path).call(job, job.loop_count)
+        result = Benchmark::Driver::BenchmarkResult.new(job, duration, job.loop_count)
 
         if result.duration < 0
           raise Benchmark::Driver::ExecutionTimeTooShort.new(job, result.iterations)
@@ -75,7 +65,6 @@ class Benchmark::Runner::Exec
   # @return [Hash{ Benchmark::Driver::Configuration::Job => Integer }] iters_by_job
   def run_warmup(jobs)
     @output.start_warming
-    iters_by_job = {}
 
     jobs.each do |job|
       next if job.loop_count
@@ -86,15 +75,13 @@ class Benchmark::Runner::Exec
         unit_iters: guess_ip100ms(job),
         runner:     build_runner, # TODO: should use executables instead of RbConfig.ruby
       )
-      iters_by_job[job] = result.ips.ceil
+      job.loop_count = (result.ips.to_f * BENCHMARK_DURATION).to_i
 
       if result.duration < 0
         raise Benchmark::Driver::ExecutionTimeTooShort.new(job, result.iterations)
       end
       @output.warmup_stats(result)
     end
-
-    iters_by_job
   end
 
   # @param [Benchmark::Driver::Configuration::Job] job
