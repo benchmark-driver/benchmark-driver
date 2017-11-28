@@ -137,12 +137,14 @@ class Benchmark::Runner::Exec
   end
 
   class BenchmarkScript < Struct.new(:prelude, :script)
+    BATCH_SIZE = 50
+
     def overhead_script(times)
       raise ArgumentError.new("Negative times: #{times}") if times < 0
       <<-RUBY
 #{prelude}
 __benchmark_driver_i = 0
-while __benchmark_driver_i < #{times}
+while __benchmark_driver_i < #{times / BATCH_SIZE}
   __benchmark_driver_i += 1
 end
       RUBY
@@ -153,10 +155,11 @@ end
       <<-RUBY
 #{prelude}
 __benchmark_driver_i = 0
-while __benchmark_driver_i < #{times}
+while __benchmark_driver_i < #{times / BATCH_SIZE}
   __benchmark_driver_i += 1
-#{script}
+  #{"#{script};" * BATCH_SIZE}
 end
+#{"#{script};" * (times % BATCH_SIZE)}
       RUBY
     end
   end
