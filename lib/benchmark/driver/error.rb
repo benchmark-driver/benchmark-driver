@@ -9,7 +9,8 @@ module Benchmark::Driver
     end
 
     def message
-      "Execution time of job #{@job.name.dump} was too short in #{@iterations} iterations; Please retry or try slower script."
+      "Execution time of job #{@job.name.dump} was too short in #{@iterations} executions;\n  "\
+        'Please retry, try slower script or increase loop_count.'
     end
   end
 end
