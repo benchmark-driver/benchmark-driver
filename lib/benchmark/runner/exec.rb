@@ -161,7 +161,7 @@ class Benchmark::Runner::Exec
   end
 
   class BenchmarkScript < Struct.new(:prelude, :script)
-    BATCH_SIZE = 50
+    BATCH_SIZE = 1000
 
     def overhead_script(times)
       raise ArgumentError.new("Negative times: #{times}") if times < 0
