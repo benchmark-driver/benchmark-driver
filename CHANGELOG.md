@@ -1,3 +1,7 @@
+# v0.4.3
+
+- Add `--filter` to run only specified benchmarks
+
 # v0.4.2
 
 - Exec runner uses `Bundler.with_clean_env`

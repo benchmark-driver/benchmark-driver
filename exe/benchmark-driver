@@ -34,6 +34,10 @@ args = OptionParser.new do |o|
       abort "-r, --repeat-count must take Integer, but got #{v.inspect}"
     end
   end
+  o.on('--filter [REGEXP]', 'Filter out benchmarks with given regexp') do |v|
+    abort '--filter can be used only once' if options.key?(:filter)
+    options[:filter] = v
+  end
   o.on('--dir', 'Override __dir__ from "/tmp" to actual directory of YAML') do |v|
     options[:dir] = v
   end
@@ -64,6 +68,11 @@ args.each do |path|
       end
     when :execs
       config.runner_options.executables = value
+    when :filter
+      filter = Regexp.compile(value)
+      config.jobs.select! do |job|
+        job.name.match(filter)
+      end
     when :repeat_count
       config.runner_options.repeat_count = value
     else
