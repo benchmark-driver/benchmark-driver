@@ -67,7 +67,7 @@ class Benchmark::Runner::Exec
     fields = @output.class::REQUIRED_FIELDS
     if fields == [:real]
       Benchmark::Driver::RepeatableRunner.new(job).run(
-        runner: build_runner(executable.path),
+        runner: build_runner(executable.command),
         repeat_count: @options.repeat_count,
       ).tap do |result|
         if result.real < 0
@@ -79,7 +79,7 @@ class Benchmark::Runner::Exec
 
       script = BenchmarkScript.new(job.prelude, job.script).full_script(job.loop_count)
       with_file(script) do |script_path|
-        out = Bundler.with_clean_env { IO.popen(['/usr/bin/time', executable.path, script_path], err: [:child, :out], &:read) }
+        out = Bundler.with_clean_env { IO.popen(['/usr/bin/time', *executable.command, script_path], err: [:child, :out], &:read) }
         match_data = /^(?<user>\d+.\d+)user\s+(?<system>\d+.\d+)system\s+(?<elapsed1>\d+):(?<elapsed2>\d+.\d+)elapsed.+\([^\s]+\s+(?<maxresident>\d+)maxresident\)k$/.match(out)
         raise "Unexpected format given from /usr/bin/time:\n#{out}" unless match_data[:maxresident]
 
@@ -133,11 +133,11 @@ class Benchmark::Runner::Exec
 
   # @param [String] path - Path to Ruby executable
   # @return [Proc] - Lambda to run benchmark
-  def build_runner(path = RbConfig.ruby)
+  def build_runner(command = [RbConfig.ruby])
     lambda do |job, times|
       benchmark = BenchmarkScript.new(job.prelude, job.script)
-      measure_seconds(path, benchmark.full_script(times)) -
-        measure_seconds(path, benchmark.overhead_script(times))
+      measure_seconds(command, benchmark.full_script(times)) -
+        measure_seconds(command, benchmark.overhead_script(times))
     end
   end
 
@@ -149,9 +149,9 @@ class Benchmark::Runner::Exec
     end
   end
 
-  def measure_seconds(ruby, script)
+  def measure_seconds(command, script)
     with_file(script) do |path|
-      cmd = [ruby, path].shelljoin
+      cmd = [*command, path].shelljoin
 
       Bundler.with_clean_env do
         before = Benchmark::Driver::Time.now

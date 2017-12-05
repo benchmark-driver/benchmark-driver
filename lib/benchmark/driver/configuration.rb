@@ -21,10 +21,10 @@ class Benchmark::Driver::Configuration < Struct.new(:jobs, :runner_options, :out
   end
 
   # @param [String] name
-  # @param [String] path
-  Executable = Struct.new(:name, :path)
+  # @param [Array<String>] command
+  Executable = Struct.new(:name, :command)
 
-  DEFAULT_EXECUTABLES = [Executable.new(RUBY_VERSION, RbConfig.ruby)]
+  DEFAULT_EXECUTABLES = [Executable.new(RUBY_VERSION, [RbConfig.ruby])]
 
   # @param [Symbol] type - Type of runner
   # @param [Array<Benchmark::Driver::Configuration::Executable>] executables

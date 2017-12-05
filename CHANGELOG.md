@@ -1,6 +1,10 @@
+# v0.4.4
+
+- Add `--bundler` option to run benchmark with fixed gems
+
 # v0.4.3
 
-- Add `--filter` to run only specified benchmarks
+- Add `--filter` option to run only specified benchmarks
 
 # v0.4.2
 
