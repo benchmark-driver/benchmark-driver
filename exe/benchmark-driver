@@ -34,11 +34,14 @@ args = OptionParser.new do |o|
       abort "-r, --repeat-count must take Integer, but got #{v.inspect}"
     end
   end
+  o.on('--dir', 'Override __dir__ from "/tmp" to actual directory of YAML') do |v|
+    options[:dir] = v
+  end
 end.parse!(ARGV)
 abort "No YAML file is specified" if args.empty?
 
-args.each do |yaml|
-  yaml = YAML.load(File.read(yaml))
+args.each do |path|
+  yaml = YAML.load(File.read(path))
   Benchmark::Driver::Configuration.symbolize_keys!(yaml)
 
   begin
@@ -54,6 +57,11 @@ args.each do |yaml|
     case key
     when :compare
       config.output_options.compare = value
+    when :dir
+      dir = File.dirname(path)
+      config.jobs.each do |job|
+        job.prelude = "__dir__ = #{dir.dump}.freeze; #{job.prelude}"
+      end
     when :execs
       config.runner_options.executables = value
     when :repeat_count

@@ -1,6 +1,7 @@
 # v0.4.1
 
 - Increase the number of pasted script in one loop: 50 -> 1000
+- Add `--dir` option to override `__dir__`
 
 # v0.4.0
 
@@ -11,6 +12,7 @@
   - Support repeating multiple times and using the best result
   - Add `compare!` switching
   - Gradual loop time estimation for specific duration
+  - Real-time incremental output during benchmark execution
   - Paste the same script 50 times in one loop
 
 # v0.3.0
