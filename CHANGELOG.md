@@ -1,12 +1,17 @@
+# v0.4.1
+
+- Increase the number of pasted script in one loop: 50 -> 1000
+
 # v0.4.0
 
-- *Full scratch*: v0.1...v0.3 has no relationship with v0.4
+- **Full scratch**: v0.1...v0.3 has no relationship with v0.4
   - Plugin support for runner, output
   - Add initial limited Ruby interface in addition to previous YAML input
      - Add new `call` runner for Ruby and `exec` runner for existing functionality
   - Support repeating multiple times and using the best result
   - Add `compare!` switching
   - Gradual loop time estimation for specific duration
+  - Paste the same script 50 times in one loop
 
 # v0.3.0
 
