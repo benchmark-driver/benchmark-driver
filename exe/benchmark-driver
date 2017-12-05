@@ -9,19 +9,20 @@ require 'yaml'
 options = {}
 args = OptionParser.new do |o|
   o.banner = "Usage: #{File.basename($0, '.*')} [options] [YAML]"
-  o.on('-e', '--executables [EXECS]', 'Ruby executables (e1::path1; e2::path2; e3::path3;...)') do |e|
+  o.on('-e', '--executables [EXECS]', 'Ruby executables (e1::path1,arg1,...; e2::path2,arg2;...)') do |e|
     options[:execs] ||= []
     e.split(';').each do |name_path|
       name, path = name_path.split('::', 2)
-      options[:execs] << Benchmark::Driver::Configuration::Executable.new(name, [path || name])
+      options[:execs] << Benchmark::Driver::Configuration::Executable.new(name, path ? path.split(',') : [name])
     end
   end
-  o.on('--rbenv [VERSIONS]', 'Ruby executables in rbenv (2.3.5;2.4.2;...)') do |r|
+  o.on('--rbenv [VERSIONS]', 'Ruby executables in rbenv (x.x.x,arg1,...;y.y.y,arg2,...;...)') do |r|
     options[:execs] ||= []
-    r.split(';').each do |version|
+    r.split(';').each do |spec|
+      version, *args = spec.split(',')
       path = `RBENV_VERSION='#{version}' rbenv which ruby`.rstrip
       abort "Failed to execute 'rbenv which ruby'" unless $?.success?
-      options[:execs] << Benchmark::Driver::Configuration::Executable.new(version, [path])
+      options[:execs] << Benchmark::Driver::Configuration::Executable.new(version, [path, *args])
     end
   end
   o.on('-c', '--compare', 'Compare results (currently only supported in ips output)') do |v|

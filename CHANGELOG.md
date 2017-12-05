@@ -1,3 +1,7 @@
+# v0.4.5
+
+- Allow specifying arguments for ruby executables
+
 # v0.4.4
 
 - Add `--bundler` option to run benchmark with fixed gems
