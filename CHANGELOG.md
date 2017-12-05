@@ -1,3 +1,7 @@
+# v0.4.2
+
+- Exec runner uses `Bundler.with_clean_env`
+
 # v0.4.1
 
 - Increase the number of pasted script in one loop: 50 -> 1000
