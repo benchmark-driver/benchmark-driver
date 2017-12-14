@@ -21,7 +21,7 @@ class Benchmark::Driver::Configuration < Struct.new(:jobs, :runner_options, :out
   end
 
   # @param [String] name
-  # @param [Array<String>] command
+  # @param [Array<String>] command - ["ruby", "-w", ...]. First element should be path to ruby command
   Executable = Struct.new(:name, :command)
 
   DEFAULT_EXECUTABLES = [Executable.new(RUBY_VERSION, [RbConfig.ruby])]
@@ -32,7 +32,7 @@ class Benchmark::Driver::Configuration < Struct.new(:jobs, :runner_options, :out
   class RunnerOptions < Struct.new(:type, :executables, :repeat_count)
     def initialize(*)
       super
-      self.executables = DEFAULT_EXECUTABLES
+      self.executables ||= DEFAULT_EXECUTABLES
     end
 
     def executables_specified?

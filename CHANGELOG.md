@@ -1,5 +1,6 @@
 # v0.5.0
 
+- Automatic bundle install for each Ruby executable on `--bundler` or `--bundle`
 - CLI error handling is improved for empty/invalid arguments
 
 # v0.4.5
