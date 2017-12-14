@@ -1,3 +1,7 @@
+# v0.5.1
+
+- Fix a bug that fails to run multiple Ruby binaries when multiple YAML files are specified
+
 # v0.5.0
 
 - Automatic bundle install for each Ruby executable on `--bundler` or `--bundle`

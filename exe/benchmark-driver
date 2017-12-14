@@ -67,12 +67,14 @@ args.each do |path|
     raise
   end
 
+  opts = options.dup
+
   # Proceed execs first for --bundler
-  if options.key?(:execs)
-    config.runner_options.executables = options.delete(:execs)
+  if opts.key?(:execs)
+    config.runner_options.executables = opts.delete(:execs)
   end
 
-  options.each do |key, value|
+  opts.each do |key, value|
     case key
     when :bundler
       config.runner_options.executables.each do |executable|
