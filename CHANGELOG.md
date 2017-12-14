@@ -1,3 +1,7 @@
+# v0.5.0
+
+- CLI error handling is improved for empty/invalid arguments
+
 # v0.4.5
 
 - Allow specifying arguments for ruby executables

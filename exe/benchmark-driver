@@ -10,6 +10,7 @@ options = {}
 parser = OptionParser.new do |o|
   o.banner = "Usage: #{File.basename($0, '.*')} [options] [YAML]"
   o.on('-e', '--executables [EXECS]', 'Ruby executables (e1::path1,arg1,...; e2::path2,arg2;...)') do |e|
+    abort '-e, --executable must take argument but not given' if e.nil?
     options[:execs] ||= []
     e.split(';').each do |name_path|
       name, path = name_path.split('::', 2)
@@ -17,6 +18,7 @@ parser = OptionParser.new do |o|
     end
   end
   o.on('--rbenv [VERSIONS]', 'Ruby executables in rbenv (x.x.x,arg1,...;y.y.y,arg2,...;...)') do |r|
+    abort '--rbenv must take argument but not given' if r.nil?
     options[:execs] ||= []
     r.split(';').each do |spec|
       version, *args = spec.split(',')
