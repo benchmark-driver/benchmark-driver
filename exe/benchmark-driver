@@ -7,7 +7,7 @@ require 'optparse'
 require 'yaml'
 
 options = {}
-args = OptionParser.new do |o|
+parser = OptionParser.new do |o|
   o.banner = "Usage: #{File.basename($0, '.*')} [options] [YAML]"
   o.on('-e', '--executables [EXECS]', 'Ruby executables (e1::path1,arg1,...; e2::path2,arg2;...)') do |e|
     options[:execs] ||= []
@@ -45,8 +45,11 @@ args = OptionParser.new do |o|
   o.on('--dir', 'Override __dir__ from "/tmp" to actual directory of YAML') do |v|
     options[:dir] = v
   end
-end.parse!(ARGV)
-abort "No YAML file is specified" if args.empty?
+end
+args = parser.parse!(ARGV)
+if args.empty?
+  abort "No YAML file is specified!\n\n#{parser.help}"
+end
 
 args.each do |path|
   yaml = YAML.load(File.read(path))
