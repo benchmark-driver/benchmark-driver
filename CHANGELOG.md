@@ -1,3 +1,10 @@
+# v0.6.0
+
+- Drop support of Ruby interface
+- Drop support of specifying runner, output options on YAML definition
+- Allow specifying output type on CLI
+- Run multiple benchmark files at once, instead of sequentially executing them
+
 # v0.5.1
 
 - Fix a bug that fails to run multiple Ruby binaries when multiple YAML files are specified
