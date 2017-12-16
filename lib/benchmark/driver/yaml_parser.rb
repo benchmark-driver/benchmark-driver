@@ -6,61 +6,18 @@ module Benchmark::Driver::YamlParser
     # @param [String] prelude
     # @param [Integer,nil] loop_count
     # @param [String,Array<String,Hash{ Symbol => String }>,Hash{ Symbol => String }] benchmark
-    # @param [String,Symbol,Hash{ Symbol => Integer,TrueClass,FalseClass }] runner
-    # @param [String,Symbol,Hash{ Symbol => Integer,TrueClass,FalseClass }] output
     # @return [Benchmark::Driver::Configuration]
-    def parse(prelude: '', loop_count: nil, benchmark:, runner: {}, output: {})
+    def parse(prelude: '', loop_count: nil, benchmark:)
       jobs = parse_benchmark(benchmark)
       jobs.each do |job|
         job.prelude = prelude
         job.loop_count ||= loop_count
       end
 
-      config = Benchmark::Driver::Configuration.new(jobs)
-      config.runner_options = parse_runner(runner)
-      config.output_options = parse_output(output)
-      config
+      Benchmark::Driver::Configuration.new(jobs)
     end
 
     private
-
-    # @param [String,Symbol,Hash{ Symbol => Integer,TrueClass,FalseClass }] runner
-    def parse_runner(runner)
-      case runner
-      when String, Symbol
-        Benchmark::Driver::Configuration::RunnerOptions.new(runner.to_sym)
-      when Hash
-        parse_runner_options(runner)
-      else
-        raise ArgumentError.new("Expected String, Symbol or Hash in runner, but got: #{runner.inspect}")
-      end
-    end
-
-    def parse_runner_options(type: DEFAULT_RUNNER, repeat_count: nil)
-      Benchmark::Driver::Configuration::RunnerOptions.new.tap do |r|
-        r.type = type.to_sym
-        r.repeat_count = Integer(repeat_count) if repeat_count
-      end
-    end
-
-    # @param [String,Symbol,Hash{ Symbol => Integer,TrueClass,FalseClass }] output
-    def parse_output(output)
-      case output
-      when String, Symbol
-        Benchmark::Driver::Configuration::OutputOptions.new(output.to_sym)
-      when Hash
-        parse_output_options(output)
-      else
-        raise ArgumentError.new("Expected String, Symbol or Hash in output, but got: #{output.inspect}")
-      end
-    end
-
-    def parse_output_options(type: DEFAULT_OUTPUT, compare: false)
-      Benchmark::Driver::Configuration::OutputOptions.new.tap do |r|
-        r.type = type.to_sym
-        r.compare = compare
-      end
-    end
 
     # Parse "benchmark" declarative. This may have multiple benchmarks.
     # @param [String,Array<String,Hash{ Symbol => String }>,Hash{ Symbol => String }] benchmark
