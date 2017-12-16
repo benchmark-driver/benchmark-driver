@@ -12,5 +12,6 @@ module Benchmark::Output
 end
 
 require 'benchmark/output/ips'
+require 'benchmark/output/markdown'
 require 'benchmark/output/memory'
 require 'benchmark/output/time'
