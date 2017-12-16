@@ -9,5 +9,4 @@ module Benchmark::Runner
   end
 end
 
-require 'benchmark/runner/call'
 require 'benchmark/runner/exec'

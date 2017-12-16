@@ -1,20 +1,15 @@
 module Benchmark::Driver::YamlParser
-  DEFAULT_RUNNER = :exec # In YamlParser, we can't use :call.
-  DEFAULT_OUTPUT = :ips
-
   class << self
     # @param [String] prelude
     # @param [Integer,nil] loop_count
     # @param [String,Array<String,Hash{ Symbol => String }>,Hash{ Symbol => String }] benchmark
-    # @return [Benchmark::Driver::Configuration]
+    # @return [Array<Benchmark::Driver::Configuration::Job>]
     def parse(prelude: '', loop_count: nil, benchmark:)
       jobs = parse_benchmark(benchmark)
       jobs.each do |job|
         job.prelude = prelude
         job.loop_count ||= loop_count
       end
-
-      Benchmark::Driver::Configuration.new(jobs)
     end
 
     private
