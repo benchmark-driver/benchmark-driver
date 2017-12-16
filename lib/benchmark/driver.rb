@@ -1,7 +1,7 @@
 module Benchmark
   module Driver
     class << self
-      # Main function which is used by both RubyDriver and YamlDriver.
+      # Main function which is used by exe/benchmark-driver.
       # @param [Benchmark::Driver::Configuration] config
       def run(config)
         validate_config(config)
@@ -51,18 +51,9 @@ module Benchmark
       end
     end
   end
-
-  # RubyDriver entrypoint.
-  def self.driver(*args, &block)
-    dsl = Driver::RubyDslParser.new(*args)
-    block.call(dsl)
-
-    Driver.run(dsl.configuration)
-  end
 end
 
 require 'benchmark/output'
 require 'benchmark/runner'
 require 'benchmark/driver/error'
-require 'benchmark/driver/ruby_dsl_parser'
 require 'benchmark/driver/version'
