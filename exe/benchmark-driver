@@ -32,6 +32,10 @@ parser = OptionParser.new do |o|
       options[:execs] << Benchmark::Driver::Configuration::Executable.new(version, [path, *args])
     end
   end
+  o.on('-o', '--output [TYPE]', 'Specify output type (ips, time, memory)') do |t|
+    abort '-o, --output must take argument but not given' if t.nil?
+    options[:output] = t
+  end
   o.on('-c', '--compare', 'Compare results (currently only supported in ips output)') do |v|
     options[:compare] = v
   end
@@ -106,6 +110,8 @@ options.each do |key, value|
     config.jobs.select! do |job|
       job.name.match(filter)
     end
+  when :output
+    config.output_options.type = value.to_sym
   when :repeat_count
     config.runner_options.repeat_count = value
   else
