@@ -1,3 +1,7 @@
+# v0.6.1
+
+- Support markdown output
+
 # v0.6.0
 
 - Drop support of Ruby interface
