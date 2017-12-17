@@ -1,3 +1,8 @@
+# v0.8.0
+
+- Force using :exec runner for YAML interface
+- Fix bug that executables become emmpty
+
 # v0.7.2
 
 - Respect ignored output option in Ruby interface
