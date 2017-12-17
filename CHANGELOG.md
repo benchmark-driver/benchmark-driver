@@ -1,4 +1,12 @@
+# v0.8.2
+
+- Fix bug on showing error message in `benchmark-driver` command
+
 # v0.8.1
+
+- Fix internal implementation of Eval runner
+  - Now this can accept class definition in prelude
+
 # v0.8.0
 
 - Force using :exec runner for YAML interface
