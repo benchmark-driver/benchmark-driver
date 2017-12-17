@@ -18,11 +18,12 @@ NOTE: Pending ones are ~slashed~.
 ### Pluggable & Fully Featured
 
 - Flexible and real-time output format in ips, execution time, ~markdown table~, etc.
-- Output format is pluggable
+- Runner and output are all pluggable
 - ~Integrated benchmark support using external libraries~
 
 ### Flexible Interface
 
+- Ruby interface similar to benchmark stdlib, benchmark-ips
 - YAML input to easily manage structured benchmark set
 - Comparing multiple Ruby binaries, even with miniruby
 
@@ -33,6 +34,58 @@ $ gem install benchmark_driver
 ```
 
 ## Usage
+
+### Ruby Interface: Compatible Mode
+
+This interface is compatible with `Benchmark.bm` and `Benchmark.ips`, so it's good for migration.
+
+```rb
+require 'benchmark/driver'
+require 'active_support/all'
+array = []
+
+Benchmark.driver do |x|
+  x.report('blank?') { array.blank? }
+  x.report('empty?') { array.empty? }
+  x.compare!
+end
+```
+
+### Ruby Interface: Low Overhead Mode
+
+This interface generates code to profile with low overhead and executes it.
+
+```rb
+require 'benchmark/driver'
+
+Benchmark.driver do |x|
+  x.prelude = <<~RUBY
+    require 'active_support/all'
+    array = []
+  RUBY
+
+  x.report('blank?', script: 'array.blank?')
+  x.report('empty?', script: 'array.empty?')
+end
+```
+
+or simply:
+
+```rb
+require 'benchmark/driver'
+
+Benchmark.driver do |x|
+  x.prelude = <<~RUBY
+    require 'active_support/all'
+    array = []
+  RUBY
+
+  x.report(script: 'array.blank?')
+  x.report(script: 'array.empty?')
+end
+```
+
+### Structured YAML Input
 
 With `benchmark-driver` command, you can describe benchmark with YAML input.
 
@@ -45,7 +98,7 @@ Usage: benchmark-driver [options] [YAML]
     -r, --repeat-count [NUM]         Try benchmark NUM times and use the fastest result
 ```
 
-### Running single script
+#### Running single script
 
 With following `example_single.yml`,
 
@@ -71,7 +124,7 @@ Comparison:
   erb.result (2.4.2):    109268.4 i/s - 1.13x  slower
 ```
 
-### Running multiple scripts
+#### Running multiple scripts
 
 One YAML file can contain multiple benchmark scripts.
 With following `example_multi.yml`,
@@ -106,14 +159,15 @@ Comparison:
 
 ## TODO
 ### Runner
+- [x] Call
 - [x] Exec
 - [ ] Eval
 
 ### Output
 - [x] IPS
 - [x] Time
-- [x] Memory
 - [ ] CPU/System/Real Time
+- [ ] Memory
 - [ ] Markdown Table
 
 ## Contributing
