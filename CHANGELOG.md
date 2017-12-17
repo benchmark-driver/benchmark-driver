@@ -1,3 +1,7 @@
+# v0.7.2
+
+- Respect ignored output option in Ruby interface
+
 # v0.7.1
 
 - Add `x.rbenv` to Ruby interface
