@@ -9,7 +9,7 @@ Benchmark.driver do |x|
     small_b = "World"
   EOS
 
-  x.report('large', script: '"#{large_a}, #{large_b}!"')
-  x.report('small', script: '"#{small_a}, #{small_b}!"')
+  x.report('large', '"#{large_a}, #{large_b}!"')
+  x.report('small', '"#{small_a}, #{small_b}!"')
   x.compare!
 end

@@ -64,8 +64,8 @@ Benchmark.driver do |x|
     array = []
   RUBY
 
-  x.report('blank?', script: 'array.blank?')
-  x.report('empty?', script: 'array.empty?')
+  x.report('blank?', 'array.blank?')
+  x.report('empty?', 'array.empty?')
 end
 ```
 

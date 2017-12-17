@@ -37,10 +37,8 @@ class Benchmark::Driver::RubyDslParser
   # @param [String,nil] name   - Name shown on result output. This must be provided if block is given.
   # @param [String,nil] script - Benchmarked script in String. Only either of script or block must be provided.
   # @param [Proc,nil]   block  - Benchmarked Proc object.
-  def report(name = nil, script: nil, &block)
-    if script.nil? && !block_given?
-      raise ArgumentError.new('script or block must be provided')
-    elsif !script.nil? && block_given?
+  def report(name = nil, script = nil, &block)
+    if !script.nil? && block_given?
       raise ArgumentError.new('script and block cannot be specified at the same time')
     elsif name.nil? && block_given?
       raise ArgumentError.new('name must be specified if block is given')
@@ -50,7 +48,7 @@ class Benchmark::Driver::RubyDslParser
       raise ArgumentError.new("script must be String but got #{script.inspect}")
     end
 
-    @jobs << Benchmark::Driver::Configuration::Job.new(name || script, script || block)
+    @jobs << Benchmark::Driver::Configuration::Job.new(name, script || block || name)
   end
 
   def compare!

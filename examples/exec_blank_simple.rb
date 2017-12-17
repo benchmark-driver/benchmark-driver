@@ -7,7 +7,7 @@ Benchmark.driver(runner: :exec) do |x|
     end
     array = []
   EOS
-  x.report 'array.empty?', %{ array.empty? }
-  x.report 'array.blank?', %{ array.blank? }
+  x.report %{ array.empty? }
+  x.report %{ array.blank? }
   x.compare!
 end
