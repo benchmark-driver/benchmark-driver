@@ -10,4 +10,5 @@ module Benchmark::Runner
 end
 
 require 'benchmark/runner/call'
+require 'benchmark/runner/eval'
 require 'benchmark/runner/exec'

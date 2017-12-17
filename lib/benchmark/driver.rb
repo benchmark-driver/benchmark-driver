@@ -63,7 +63,13 @@ module Benchmark
 
       def runner_type_for(config)
         script_class = config.jobs.first.script.class
-        script_class == Proc ? :call : :exec
+        if script_class == Proc
+          :call
+        elsif config.runner_options.executables_specified?
+          :exec
+        else
+          :eval
+        end
       end
 
       # benchmark_driver ouputs logs ASAP. This enables sync flag for it.

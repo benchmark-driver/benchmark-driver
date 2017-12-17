@@ -1,7 +1,7 @@
 require 'benchmark/driver'
 
 Benchmark.driver do |x|
-  x.prelude = <<-EOS
+  x.prelude <<-EOS
     large_a = "Hellooooooooooooooooooooooooooooooooooooooooooooooooooo"
     large_b = "Wooooooooooooooooooooooooooooooooooooooooooooooooooorld"
 
