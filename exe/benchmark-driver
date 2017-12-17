@@ -66,7 +66,7 @@ jobs = args.flat_map do |path|
   begin
     Benchmark::Driver::YamlParser.parse(yaml)
   rescue ArgumentError
-    $stderr.puts "benchmark-driver: Failed to parse #{yaml.dump}."
+    $stderr.puts "benchmark-driver: Failed to parse #{path.dump}."
     $stderr.puts '  YAML format may be wrong. See error below:'
     $stderr.puts
     raise
