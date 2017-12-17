@@ -41,7 +41,7 @@ class Benchmark::Driver::Configuration < Struct.new(:jobs, :runner_options, :out
   # @param [Symbol] type - Type of runner
   # @param [Array<Benchmark::Driver::Configuration::Executable>] executables
   # @param [Integer,nil] repeat_count - Times to repeat benchmarks. When this is not nil, benchmark_driver will use the best result.
-  RunnerOptions = Struct.new(:type, :executables, :repeat_count) do
+  RunnerOptions = Struct.new(:type, :executables, :repeat_count, :bundler) do
     def initialize(*)
       super
       self.executables ||= DEFAULT_EXECUTABLES

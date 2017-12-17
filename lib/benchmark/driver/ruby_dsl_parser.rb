@@ -8,6 +8,7 @@ class Benchmark::Driver::RubyDslParser
     @jobs = []
     @runner = runner
     @execs = []
+    @bundler = false
     @output = :ips
     @compare = false
   end
@@ -19,7 +20,7 @@ class Benchmark::Driver::RubyDslParser
       job.prelude = @prelude
     end
     Benchmark::Driver::Configuration.new(@jobs).tap do |c|
-      c.runner_options = Benchmark::Driver::Configuration::RunnerOptions.new(@runner, @execs)
+      c.runner_options = Benchmark::Driver::Configuration::RunnerOptions.new(@runner, @execs, nil, @bundler)
       c.output_options = Benchmark::Driver::Configuration::OutputOptions.new(@output, @compare)
     end
   end
@@ -41,6 +42,10 @@ class Benchmark::Driver::RubyDslParser
     specs.each do |spec|
       @execs << Benchmark::Driver::Configuration::Executable.parse_rbenv(spec)
     end
+  end
+
+  def bundler
+    @bundler = true
   end
 
   # @param [String,nil] name   - Name shown on result output. This must be provided if block is given.

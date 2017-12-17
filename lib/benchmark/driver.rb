@@ -19,6 +19,13 @@ module Benchmark
           config.runner_options.type = runner_type_for(config)
         end
 
+        if config.runner_options.bundler
+          config.runner_options.executables.each do |executable|
+            Benchmark::Driver::BundleInstaller.bundle_install_for(executable)
+            executable.command << '-rbundler/setup'
+          end
+        end
+
         runner_class = Runner.find(config.runner_options.type)
         output_class = Output.find(config.output_options.type)
 
@@ -88,6 +95,7 @@ end
 
 require 'benchmark/output'
 require 'benchmark/runner'
+require 'benchmark/driver/bundle_installer'
 require 'benchmark/driver/error'
 require 'benchmark/driver/ruby_dsl_parser'
 require 'benchmark/driver/version'
