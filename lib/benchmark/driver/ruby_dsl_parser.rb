@@ -7,7 +7,7 @@ class Benchmark::Driver::RubyDslParser
     @prelude = nil
     @jobs = []
     @runner = runner
-    @execs = []
+    @execs = nil
     @bundler = false
     @output = output
     @compare = false
@@ -39,6 +39,7 @@ class Benchmark::Driver::RubyDslParser
 
   # @param [Array<String>] specs
   def rbenv(*specs)
+    @execs ||= []
     specs.each do |spec|
       @execs << Benchmark::Driver::Configuration::Executable.parse_rbenv(spec)
     end
