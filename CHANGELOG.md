@@ -1,3 +1,9 @@
+# v0.6.2
+
+- Resurrect support of Ruby interface dropped at v0.6.0
+- Invalidate wrong configuration
+- Decide runner type automatically for Ruby interface
+
 # v0.6.1
 
 - Support markdown output
