@@ -1,3 +1,10 @@
+# v0.7.0
+
+- Change Ruby interface for specifying prelude and script
+  - #prelude= is remaed to #prelude
+  - `script:` is no longer a keyword argument
+- Add Eval runner and it's made default for Ruby interface when script is String
+
 # v0.6.2
 
 - Resurrect support of Ruby interface dropped at v0.6.0

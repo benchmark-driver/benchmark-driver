@@ -42,9 +42,9 @@ This interface is compatible with `Benchmark.bm` and `Benchmark.ips`, so it's go
 ```rb
 require 'benchmark/driver'
 require 'active_support/all'
-array = []
 
 Benchmark.driver do |x|
+  array = []
   x.report('blank?') { array.blank? }
   x.report('empty?') { array.empty? }
   x.compare!
@@ -57,15 +57,12 @@ This interface generates code to profile with low overhead and executes it.
 
 ```rb
 require 'benchmark/driver'
+require 'active_support/all'
 
 Benchmark.driver do |x|
-  x.prelude = <<~RUBY
-    require 'active_support/all'
-    array = []
-  RUBY
-
-  x.report('blank?', 'array.blank?')
-  x.report('empty?', 'array.empty?')
+  x.prelude %{ array = [] }
+  x.report 'blank?', %{ array.blank? }
+  x.report 'empty?', %{ array.empty? }
 end
 ```
 
@@ -73,15 +70,12 @@ or simply:
 
 ```rb
 require 'benchmark/driver'
+require 'active_support/all'
 
 Benchmark.driver do |x|
-  x.prelude = <<~RUBY
-    require 'active_support/all'
-    array = []
-  RUBY
-
-  x.report(script: 'array.blank?')
-  x.report(script: 'array.empty?')
+  x.prelude %{ array = [] }
+  x.report %{ array.blank?' }
+  x.report %{ array.empty?' }
 end
 ```
 
