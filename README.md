@@ -7,13 +7,11 @@ Fully-featured accurate benchmark driver for Ruby
 Beta. Features are almost implemented but interface may change in the future.
 
 ## Features
-NOTE: Pending ones are ~slashed~.
-
 ### Accurate Measurement
 
 - Low overhead benchmark by running generated script instead of calling Proc
 - Running multiple times to minimize measurement errors
-- Profiling memory, high-precision real time, ~user time and system time~
+- Profiling memory, high-precision real time
 
 ### Pluggable & Fully Featured
 
@@ -150,19 +148,6 @@ Comparison:
         join (trunk):   4740075.1 i/s - 1.27x  slower
   str-interp (2.4.2):   4305563.1 i/s - 1.40x  slower
 ```
-
-## TODO
-### Runner
-- [x] Call
-- [x] Exec
-- [x] Eval
-
-### Output
-- [x] IPS
-- [x] Time
-- [x] Memory
-- [x] Markdown Table
-- [ ] CPU/System/Real Time
 
 ## Contributing
 
