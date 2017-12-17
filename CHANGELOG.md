@@ -1,3 +1,8 @@
+# v0.7.1
+
+- Add `x.rbenv` to Ruby interface
+- Add `x.bundler` to Ruby interface
+
 # v0.7.0
 
 - Change Ruby interface for specifying prelude and script
