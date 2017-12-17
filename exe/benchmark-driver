@@ -77,7 +77,7 @@ end
 # Proceed parsed options
 #
 config = Benchmark::Driver::Configuration.new(jobs)
-config.runner_options = Benchmark::Driver::Configuration::RunnerOptions.new(:exec)
+config.runner_options = Benchmark::Driver::Configuration::RunnerOptions.new
 config.output_options = Benchmark::Driver::Configuration::OutputOptions.new(:ips)
 
 options.each do |key, value|
