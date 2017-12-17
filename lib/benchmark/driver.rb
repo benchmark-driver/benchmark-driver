@@ -57,6 +57,8 @@ module Benchmark
         unless config.jobs.all? { |j| j.script.is_a?(script_class) }
           raise InvalidConfig.new('Benchmark scripts include both String and Proc. Only either of them should be specified.')
         end
+
+        # TODO: invalidate prelude for call runner
       end
 
       def runner_type_for(config)

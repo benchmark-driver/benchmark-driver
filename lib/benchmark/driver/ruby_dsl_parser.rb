@@ -22,16 +22,16 @@ class Benchmark::Driver::RubyDslParser
     end
   end
 
-  # @param [String] prelude - Script required for benchmark whose execution time is not measured.
-  def prelude=(prelude)
-    unless prelude.is_a?(String)
-      raise ArgumentError.new("prelude must be String but got #{prelude.inspect}")
+  # @param [String] prelude_script - Script required for benchmark whose execution time is not measured.
+  def prelude(prelude_script)
+    unless prelude_script.is_a?(String)
+      raise ArgumentError.new("prelude must be String but got #{prelude_script.inspect}")
     end
     unless @prelude.nil?
       raise ArgumentError.new("prelude is already set:\n#{@prelude}")
     end
 
-    @prelude = prelude
+    @prelude = prelude_script
   end
 
   # @param [String,nil] name   - Name shown on result output. This must be provided if block is given.
