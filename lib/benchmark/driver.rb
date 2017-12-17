@@ -15,6 +15,9 @@ module Benchmark
       # @param [Benchmark::Driver::Configuration] config
       def run(config)
         validate_config(config)
+        if config.runner_options.type.nil?
+          config.runner_options.type = runner_type_for(config)
+        end
 
         runner_class = Runner.find(config.runner_options.type)
         output_class = Output.find(config.output_options.type)
@@ -54,6 +57,11 @@ module Benchmark
         unless config.jobs.all? { |j| j.script.is_a?(script_class) }
           raise InvalidConfig.new('Benchmark scripts include both String and Proc. Only either of them should be specified.')
         end
+      end
+
+      def runner_type_for(config)
+        script_class = config.jobs.first.script.class
+        script_class == Proc ? :call : :exec
       end
 
       # benchmark_driver ouputs logs ASAP. This enables sync flag for it.

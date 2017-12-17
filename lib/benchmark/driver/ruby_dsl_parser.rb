@@ -1,7 +1,9 @@
 require 'benchmark/driver/configuration'
 
 class Benchmark::Driver::RubyDslParser
-  def initialize(runner: :call, output: :ips)
+  # @param [Symbol,nil] runner - If this is nil, this is automatically decided by Benchmark::Driver#runner_type_for
+  # @param [Symbol] output
+  def initialize(runner: nil, output: :ips)
     @prelude = nil
     @jobs = []
     @runner_options = Benchmark::Driver::Configuration::RunnerOptions.new(runner)

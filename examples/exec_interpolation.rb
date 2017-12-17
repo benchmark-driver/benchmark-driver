@@ -1,6 +1,6 @@
 require 'benchmark/driver'
 
-Benchmark.driver(runner: :exec) do |x|
+Benchmark.driver do |x|
   x.prelude = <<-EOS
     large_a = "Hellooooooooooooooooooooooooooooooooooooooooooooooooooo"
     large_b = "Wooooooooooooooooooooooooooooooooooooooooooooooooooorld"
