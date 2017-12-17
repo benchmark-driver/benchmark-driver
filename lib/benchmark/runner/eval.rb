@@ -101,17 +101,16 @@ class Benchmark::Runner::Eval
 
   def eval_times(job, times)
     benchmark = BenchmarkScript.new(job.prelude, job.script)
-    mod = Module.new
-    benchmark.compile_overhead!(mod, times)
-    benchmark.compile_full_script!(mod, times)
+    overhead = benchmark.overhead(times)
+    full_script = benchmark.full_script(times)
 
     before = Benchmark::Driver::Time.now
-    mod.overhead
+    eval(overhead, TOPLEVEL_BINDING)
     after = Benchmark::Driver::Time.now
     overhead_duration = after.to_f - before.to_f
 
     before = Benchmark::Driver::Time.now
-    mod.full_script
+    eval(full_script, TOPLEVEL_BINDING)
     after = Benchmark::Driver::Time.now
     full_script_duration = after.to_f - before.to_f
 
@@ -121,31 +120,27 @@ class Benchmark::Runner::Eval
   class BenchmarkScript < Struct.new(:prelude, :script)
     BATCH_SIZE = 1000
 
-    def compile_overhead!(mod, times)
+    def overhead(times)
       raise ArgumentError.new("Negative times: #{times}") if times < 0
-      mod.module_eval(<<-RUBY)
-def self.overhead
-  #{prelude}
-  __benchmark_driver_i = 0
-  while __benchmark_driver_i < #{times / BATCH_SIZE}
-    __benchmark_driver_i += 1
-  end
+      <<-RUBY
+#{prelude}
+__benchmark_driver_i = 0
+while __benchmark_driver_i < #{times / BATCH_SIZE}
+  __benchmark_driver_i += 1
 end
       RUBY
     end
 
-    def compile_full_script!(mod, times)
+    def full_script(times)
       raise ArgumentError.new("Negative times: #{times}") if times < 0
-      mod.module_eval(<<-RUBY)
-def self.full_script
-  #{prelude}
-  __benchmark_driver_i = 0
-  while __benchmark_driver_i < #{times / BATCH_SIZE}
-    __benchmark_driver_i += 1
-    #{"#{script};" * BATCH_SIZE}
-  end
-  #{"#{script};" * (times % BATCH_SIZE)}
+      <<-RUBY
+#{prelude}
+__benchmark_driver_i = 0
+while __benchmark_driver_i < #{times / BATCH_SIZE}
+  __benchmark_driver_i += 1
+  #{"#{script};" * BATCH_SIZE}
 end
+#{"#{script};" * (times % BATCH_SIZE)}
       RUBY
     end
   end
