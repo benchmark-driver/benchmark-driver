@@ -17,18 +17,14 @@ parser = OptionParser.new do |o|
     abort '-e, --executable must take argument but not given' if e.nil?
     options[:execs] ||= []
     e.split(';').each do |name_path|
-      name, path = name_path.split('::', 2)
-      options[:execs] << Benchmark::Driver::Configuration::Executable.new(name, path ? path.split(',') : [name])
+      options[:execs] << Benchmark::Driver::Configuration::Executable.parse(name_path)
     end
   end
   o.on('--rbenv [VERSIONS]', 'Ruby executables in rbenv (x.x.x,arg1,...;y.y.y,arg2,...;...)') do |r|
     abort '--rbenv must take argument but not given' if r.nil?
     options[:execs] ||= []
     r.split(';').each do |spec|
-      version, *args = spec.split(',')
-      path = `RBENV_VERSION='#{version}' rbenv which ruby`.rstrip
-      abort "Failed to execute 'rbenv which ruby'" unless $?.success?
-      options[:execs] << Benchmark::Driver::Configuration::Executable.new(version, [path, *args])
+      options[:execs] << Benchmark::Driver::Configuration::Executable.parse_rbenv(spec)
     end
   end
   o.on('-o', '--output [TYPE]', 'Specify output type (ips, time, memory, markdown)') do |t|

@@ -6,7 +6,7 @@ class Benchmark::Driver::Configuration < Struct.new(:jobs, :runner_options, :out
   # @param [String,Proc] sctipt
   # @param [String,nil] prelude
   # @param [Integer,nil] loop_count - If this is nil, loop count is automatically estimated by warmup.
-  class Job < Struct.new(:name, :script, :prelude, :loop_count)
+  Job = Struct.new(:name, :script, :prelude, :loop_count) do
     # @param [Integer,nil] guessed_count - Set by runner only when loop_count is nil. This is not configuration.
     attr_accessor :guessed_count
 
@@ -16,20 +16,32 @@ class Benchmark::Driver::Configuration < Struct.new(:jobs, :runner_options, :out
     end
 
     def loop_count
-      super || guessed_count
+      self[:loop_count] || guessed_count
     end
   end
 
   # @param [String] name
   # @param [Array<String>] command - ["ruby", "-w", ...]. First element should be path to ruby command
-  Executable = Struct.new(:name, :command)
+  Executable = Struct.new(:name, :command) do
+    def self.parse(name_path)
+      name, path = name_path.split('::', 2)
+      Benchmark::Driver::Configuration::Executable.new(name, path ? path.split(',') : [name])
+    end
+
+    def self.parse_rbenv(spec)
+      version, *args = spec.split(',')
+      path = `RBENV_VERSION='#{version}' rbenv which ruby`.rstrip
+      abort "Failed to execute 'rbenv which ruby'" unless $?.success?
+      Benchmark::Driver::Configuration::Executable.new(version, [path, *args])
+    end
+  end
 
   DEFAULT_EXECUTABLES = [Executable.new(RUBY_VERSION, [RbConfig.ruby])]
 
   # @param [Symbol] type - Type of runner
   # @param [Array<Benchmark::Driver::Configuration::Executable>] executables
   # @param [Integer,nil] repeat_count - Times to repeat benchmarks. When this is not nil, benchmark_driver will use the best result.
-  class RunnerOptions < Struct.new(:type, :executables, :repeat_count)
+  RunnerOptions = Struct.new(:type, :executables, :repeat_count) do
     def initialize(*)
       super
       self.executables ||= DEFAULT_EXECUTABLES

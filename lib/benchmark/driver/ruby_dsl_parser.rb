@@ -6,8 +6,10 @@ class Benchmark::Driver::RubyDslParser
   def initialize(runner: nil, output: :ips)
     @prelude = nil
     @jobs = []
-    @runner_options = Benchmark::Driver::Configuration::RunnerOptions.new(runner)
-    @output_options = Benchmark::Driver::Configuration::OutputOptions.new(output)
+    @runner = runner
+    @execs = []
+    @output = :ips
+    @compare = false
   end
 
   # API to fetch configuration parsed from DSL
@@ -17,8 +19,8 @@ class Benchmark::Driver::RubyDslParser
       job.prelude = @prelude
     end
     Benchmark::Driver::Configuration.new(@jobs).tap do |c|
-      c.runner_options = @runner_options
-      c.output_options = @output_options
+      c.runner_options = Benchmark::Driver::Configuration::RunnerOptions.new(@runner, @execs)
+      c.output_options = Benchmark::Driver::Configuration::OutputOptions.new(@output, @compare)
     end
   end
 
@@ -32,6 +34,13 @@ class Benchmark::Driver::RubyDslParser
     end
 
     @prelude = prelude_script
+  end
+
+  # @param [Array<String>] specs
+  def rbenv(*specs)
+    specs.each do |spec|
+      @execs << Benchmark::Driver::Configuration::Executable.parse_rbenv(spec)
+    end
   end
 
   # @param [String,nil] name   - Name shown on result output. This must be provided if block is given.
@@ -52,6 +61,6 @@ class Benchmark::Driver::RubyDslParser
   end
 
   def compare!
-    @output_options.compare = true
+    @compare = true
   end
 end
