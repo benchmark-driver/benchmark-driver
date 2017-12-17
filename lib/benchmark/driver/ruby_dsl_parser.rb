@@ -9,7 +9,7 @@ class Benchmark::Driver::RubyDslParser
     @runner = runner
     @execs = []
     @bundler = false
-    @output = :ips
+    @output = output
     @compare = false
   end
 
