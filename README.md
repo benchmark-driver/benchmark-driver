@@ -4,7 +4,7 @@ Fully-featured accurate benchmark driver for Ruby
 
 ## Project Status
 
-**Under Construction**
+Beta. Features are almost implemented but interface may change in the future.
 
 ## Features
 NOTE: Pending ones are ~slashed~.
@@ -17,9 +17,9 @@ NOTE: Pending ones are ~slashed~.
 
 ### Pluggable & Fully Featured
 
-- Flexible and real-time output format in ips, execution time, ~markdown table~, etc.
+- Flexible and real-time output format in ips, execution time, markdown table, etc.
 - Runner and output are all pluggable
-- ~Integrated benchmark support using external libraries~
+- Bundler integration for benchmark that requires gems
 
 ### Flexible Interface
 
@@ -155,14 +155,14 @@ Comparison:
 ### Runner
 - [x] Call
 - [x] Exec
-- [ ] Eval
+- [x] Eval
 
 ### Output
 - [x] IPS
 - [x] Time
+- [x] Memory
+- [x] Markdown Table
 - [ ] CPU/System/Real Time
-- [ ] Memory
-- [ ] Markdown Table
 
 ## Contributing
 
