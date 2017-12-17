@@ -1,5 +1,15 @@
 module Benchmark
+  # RubyDriver entrypoint.
+  def self.driver(*args, &block)
+    dsl = Driver::RubyDslParser.new(*args)
+    block.call(dsl)
+
+    Driver.run(dsl.configuration)
+  end
+
   module Driver
+    class InvalidConfig < StandardError; end
+
     class << self
       # Main function which is used by both RubyDriver and YamlDriver.
       # @param [Benchmark::Driver::Configuration] config
@@ -36,7 +46,14 @@ module Benchmark
       private
 
       def validate_config(config)
-        # TODO: make sure all scripts are the same class
+        if config.jobs.empty?
+          raise InvalidConfig.new('No benchmark script is specified')
+        end
+
+        script_class = config.jobs.first.script.class
+        unless config.jobs.all? { |j| j.script.is_a?(script_class) }
+          raise InvalidConfig.new('Benchmark scripts include both String and Proc. Only either of them should be specified.')
+        end
       end
 
       # benchmark_driver ouputs logs ASAP. This enables sync flag for it.
@@ -50,14 +67,6 @@ module Benchmark
         $stdout.sync = sync
       end
     end
-  end
-
-  # RubyDriver entrypoint.
-  def self.driver(*args, &block)
-    dsl = Driver::RubyDslParser.new(*args)
-    block.call(dsl)
-
-    Driver.run(dsl.configuration)
   end
 end
 
