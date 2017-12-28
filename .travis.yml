@@ -5,9 +5,13 @@ rvm:
   - 2.3.6
   - 2.4.3
   - 2.5.0
+cache: bundler
 branches:
   only:
     - master
+install:
+  - ruby -S gem install bundler --version 1.15.4
+  - ruby -S bundle _1.15.4_ install -j4 --without docs
 script:
-  - bundle exec rake ruby_examples
-  - bundle exec rake yaml_examples
+  - ruby -S bundle _1.15.4_ exec rake ruby_examples
+  - ruby -S bundle _1.15.4_ exec rake yaml_examples
