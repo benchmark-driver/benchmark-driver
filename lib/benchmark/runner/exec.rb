@@ -1,7 +1,7 @@
-require 'bundler'
 require 'tempfile'
 require 'shellwords'
 require 'benchmark/driver/benchmark_result'
+require 'benchmark/driver/bundler'
 require 'benchmark/driver/duration_runner'
 require 'benchmark/driver/repeatable_runner'
 require 'benchmark/driver/error'
@@ -79,7 +79,7 @@ class Benchmark::Runner::Exec
 
       script = BenchmarkScript.new(job.prelude, job.script).full_script(job.loop_count)
       with_file(script) do |script_path|
-        out = Bundler.with_clean_env { IO.popen(['/usr/bin/time', *executable.command, script_path], err: [:child, :out], &:read) }
+        out = Benchmark::Driver::Bundler.with_clean_env { IO.popen(['/usr/bin/time', *executable.command, script_path], err: [:child, :out], &:read) }
         match_data = /^(?<user>\d+.\d+)user\s+(?<system>\d+.\d+)system\s+(?<elapsed1>\d+):(?<elapsed2>\d+.\d+)elapsed.+\([^\s]+\s+(?<maxresident>\d+)maxresident\)k$/.match(out)
         raise "Unexpected format given from /usr/bin/time:\n#{out}" unless match_data[:maxresident]
 
@@ -153,7 +153,7 @@ class Benchmark::Runner::Exec
     with_file(script) do |path|
       cmd = [*command, path].shelljoin
 
-      Bundler.with_clean_env do
+      Benchmark::Driver::Bundler.with_clean_env do
         before = Benchmark::Driver::Time.now
         system(cmd, out: File::NULL)
         after = Benchmark::Driver::Time.now
