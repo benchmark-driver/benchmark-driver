@@ -9,9 +9,6 @@ cache: bundler
 branches:
   only:
     - master
-install:
-  - ruby -S gem install bundler --version 1.15.4
-  - ruby -S bundle _1.15.4_ install -j4 --without docs
 script:
-  - ruby -S bundle _1.15.4_ exec rake ruby_examples
-  - ruby -S bundle _1.15.4_ exec rake yaml_examples
+  - for file in $(ls examples/*.rb); do time bundle exec ruby $file; echo; done
+  - for file in $(ls examples/yaml/*.yml); do time bundle exec exe/benchmark-driver $file; echo; done
