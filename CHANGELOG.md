@@ -1,3 +1,7 @@
+# v0.8.3
+
+- Make benchmark\_driver runnable when Bundler is not installed
+
 # v0.8.2
 
 - Fix bug on showing error message in `benchmark-driver` command
