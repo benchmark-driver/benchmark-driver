@@ -14,7 +14,7 @@
 # v0.8.0
 
 - Force using :exec runner for YAML interface
-- Fix bug that executables become emmpty
+- Fix bug that executables become empty
 
 # v0.7.2
 
@@ -28,7 +28,7 @@
 # v0.7.0
 
 - Change Ruby interface for specifying prelude and script
-  - #prelude= is remaed to #prelude
+  - #prelude= is renamed to #prelude
   - `script:` is no longer a keyword argument
 - Add Eval runner and it's made default for Ruby interface when script is String
 
