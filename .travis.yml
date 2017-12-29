@@ -10,6 +10,8 @@ cache: bundler
 branches:
   only:
     - master
+before_install:
+  - gem update --system
 script:
   - bundle exec rake ruby_examples
   - bundle exec rake yaml_examples
