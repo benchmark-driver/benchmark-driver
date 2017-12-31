@@ -5,6 +5,7 @@ class Benchmark::Driver::RubyDslParser
   # @param [Symbol] output
   def initialize(runner: nil, output: :ips)
     @prelude = nil
+    @loop_count = nil
     @jobs = []
     @runner = runner
     @execs = nil
@@ -18,6 +19,7 @@ class Benchmark::Driver::RubyDslParser
   def configuration
     @jobs.each do |job|
       job.prelude = @prelude
+      job.loop_count = @loop_count
     end
     Benchmark::Driver::Configuration.new(@jobs).tap do |c|
       c.runner_options = Benchmark::Driver::Configuration::RunnerOptions.new(@runner, @execs, nil, @bundler)
@@ -68,5 +70,9 @@ class Benchmark::Driver::RubyDslParser
 
   def compare!
     @compare = true
+  end
+
+  def loop_count(count)
+    @loop_count = count
   end
 end
