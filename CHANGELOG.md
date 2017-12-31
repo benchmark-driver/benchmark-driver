@@ -1,3 +1,7 @@
+# v0.8.4
+
+- Add `loop_count` option to Ruby interface
+
 # v0.8.3
 
 - Make benchmark\_driver runnable when Bundler is not installed
