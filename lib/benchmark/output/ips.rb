@@ -98,13 +98,13 @@ class Benchmark::Output::Ips
     r = Rational(sec, iter)
     case
     when r >= 1
-      "#{'%3.2f' % r.to_f} sec"
+      "#{'%3.2f' % r.to_f}s"
     when r >= 1/1000r
-      "#{'%3.2f' % (r * 1_000).to_f} msec"
+      "#{'%3.2f' % (r * 1_000).to_f}ms"
     when r >= 1/1000_000r
-      "#{'%3.2f' % (r * 1_000_000).to_f} usec"
+      "#{'%3.2f' % (r * 1_000_000).to_f}us"
     else
-      "#{'%3.2f' % (r * 1_000_000_000).to_f} nsec"
+      "#{'%3.2f' % (r * 1_000_000_000).to_f}ns"
     end
   end
 
