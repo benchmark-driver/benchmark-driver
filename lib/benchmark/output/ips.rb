@@ -62,7 +62,13 @@ class Benchmark::Output::Ips
         $stdout.print(" %3.6fs" % r.real)
       end
       if @row_results.size == 1
-        $stdout.print(" (#{pretty_sec(@row_results[0].real, result.iterations)}/i)")
+        sec = @row_results[0].real
+        iter = result.iterations
+        if File.exist?('/proc/cpuinfo') && (clks = estimate_clock(sec, iter)) < 1_000
+          $stdout.print(" (#{pretty_sec(sec, iter)}/i, #{clks}clocks/i)")
+        else
+          $stdout.print(" (#{pretty_sec(sec, iter)}/i)")
+        end
       end
       $stdout.puts
     end
@@ -98,14 +104,20 @@ class Benchmark::Output::Ips
     r = Rational(sec, iter)
     case
     when r >= 1
-      "#{'%3.2f' % r.to_f} sec"
+      "#{'%3.2f' % r.to_f}s"
     when r >= 1/1000r
-      "#{'%3.2f' % (r * 1_000).to_f} msec"
+      "#{'%3.2f' % (r * 1_000).to_f}ms"
     when r >= 1/1000_000r
-      "#{'%3.2f' % (r * 1_000_000).to_f} usec"
+      "#{'%3.2f' % (r * 1_000_000).to_f}us"
     else
-      "#{'%3.2f' % (r * 1_000_000_000).to_f} nsec"
+      "#{'%3.2f' % (r * 1_000_000_000).to_f}ns"
     end
+  end
+
+  def estimate_clock sec, iter
+    hz = File.read('/proc/cpuinfo').scan(/cpu MHz\s+:\s+([\d\.]+)/){|(f)| break hz = Rational(f.to_f) * 1_000_000}
+    r = Rational(sec, iter)
+    Integer(r/(1/hz))
   end
 
   def compare
