@@ -1,3 +1,9 @@
+# v0.8.5
+
+- Show time per iteration for ips output
+  - Show clocks too when it's < 1000ns
+- In ips output, 'B' unit (10^9) is changed to 'G'
+
 # v0.8.4
 
 - Add `loop_count` option to Ruby interface
