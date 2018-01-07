@@ -1,7 +1,7 @@
 # v0.8.5
 
 - Show time per iteration for ips output
-  - Show clocks too when it's < 1000ns
+  - Show clocks/i too when it's < 1000 clocks/i
 - In ips output, 'B' unit (10^9) is changed to 'G'
 
 # v0.8.4
