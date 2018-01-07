@@ -84,7 +84,7 @@ class Benchmark::Output::Ips
       case scale
       when 1; 'k'
       when 2; 'M'
-      when 3; 'B'
+      when 3; 'G'
       when 4; 'T'
       when 5; 'Q'
       else # < 1000 or > 10^15, no scale or suffix
