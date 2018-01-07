@@ -61,6 +61,9 @@ class Benchmark::Output::Ips
       @row_results.each do |r|
         $stdout.print(" %3.6fs" % r.real)
       end
+      if @row_results.size == 1
+        $stdout.print(" (#{pretty_sec(@row_results[0].real, result.iterations)}/i)")
+      end
       $stdout.puts
     end
 
@@ -89,6 +92,20 @@ class Benchmark::Output::Ips
         ' '
       end
     "%#{width}.3f#{suffix}" % (value.to_f / (1000 ** scale))
+  end
+
+  def pretty_sec sec, iter
+    r = Rational(sec, iter)
+    case
+    when r >= 1
+      "#{'%3.2f' % r.to_f} sec"
+    when r >= 1/1000r
+      "#{'%3.2f' % (r * 1_000).to_f} msec"
+    when r >= 1/1000_000r
+      "#{'%3.2f' % (r * 1_000_000).to_f} usec"
+    else
+      "#{'%3.2f' % (r * 1_000_000_000).to_f} nsec"
+    end
   end
 
   def compare
