@@ -25,6 +25,7 @@ class Benchmark::Driver::Configuration < Struct.new(:jobs, :runner_options, :out
   Executable = Struct.new(:name, :command) do
     def self.parse(name_path)
       name, path = name_path.split('::', 2)
+      path = File.expand_path(path)
       Benchmark::Driver::Configuration::Executable.new(name, path ? path.split(',') : [name])
     end
 
