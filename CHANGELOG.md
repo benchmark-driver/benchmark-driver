@@ -1,3 +1,7 @@
+# v0.8.6
+
+- Automatically require `benchmark/output/foo` when `-o foo` is specified
+
 # v0.8.5
 
 - Show time per iteration for ips output
