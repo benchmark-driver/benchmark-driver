@@ -1,10 +1,10 @@
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'benchmark/driver/version'
+require 'benchmark_driver/version'
 
 Gem::Specification.new do |spec|
   spec.name          = 'benchmark_driver'
-  spec.version       = Benchmark::Driver::VERSION
+  spec.version       = BenchmarkDriver::VERSION
   spec.authors       = ['Takashi Kokubun']
   spec.email         = ['takashikkbn@gmail.com']
 
