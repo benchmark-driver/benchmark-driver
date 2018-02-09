@@ -2,5 +2,61 @@
 $:.unshift File.expand_path('../lib', __dir__)
 
 require 'benchmark_driver'
+require 'optparse'
 
-puts 'Hello World'
+#
+# Parse command line options
+#
+options = {}
+after_help = '' # to add later
+parser = OptionParser.new do |o|
+  o.banner = "Usage: #{File.basename($0, '.*')} [options] [YAML]"
+  o.on('-e', '--executables [EXECS]', 'Ruby executables (e1::path1,arg1,...; e2::path2,arg2;...)') do |e|
+    abort '-e, --executable must take argument but not given' if e.nil?
+    options[:execs] ||= []
+    e.split(';').each do |name_path|
+      # options[:execs] << Benchmark::Driver::Configuration::Executable.parse(name_path)
+      raise NotImplementedError
+    end
+  end
+  o.on('--rbenv [VERSIONS]', 'Ruby executables in rbenv (x.x.x,arg1,...;y.y.y,arg2,...;...)') do |r|
+    abort '--rbenv must take argument but not given' if r.nil?
+    options[:execs] ||= []
+    r.split(';').each do |spec|
+      # options[:execs] << Benchmark::Driver::Configuration::Executable.parse_rbenv(spec)
+      raise NotImplementedError
+    end
+  end
+  o.on('-o', '--output [TYPE]', 'Specify output type (ips, time, memory, markdown)') do |t|
+    abort '-o, --output must take argument but not given' if t.nil?
+    options[:output] = t
+  end
+  o.on('-c', '--compare', 'Compare results (currently only supported in ips output)') do |v|
+    options[:compare] = v
+  end
+  o.on('-r', '--repeat-count [NUM]', 'Try benchmark NUM times and use the fastest result') do |v|
+    begin
+      options[:repeat_count] = Integer(v)
+    rescue ArgumentError
+      abort "-r, --repeat-count must take Integer, but got #{v.inspect}"
+    end
+  end
+  o.on('--filter [REGEXP]', 'Filter out benchmarks with given regexp') do |v|
+    abort '--filter can be used only once' if options.key?(:filter)
+    options[:filter] = v
+  end
+  o.on('--bundler', "Install and use gems specified in Gemfile") do |v|
+    options[:bundler] = v
+  end
+  o.on('--dir', 'Override __dir__ from "/tmp" to actual directory of YAML') do |v|
+    options[:dir] = v
+  end
+  o.on_tail("-h", "--help", "Show this message") do
+    puts "#{o}#{after_help}"
+    exit
+  end
+end
+args = parser.parse!(ARGV)
+if args.empty?
+  abort "No YAML file is specified!\n\n#{parser.help}#{after_help}"
+end
