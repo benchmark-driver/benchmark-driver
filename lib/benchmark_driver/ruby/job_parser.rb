@@ -14,7 +14,7 @@ module BenchmarkDriver
           job.before.prepend("#{before}\n") if before
           job.after.prepend("#{after}\n") if after
           job.loop_count ||= loop_count
-        end.each(&:deep_freeze)
+        end.each(&:freeze)
       end
 
       private

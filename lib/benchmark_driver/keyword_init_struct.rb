@@ -10,11 +10,15 @@ module BenchmarkDriver
 
       # Freeze members too
       klass.class_eval do
-        def deep_freeze
+        def freeze
           members.each do |member|
-            public_send(member).freeze
+            value = public_send(member)
+            if value.is_a?(Array)
+              value.each(&:freeze)
+            end
+            value.freeze
           end
-          freeze
+          super
         end
       end
 

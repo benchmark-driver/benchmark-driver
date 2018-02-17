@@ -6,7 +6,6 @@ module BenchmarkDriver
     # @param [Array<BenchmarkDriver::*::Job>] jobs
     # @param [BenchmarkDriver::Config] config
     def run(jobs, config:)
-      jobs = filter_jobs(jobs, filters: config.filters)
       jobs.group_by(&:class).each do |klass, jobs_group|
         runner = runner_for(klass)
         runner.run(jobs, config: config)
@@ -14,16 +13,6 @@ module BenchmarkDriver
     end
 
     private
-
-    # @param [Array<BenchmarkDriver::*::Job>] jobs
-    # @param [Array<Regexp>] filters
-    def filter_jobs(jobs, filters:)
-      jobs.select do |job|
-        filters.all? do |filter|
-          job.name.match(filter)
-        end
-      end
-    end
 
     # Dynamically find class (BenchmarkDriver::*::JobRunner) for plugin support
     # @param [Class] klass - BenchmarkDriver::*::Job

@@ -8,60 +8,72 @@ require 'yaml'
 #
 # Parse command line options
 #
-config = BenchmarkDriver::Config.new
-parser = OptionParser.new do |o|
-  o.banner = "Usage: #{File.basename($0, '.*')} [options] [YAML]"
-  o.on('-o', '--output [TYPE]', 'Specify output type (ips, time, memory, markdown) (TODO)') do |t|
-    abort '-o, --output must take argument but not given' if t.nil?
-    config.output = t
-  end
-  o.on('-r', '--rbenv [VERSIONS]', 'Ruby executables in rbenv (x.x.x,arg1,...;y.y.y,arg2,...;...) (TODO)') do |r|
-    abort '-r, --rbenv must take argument but not given' if r.nil?
-    r.split(';').each do |spec|
-      version, *args = spec.split(',')
-      config.execs << BenchmarkDriver::Config::Executable.new(
-        name: version,
-        command: [Rbenv.ruby_path(version), *args],
-      )
+paths = []
+filters = []
+parsed_config = BenchmarkDriver::Config.new.tap do |config|
+  bundler = false
+  parser = OptionParser.new do |o|
+    o.banner = "Usage: #{File.basename($0, '.*')} [options] [YAML]"
+    o.on('-o', '--output [TYPE]', 'Specify output type (ips, time, memory, markdown) (TODO)') do |t|
+      abort '-o, --output must take argument but not given' if t.nil?
+      config.output = t
+    end
+    o.on('-r', '--rbenv [VERSIONS]', 'Ruby executables in rbenv (x.x.x,arg1,...;y.y.y,arg2,...;...)') do |r|
+      abort '-r, --rbenv must take argument but not given' if r.nil?
+      r.split(';').each do |spec|
+        version, *args = spec.split(',')
+        config.execs << BenchmarkDriver::Config::Executable.new(
+          name: version,
+          command: [Rbenv.ruby_path(version), *args],
+        )
+      end
+    end
+    o.on('-e', '--executables [EXECS]', 'Ruby executables (e1::path1,arg1,...; e2::path2,arg2;...)') do |e|
+      abort '--executable must take argument but not given' if e.nil?
+      e.split(';').each do |name_path|
+        name, path = name_path.split('::', 2)
+        config.execs << BenchmarkDriver::Config::Executable.new(
+          name: name,
+          command: path ? path.split(',') : [name],
+        )
+      end
+    end
+    o.on('--repeat-count [NUM]', 'Try benchmark NUM times and use the fastest result (TODO)') do |v|
+      begin
+        config.repeat_count = Integer(v)
+      rescue ArgumentError
+        abort "-r, --repeat-count must take Integer, but got #{v.inspect}"
+      end
+    end
+    o.on('--filter [REGEXP]', 'Filter out benchmarks with given regexp') do |v|
+      filters << Regexp.compile(v)
+    end
+    o.on('--bundler', 'Install and use gems specified in Gemfile') do |v|
+      bundler = v
     end
   end
-  o.on('-e', '--executables [EXECS]', 'Ruby executables (e1::path1,arg1,...; e2::path2,arg2;...) (TODO)') do |e|
-    abort '--executable must take argument but not given' if e.nil?
-    e.split(';').each do |name_path|
-      name, path = name_path.split('::', 2)
-      config.execs << BenchmarkDriver::Config::Executable.new(
-        name: name,
-        command: path ? path.split(',') : [name],
-      )
+  paths = parser.parse!(ARGV)
+  if paths.empty?
+    abort "No YAML file is specified!\n\n#{parser.help}"
+  end
+
+  # Configs that need to be set lazily
+  if config.execs.empty?
+    config.execs = [BenchmarkDriver::Config::Executable.new(name: RUBY_VERSION, command: [RbConfig.ruby])]
+  end
+  if bundler
+    config.execs.each do |exec|
+      exec.command << '-rbundler/setup'
     end
   end
-  o.on('--repeat-count [NUM]', 'Try benchmark NUM times and use the fastest result (TODO)') do |v|
-    begin
-      config.repeat_count = Integer(v)
-    rescue ArgumentError
-      abort "-r, --repeat-count must take Integer, but got #{v.inspect}"
-    end
-  end
-  o.on('--filter [REGEXP]', 'Filter out benchmarks with given regexp') do |v|
-    config.filters << Regexp.compile(v)
-  end
-  o.on('--bundler', "Install and use gems specified in Gemfile (TODO)") do |v|
-    config.bundler = v
-  end
-  o.on('--dir', 'Override __dir__ from "/tmp" to actual directory of YAML (TODO)') do |v|
-    config.dir = v
-  end
-end
-args = parser.parse!(ARGV)
-config.deep_freeze
-if args.empty?
-  abort "No YAML file is specified!\n\n#{parser.help}"
+
+  config.freeze
 end
 
 #
 # Parse benchmark job definitions
 #
-jobs = args.flat_map do |path|
+jobs = paths.flat_map do |path|
   job = YAML.load(File.read(path))
 
   begin
@@ -72,6 +84,10 @@ jobs = args.flat_map do |path|
     $stderr.puts
     raise
   end
+end.select do |job|
+  filters.all? do |filter|
+    job.name.match(filter)
+  end
 end
 
-BenchmarkDriver::JobRunner.run(jobs, config: config)
+BenchmarkDriver::JobRunner.run(jobs, config: parsed_config)
