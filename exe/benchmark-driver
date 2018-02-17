@@ -42,8 +42,8 @@ parser = OptionParser.new do |o|
       abort "-r, --repeat-count must take Integer, but got #{v.inspect}"
     end
   end
-  o.on('--filter [REGEXP]', 'Filter out benchmarks with given regexp (TODO)') do |v|
-    config.filters << v
+  o.on('--filter [REGEXP]', 'Filter out benchmarks with given regexp') do |v|
+    config.filters << Regexp.compile(v)
   end
   o.on('--bundler', "Install and use gems specified in Gemfile (TODO)") do |v|
     config.bundler = v

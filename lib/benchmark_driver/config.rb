@@ -5,7 +5,7 @@ module BenchmarkDriver
     :output,       # @param [String] output
     :execs,        # @param [Array<BenchmarkDriver::Config::Executable>]
     :repeat_count, # @param [Integer] repeat_count
-    :filters,      # @param [Array<String>] filters
+    :filters,      # @param [Array<Regexp>] filters
     :bundler,      # @param [TrueClass,FalseClass] bundler
     :dir,          # @param [TrueClass,FalseClass] dir
   ) do
