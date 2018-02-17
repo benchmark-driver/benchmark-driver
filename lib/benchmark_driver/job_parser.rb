@@ -1,13 +1,11 @@
-require 'benchmark_driver/ruby/job_parser'
+require 'benchmark_driver/default/job_parser'
 
 module BenchmarkDriver
   class << JobParser = Module.new
-    DEFAULT_TYPE = 'ruby'
-
     # @param [Hash] config
     def parse(config)
       config = symbolize_keys(config)
-      type = config.fetch(:type, DEFAULT_TYPE)
+      type = config.fetch(:type)
       if !type.is_a?(String)
         raise ArgumentError.new("Invalid type: #{config[:type].inspect} (expected String)")
       elsif !type.match(/\A[A-Za-z0-9_]+\z/)

@@ -1,7 +1,7 @@
 require 'benchmark_driver/keyword_init_struct'
 
 module BenchmarkDriver
-  module Ruby
+  module Default
     Job = KeywordInitStruct.new(
       :name,       # @param [String] name
       :before,     # @param [String] before

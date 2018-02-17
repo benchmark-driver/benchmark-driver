@@ -10,23 +10,18 @@ require 'yaml'
 #
 paths = []
 filters = []
+driver_type = 'default'
 parsed_config = BenchmarkDriver::Config.new.tap do |config|
   bundler = false
   parser = OptionParser.new do |o|
     o.banner = "Usage: #{File.basename($0, '.*')} [options] [YAML]"
-    o.on('-o', '--output [TYPE]', 'Specify output type (ips, time, memory, markdown) (TODO)') do |t|
-      abort '-o, --output must take argument but not given' if t.nil?
-      config.output = t
+    o.on('-d', '--driver [TYPE]', 'Specify driver type (default, memory, custom)') do |d|
+      abort '-d, --driver must take argument but not given' if d.nil?
+      driver_type = d
     end
-    o.on('-r', '--rbenv [VERSIONS]', 'Ruby executables in rbenv (x.x.x,arg1,...;y.y.y,arg2,...;...)') do |r|
-      abort '-r, --rbenv must take argument but not given' if r.nil?
-      r.split(';').each do |spec|
-        version, *args = spec.split(',')
-        config.execs << BenchmarkDriver::Config::Executable.new(
-          name: version,
-          command: [Rbenv.ruby_path(version), *args],
-        )
-      end
+    o.on('-o', '--output [TYPE]', 'Specify output type (default, simple, markdown) (TODO)') do |o|
+      abort '-o, --output must take argument but not given' if o.nil?
+      config.output = o
     end
     o.on('-e', '--executables [EXECS]', 'Ruby executables (e1::path1,arg1,...; e2::path2,arg2;...)') do |e|
       abort '--executable must take argument but not given' if e.nil?
@@ -35,6 +30,16 @@ parsed_config = BenchmarkDriver::Config.new.tap do |config|
         config.execs << BenchmarkDriver::Config::Executable.new(
           name: name,
           command: path ? path.split(',') : [name],
+        )
+      end
+    end
+    o.on('--rbenv [VERSIONS]', 'Ruby executables in rbenv (x.x.x,arg1,...;y.y.y,arg2,...;...)') do |r|
+      abort '--rbenv must take argument but not given' if r.nil?
+      r.split(';').each do |spec|
+        version, *args = spec.split(',')
+        config.execs << BenchmarkDriver::Config::Executable.new(
+          name: version,
+          command: [Rbenv.ruby_path(version), *args],
         )
       end
     end
@@ -75,6 +80,7 @@ end
 #
 jobs = paths.flat_map do |path|
   job = YAML.load(File.read(path))
+  job = { 'type' => driver_type }.merge!(job)
 
   begin
     BenchmarkDriver::JobParser.parse(job)

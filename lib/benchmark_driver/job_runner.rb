@@ -1,4 +1,4 @@
-require 'benchmark_driver/ruby/job_runner'
+require 'benchmark_driver/default/job_runner'
 
 module BenchmarkDriver
   class << JobRunner = Module.new

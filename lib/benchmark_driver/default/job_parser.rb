@@ -1,14 +1,14 @@
-require 'benchmark_driver/ruby/job'
+require 'benchmark_driver/default/job'
 
 module BenchmarkDriver
-  module Ruby
+  module Default
     class << JobParser = Module.new
       # This method is dynamically called by `BenchmarkDriver::JobParser.parse`
       # @param [String] before
       # @param [String,Array<String,Hash{ Symbol => String }>,Hash{ Symbol => String }] benchmark
       # @param [String] after
       # @param [Integer] loop_count
-      # @return [Array<BenchmarkDriver::Ruby::Job>]
+      # @return [Array<BenchmarkDriver::Default::Job>]
       def parse(before: nil, benchmark:, after: nil, loop_count: nil)
         parse_benchmark(benchmark).each do |job|
           job.before.prepend("#{before}\n") if before

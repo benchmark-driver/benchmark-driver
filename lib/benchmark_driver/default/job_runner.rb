@@ -1,11 +1,12 @@
 module BenchmarkDriver
-  module Ruby
+  module Default
     class << JobRunner = Module.new
       # This method is dynamically called by `BenchmarkDriver::JobRunner.run`
-      # @param [Array<BenchmarkDriver::Ruby::Job>] jobs
+      # @param [Array<BenchmarkDriver::Default::Job>] jobs
       # @param [BenchmarkDriver::Config] config
       def run(jobs, config:)
         # TODO: implement
+        require "pry";binding.pry
       end
     end
   end
