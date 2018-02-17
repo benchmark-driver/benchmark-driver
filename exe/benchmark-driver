@@ -5,23 +5,24 @@ require 'benchmark_driver'
 require 'optparse'
 require 'yaml'
 
-#
-# Parse command line options
-#
-paths = []
-filters = []
 driver_type = 'default'
-parsed_config = BenchmarkDriver::Config.new.tap do |config|
+paths       = []
+filters     = []
+
+# Parse command line options
+parsed_config = BenchmarkDriver::Config.new(repeat_count: 1).tap do |config|
   bundler = false
+  output  = 'default'
+
   parser = OptionParser.new do |o|
     o.banner = "Usage: #{File.basename($0, '.*')} [options] [YAML]"
     o.on('-d', '--driver [TYPE]', 'Specify driver type (default, memory, custom)') do |d|
       abort '-d, --driver must take argument but not given' if d.nil?
       driver_type = d
     end
-    o.on('-o', '--output [TYPE]', 'Specify output type (default, simple, markdown) (TODO)') do |o|
-      abort '-o, --output must take argument but not given' if o.nil?
-      config.output = o
+    o.on('-o', '--output [TYPE]', 'Specify output type (default, simple, markdown, record) (TODO)') do |out|
+      abort '-o, --output must take argument but not given' if out.nil?
+      output = out
     end
     o.on('-e', '--executables [EXECS]', 'Ruby executables (e1::path1,arg1,...; e2::path2,arg2;...)') do |e|
       abort '--executable must take argument but not given' if e.nil?
@@ -71,13 +72,12 @@ parsed_config = BenchmarkDriver::Config.new.tap do |config|
       exec.command << '-rbundler/setup'
     end
   end
+  config.output = BenchmarkDriver::Output.find(output)
 
   config.freeze
 end
 
-#
 # Parse benchmark job definitions
-#
 jobs = paths.flat_map do |path|
   job = YAML.load(File.read(path))
   job = { 'type' => driver_type }.merge!(job)
@@ -96,4 +96,5 @@ end.select do |job|
   end
 end
 
+# Run jobs
 BenchmarkDriver::JobRunner.run(jobs, config: parsed_config)

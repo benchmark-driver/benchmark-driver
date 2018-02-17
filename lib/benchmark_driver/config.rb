@@ -6,7 +6,7 @@ module BenchmarkDriver
     :execs,        # @param [Array<BenchmarkDriver::Config::Executable>]
     :repeat_count, # @param [Integer] repeat_count
   ) do
-    def initialize
+    def initialize(*)
       super
       self.execs ||= []
     end
