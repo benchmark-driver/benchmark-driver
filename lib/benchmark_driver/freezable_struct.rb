@@ -1,5 +1,6 @@
+# Deeply freezable struct
 module BenchmarkDriver
-  class << KeywordInitStruct = Module.new
+  class << FreezableStruct = Module.new
     # @param [Array<Symbol>] args
     def new(*args, &block)
       if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('2.5.0')

@@ -1,8 +1,8 @@
-require 'benchmark_driver/keyword_init_struct'
+require 'benchmark_driver/freezable_struct'
 
 module BenchmarkDriver
   module Default
-    Job = KeywordInitStruct.new(
+    Job = FreezableStruct.new(
       :name,       # @param [String] name
       :before,     # @param [String] before
       :script,     # @param [String] benchmark
