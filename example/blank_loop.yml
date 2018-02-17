@@ -1,5 +1,4 @@
-loop_count: 20000000
-prelude: |
+before: |
   class Array
     alias_method :blank?, :empty?
   end
@@ -7,3 +6,4 @@ prelude: |
 benchmark:
   empty: array.empty?
   blank: array.blank?
+loop_count: 20000000

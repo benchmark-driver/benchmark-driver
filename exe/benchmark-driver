@@ -57,7 +57,6 @@ end
 #
 jobs = args.flat_map do |path|
   job = YAML.load(File.read(path))
-  BenchmarkDriver::JobParser.symbolize_keys!(job)
 
   begin
     BenchmarkDriver::JobParser.parse(job)
@@ -69,4 +68,4 @@ jobs = args.flat_map do |path|
   end
 end
 
-BenchmarkDriver.run(jobs, config: config)
+BenchmarkDriver::JobRunner.run(jobs, config: config)
