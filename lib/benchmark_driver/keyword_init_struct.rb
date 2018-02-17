@@ -2,7 +2,7 @@ module BenchmarkDriver
   class << KeywordInitStruct = Module.new
     # @param [Array<Symbol>] args
     def new(*args, &block)
-      if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('2.7.0')
+      if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('2.5.0')
         klass = Struct.new(*args, keyword_init: true, &block)
       else
         klass = keyword_init_struct(*args, &block)
