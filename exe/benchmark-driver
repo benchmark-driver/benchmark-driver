@@ -23,7 +23,7 @@ config = BenchmarkDriver::Config.new.tap do |c|
       abort '--executable must take argument but not given' if e.nil?
       e.split(';').each do |name_path|
         name, path = name_path.split('::', 2)
-        c.execs << BenchmarkDriver::Config::Executable.new(
+        c.executables << BenchmarkDriver::Config::Executable.new(
           name: name,
           command: path ? path.split(',') : [name],
         )
@@ -33,7 +33,7 @@ config = BenchmarkDriver::Config.new.tap do |c|
       abort '--rbenv must take argument but not given' if r.nil?
       r.split(';').each do |spec|
         version, *args = spec.split(',')
-        c.execs << BenchmarkDriver::Config::Executable.new(
+        c.executables << BenchmarkDriver::Config::Executable.new(
           name: version,
           command: [BenchmarkDriver::Rbenv.ruby_path(version), *args],
         )
@@ -59,11 +59,11 @@ config = BenchmarkDriver::Config.new.tap do |c|
   end
 
   # Configs that need to be set lazily
-  if c.execs.empty?
-    c.execs = [BenchmarkDriver::Config::Executable.new(name: RUBY_VERSION, command: [RbConfig.ruby])]
+  if c.executables.empty?
+    c.executables = [BenchmarkDriver::Config::Executable.new(name: RUBY_VERSION, command: [RbConfig.ruby])]
   end
   if bundler
-    c.execs.each do |exec|
+    c.executables.each do |exec|
       exec.command << '-rbundler/setup'
     end
   end

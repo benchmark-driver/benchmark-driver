@@ -11,16 +11,20 @@ module BenchmarkDriver
         @executables = executables
       end
 
-      # @param [BenchmarkDriver::Metric] metric
-      def report(metric)
-        # TODO: implement
+      # @param [BenchmarkDriver::Metrics] metrics
+      def report(metrics)
+        $stdout.print("#{humanize(metrics.value, [10, metrics.executable.name.length].max)} ")
       end
 
-      def with_benchmark(&block)
+      # @param [BenchmarkDriver::Metrics] metrics
+      def with_benchmark(metrics_type, &block)
+        @metrics_type = metrics_type
         without_stdout_buffering do
           start_running
           block.call
         end
+      ensure
+        @metrics_type = nil
       end
 
       # @param [BenchmarkDriver::*::Job] job
@@ -30,10 +34,9 @@ module BenchmarkDriver
         else
           $stdout.print("%#{NAME_LENGTH}s" % job.name)
         end
-        @job_metrics = []
         block.call
       ensure
-        $stdout.puts
+        $stdout.puts(@metrics_type.unit)
       end
 
       private
@@ -43,7 +46,7 @@ module BenchmarkDriver
         if @executables.size > 1
           $stdout.print(' ' * NAME_LENGTH)
           @executables.each do |executable|
-            $stdout.print(" %10s " % executable.name)
+            $stdout.print(' %10s ' % executable.name)
           end
           $stdout.puts
         end
@@ -55,6 +58,23 @@ module BenchmarkDriver
         yield
       ensure
         $stdout.sync = sync
+      end
+
+      def humanize(value, width = 10)
+        scale = (Math.log10(value) / 3).to_i
+        prefix = "%#{width}.3f" % (value.to_f / (1000 ** scale))
+        suffix =
+          case scale
+          when 1; 'k'
+          when 2; 'M'
+          when 3; 'G'
+          when 4; 'T'
+          when 5; 'Q'
+          else # < 1000 or > 10^15, no scale or suffix
+            scale = 0
+            return " #{prefix}"
+          end
+        "#{prefix}#{suffix}"
       end
     end
   end

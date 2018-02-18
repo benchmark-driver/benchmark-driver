@@ -6,13 +6,13 @@ module BenchmarkDriver
     :driver_type,  # @param [String]
     :output_type,  # @param [String]
     :paths,        # @param [Array<String>]
-    :execs,        # @param [Array<BenchmarkDriver::Config::Executable>]
+    :executables,  # @param [Array<BenchmarkDriver::Config::Executable>]
     :filters,      # @param [Array<Regexp>]
     :repeat_count, # @param [Integer]
     defaults: {
       driver_type: 'default',
       output_type: 'default',
-      execs: [],
+      executables: [],
       filters: [],
       repeat_count: 1,
     },
@@ -20,7 +20,7 @@ module BenchmarkDriver
 
   # Subset of FullConfig passed to JobRunner
   Config::RunnerConfig = ::BenchmarkDriver::Struct.new(
-    :execs,        # @param [Array<BenchmarkDriver::Config::Executable>]
+    :executables,  # @param [Array<BenchmarkDriver::Config::Executable>]
     :repeat_count, # @param [Integer]
   )
 

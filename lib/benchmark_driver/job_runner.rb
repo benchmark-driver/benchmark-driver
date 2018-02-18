@@ -8,10 +8,10 @@ module BenchmarkDriver
     def run(jobs, config:)
       output = Output.find(config.output_type).new(
         jobs: jobs,
-        executables: config.execs,
+        executables: config.executables,
       )
       runner_config = Config::RunnerConfig.new(
-        execs: config.execs,
+        executables: config.executables,
         repeat_count: config.repeat_count,
       )
 
