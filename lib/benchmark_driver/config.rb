@@ -3,14 +3,14 @@ require 'benchmark_driver/struct'
 module BenchmarkDriver
   # All CLI options
   Config = ::BenchmarkDriver::Struct.new(
-    :driver_type,  # @param [String]
+    :runner_type,  # @param [String]
     :output_type,  # @param [String]
     :paths,        # @param [Array<String>]
     :executables,  # @param [Array<BenchmarkDriver::Config::Executable>]
     :filters,      # @param [Array<Regexp>]
     :repeat_count, # @param [Integer]
     defaults: {
-      driver_type: 'default',
+      runner_type: 'default',
       output_type: 'default',
       executables: [],
       filters: [],

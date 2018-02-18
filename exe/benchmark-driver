@@ -11,9 +11,9 @@ config = BenchmarkDriver::Config.new.tap do |c|
   bundler = false
   parser = OptionParser.new do |o|
     o.banner = "Usage: #{File.basename($0, '.*')} [options] [YAML]"
-    o.on('-d', '--driver [TYPE]', 'Specify driver type (default, memory, custom)') do |d|
-      abort '-d, --driver must take argument but not given' if d.nil?
-      c.driver_type = d
+    o.on('-r', '--runner [TYPE]', 'Specify runner type (default, memory, custom)') do |d|
+      abort '-r, --runner must take argument but not given' if d.nil?
+      c.runner_type = d
     end
     o.on('-o', '--output [TYPE]', 'Specify output type (default, simple, markdown, record) (TODO)') do |out|
       abort '-o, --output must take argument but not given' if out.nil?
@@ -74,7 +74,7 @@ end
 # Parse benchmark job definitions
 jobs = config.paths.flat_map do |path|
   job = YAML.load(File.read(path))
-  job = { 'type' => config.driver_type }.merge!(job)
+  job = { 'type' => config.runner_type }.merge!(job)
 
   begin
     BenchmarkDriver::JobParser.parse(job)
@@ -91,4 +91,4 @@ end.select do |job|
 end
 
 # Run jobs
-BenchmarkDriver::JobRunner.run(jobs, config: config)
+BenchmarkDriver::Runner.run(jobs, config: config)

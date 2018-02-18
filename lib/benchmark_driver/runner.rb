@@ -1,7 +1,7 @@
-require 'benchmark_driver/default/job_runner'
+require 'benchmark_driver/runner/default'
 
 module BenchmarkDriver
-  class << JobRunner = Module.new
+  class << Runner
     # Main function which is used by both CLI and `Benchmark.driver`.
     # @param [Array<BenchmarkDriver::*::Job>] jobs
     # @param [BenchmarkDriver::Config] config
@@ -27,10 +27,10 @@ module BenchmarkDriver
     # @param [Class] klass - BenchmarkDriver::*::Job
     # @return [Class]
     def runner_for(klass)
-      unless match = klass.name.match(/\ABenchmarkDriver::(?<namespace>[^:]+)::Job\z/)
+      unless match = klass.name.match(/\ABenchmarkDriver::Runner::(?<namespace>[^:]+)::Job\z/)
         raise "Unexpected job class: #{klass}"
       end
-      BenchmarkDriver.const_get("#{match[:namespace]}::JobRunner", false)
+      BenchmarkDriver.const_get("Runner::#{match[:namespace]}", false)
     end
   end
 end

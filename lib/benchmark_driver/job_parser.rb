@@ -1,4 +1,4 @@
-require 'benchmark_driver/default/job_parser'
+require 'benchmark_driver/runner/default'
 
 module BenchmarkDriver
   class << JobParser = Module.new
@@ -14,7 +14,7 @@ module BenchmarkDriver
       config.delete(:type)
 
       # Dynamic dispatch for plugin support
-      ::BenchmarkDriver.const_get("#{camelize(type)}::JobParser", false).parse(config)
+      ::BenchmarkDriver.const_get("Runner::#{camelize(type)}::JobParser", false).parse(config)
     end
 
     private
