@@ -1,11 +1,27 @@
 require 'benchmark_driver/struct'
 
 module BenchmarkDriver
+  # All CLI options
   Config = ::BenchmarkDriver::Struct.new(
-    :output,       # @param [String] output
+    :driver_type,  # @param [String]
+    :output_type,  # @param [String]
+    :paths,        # @param [Array<String>]
     :execs,        # @param [Array<BenchmarkDriver::Config::Executable>]
-    :repeat_count, # @param [Integer] repeat_count
-    defaults: { execs: [] },
+    :filters,      # @param [Array<Regexp>]
+    :repeat_count, # @param [Integer]
+    defaults: {
+      driver_type: 'default',
+      output_type: 'default',
+      execs: [],
+      filters: [],
+      repeat_count: 1,
+    },
+  )
+
+  # Subset of FullConfig passed to JobRunner
+  Config::RunnerConfig = ::BenchmarkDriver::Struct.new(
+    :execs,        # @param [Array<BenchmarkDriver::Config::Executable>]
+    :repeat_count, # @param [Integer]
   )
 
   Config::Executable = ::BenchmarkDriver::Struct.new(

@@ -5,30 +5,25 @@ require 'benchmark_driver'
 require 'optparse'
 require 'yaml'
 
-driver_type = 'default'
-paths       = []
-filters     = []
 
 # Parse command line options
-parsed_config = BenchmarkDriver::Config.new(repeat_count: 1).tap do |config|
+config = BenchmarkDriver::Config.new.tap do |c|
   bundler = false
-  output  = 'default'
-
   parser = OptionParser.new do |o|
     o.banner = "Usage: #{File.basename($0, '.*')} [options] [YAML]"
     o.on('-d', '--driver [TYPE]', 'Specify driver type (default, memory, custom)') do |d|
       abort '-d, --driver must take argument but not given' if d.nil?
-      driver_type = d
+      c.driver_type = d
     end
     o.on('-o', '--output [TYPE]', 'Specify output type (default, simple, markdown, record) (TODO)') do |out|
       abort '-o, --output must take argument but not given' if out.nil?
-      output = out
+      c.output_type = out
     end
     o.on('-e', '--executables [EXECS]', 'Ruby executables (e1::path1,arg1,...; e2::path2,arg2;...)') do |e|
       abort '--executable must take argument but not given' if e.nil?
       e.split(';').each do |name_path|
         name, path = name_path.split('::', 2)
-        config.execs << BenchmarkDriver::Config::Executable.new(
+        c.execs << BenchmarkDriver::Config::Executable.new(
           name: name,
           command: path ? path.split(',') : [name],
         )
@@ -38,7 +33,7 @@ parsed_config = BenchmarkDriver::Config.new(repeat_count: 1).tap do |config|
       abort '--rbenv must take argument but not given' if r.nil?
       r.split(';').each do |spec|
         version, *args = spec.split(',')
-        config.execs << BenchmarkDriver::Config::Executable.new(
+        c.execs << BenchmarkDriver::Config::Executable.new(
           name: version,
           command: [BenchmarkDriver::Rbenv.ruby_path(version), *args],
         )
@@ -46,41 +41,40 @@ parsed_config = BenchmarkDriver::Config.new(repeat_count: 1).tap do |config|
     end
     o.on('--repeat-count [NUM]', 'Try benchmark NUM times and use the fastest result (TODO)') do |v|
       begin
-        config.repeat_count = Integer(v)
+        c.repeat_count = Integer(v)
       rescue ArgumentError
         abort "-r, --repeat-count must take Integer, but got #{v.inspect}"
       end
     end
     o.on('--filter [REGEXP]', 'Filter out benchmarks with given regexp') do |v|
-      filters << Regexp.compile(v)
+      c.filters << Regexp.compile(v)
     end
     o.on('--bundler', 'Install and use gems specified in Gemfile') do |v|
       bundler = v
     end
   end
-  paths = parser.parse!(ARGV)
-  if paths.empty?
+  c.paths = parser.parse!(ARGV)
+  if c.paths.empty?
     abort "No YAML file is specified!\n\n#{parser.help}"
   end
 
   # Configs that need to be set lazily
-  if config.execs.empty?
-    config.execs = [BenchmarkDriver::Config::Executable.new(name: RUBY_VERSION, command: [RbConfig.ruby])]
+  if c.execs.empty?
+    c.execs = [BenchmarkDriver::Config::Executable.new(name: RUBY_VERSION, command: [RbConfig.ruby])]
   end
   if bundler
-    config.execs.each do |exec|
+    c.execs.each do |exec|
       exec.command << '-rbundler/setup'
     end
   end
-  config.output = BenchmarkDriver::Output.find(output)
 
-  config.freeze
+  c.freeze
 end
 
 # Parse benchmark job definitions
-jobs = paths.flat_map do |path|
+jobs = config.paths.flat_map do |path|
   job = YAML.load(File.read(path))
-  job = { 'type' => driver_type }.merge!(job)
+  job = { 'type' => config.driver_type }.merge!(job)
 
   begin
     BenchmarkDriver::JobParser.parse(job)
@@ -91,10 +85,10 @@ jobs = paths.flat_map do |path|
     raise
   end
 end.select do |job|
-  filters.all? do |filter|
+  config.filters.all? do |filter|
     job.name.match(filter)
   end
 end
 
 # Run jobs
-BenchmarkDriver::JobRunner.run(jobs, config: parsed_config)
+BenchmarkDriver::JobRunner.run(jobs, config: config)
