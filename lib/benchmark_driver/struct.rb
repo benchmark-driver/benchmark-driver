@@ -61,6 +61,10 @@ module BenchmarkDriver
           end
         end
       })
+
+      def klass.inherited(child)
+        child.defaults = self.defaults
+      end
     end
 
     def force_deep_freeze(klass)

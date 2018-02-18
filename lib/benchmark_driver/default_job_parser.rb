@@ -1,5 +1,17 @@
-class BenchmarkDriver::Runner::Default
-  class << JobParser = Module.new
+module BenchmarkDriver
+  module DefaultJobParser
+    # Build default JobParser for given job klass
+    def self.for(klass)
+      Module.new.tap do |parser|
+        class << parser
+          include DefaultJobParser
+        end
+        parser.define_singleton_method(:job_class) do
+          klass
+        end
+      end
+    end
+
     # This method is dynamically called by `BenchmarkDriver::JobParser.parse`
     # @param [String] before
     # @param [String,Array<String,Hash{ Symbol => String }>,Hash{ Symbol => String }] benchmark
@@ -25,7 +37,7 @@ class BenchmarkDriver::Runner::Default
         benchmark.map { |b| parse_each_benchmark(b) }
       when Hash
         benchmark.map do |key, value|
-          Job.new(name: key.to_s, script: value)
+          job_class.new(name: key.to_s, script: value)
         end
       else
         raise ArgumentError.new("benchmark must be String, Array or Hash, but got: #{benchmark.inspect}")
@@ -36,7 +48,7 @@ class BenchmarkDriver::Runner::Default
     def parse_job(benchmark)
       case benchmark
       when String
-        Job.new(name: benchmark, script: benchmark)
+        job_class.new(name: benchmark, script: benchmark)
       when Hash
         parse_job_hash(benchmark)
       else
@@ -46,7 +58,11 @@ class BenchmarkDriver::Runner::Default
 
     def parse_job_hash(name: nil, before: '', script:, after: '', loop_count: nil)
       name ||= script
-      Job.new(name: name, before: before, script: script, after: after, loop_count: loop_count)
+      job_class.new(name: name, before: before, script: script, after: after, loop_count: loop_count)
+    end
+
+    def job_class
+      raise NotImplementedError # override this
     end
   end
 end

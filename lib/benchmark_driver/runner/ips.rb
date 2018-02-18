@@ -1,14 +1,12 @@
+require 'benchmark_driver/struct'
 require 'benchmark_driver/metrics'
-module BenchmarkDriver
-  module Runner
-    class Default
-      require 'benchmark_driver/runner/default/job'
-      require 'benchmark_driver/runner/default/job_parser'
-    end
-  end
-end
+require 'benchmark_driver/default_job'
+require 'benchmark_driver/default_job_parser'
 
-class BenchmarkDriver::Runner::Default
+class BenchmarkDriver::Runner::Ips
+  Job = Class.new(BenchmarkDriver::DefaultJob)
+  JobParser = BenchmarkDriver::DefaultJobParser.for(Job)
+
   METRICS_TYPE = BenchmarkDriver::Metrics::Type.new(unit: 'i/s')
 
   # @param [BenchmarkDriver::Config::RunnerConfig] config
@@ -43,4 +41,11 @@ class BenchmarkDriver::Runner::Default
       executable: executable,
     )
   end
+
+  BenchmarkScript = ::BenchmarkDriver::Struct.new(
+    :before, # @param [String]
+    :script, # @param [String]
+    :after,  # @param [String]
+  )
+  private_constant :BenchmarkScript
 end

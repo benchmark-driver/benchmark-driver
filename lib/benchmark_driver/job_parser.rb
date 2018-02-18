@@ -1,4 +1,4 @@
-require 'benchmark_driver/runner/default'
+require 'benchmark_driver/runner'
 
 module BenchmarkDriver
   class << JobParser = Module.new

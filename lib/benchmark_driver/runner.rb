@@ -1,6 +1,8 @@
-require 'benchmark_driver/runner/default'
-
 module BenchmarkDriver
+  module Runner
+    require 'benchmark_driver/runner/ips'
+  end
+
   class << Runner
     # Main function which is used by both CLI and `Benchmark.driver`.
     # @param [Array<BenchmarkDriver::*::Job>] jobs

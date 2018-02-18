@@ -10,7 +10,7 @@ module BenchmarkDriver
     :filters,      # @param [Array<Regexp>]
     :repeat_count, # @param [Integer]
     defaults: {
-      runner_type: 'default',
+      runner_type: 'ips',
       output_type: 'default',
       executables: [],
       filters: [],

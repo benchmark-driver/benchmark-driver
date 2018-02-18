@@ -1,7 +1,7 @@
 require 'benchmark_driver/struct'
 
-class BenchmarkDriver::Runner::Default
-  Job = ::BenchmarkDriver::Struct.new(
+module BenchmarkDriver
+  DefaultJob = ::BenchmarkDriver::Struct.new(
     :name,       # @param [String] name
     :before,     # @param [String] before
     :script,     # @param [String] benchmark
