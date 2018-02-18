@@ -8,10 +8,7 @@ module BenchmarkDriver
     # @param [Array<BenchmarkDriver::*::Job>] jobs
     # @param [BenchmarkDriver::Config] config
     def run(jobs, config:)
-      output = Output.find(config.output_type).new(
-        jobs: jobs,
-        executables: config.executables,
-      )
+      output_class = Output.find(config.output_type)
       runner_config = Config::RunnerConfig.new(
         executables: config.executables,
         repeat_count: config.repeat_count,
@@ -19,6 +16,11 @@ module BenchmarkDriver
 
       jobs.group_by(&:class).each do |klass, jobs_group|
         runner = runner_for(klass)
+        output = output_class.new(
+          jobs: jobs,
+          executables: config.executables,
+          metrics_type: runner::MetricsType,
+        )
         runner.new(config: runner_config, output: output).run(jobs)
       end
     end

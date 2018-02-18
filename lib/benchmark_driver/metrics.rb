@@ -5,6 +5,7 @@ module BenchmarkDriver
   Metrics = ::BenchmarkDriver::Struct.new(
     :value,      # @param [Float] - The main field of benchmark result
     :executable, # @param [BenchmarkDriver::Config::Executable] - Measured Ruby executable
+    :loop_count, # @param [Integer,nil] - Times to run the script (optional)
   )
 
   Metrics::Type = ::BenchmarkDriver::Struct.new(

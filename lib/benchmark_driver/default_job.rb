@@ -3,10 +3,10 @@ require 'benchmark_driver/struct'
 module BenchmarkDriver
   DefaultJob = ::BenchmarkDriver::Struct.new(
     :name,       # @param [String] name
-    :before,     # @param [String] before
     :script,     # @param [String] benchmark
-    :after,      # @param [String] after
-    :loop_count, # @param [Integer] loop_count
+    :before,     # @param [String,nil] before (optional)
+    :after,      # @param [String,nil] after (optional)
+    :loop_count, # @param [Integer,nil] loop_count (optional)
     defaults: { before: '', after: '' },
   )
 end
