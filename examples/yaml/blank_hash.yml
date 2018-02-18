@@ -6,4 +6,3 @@ before: |
 benchmark:
   empty: array.empty?
   blank: array.blank?
-loop_count: 20000000

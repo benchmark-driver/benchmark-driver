@@ -1,0 +1,4 @@
+before: |
+  require 'erb'
+  erb = ERB.new(%q[Hello <%= 'World' %>])
+benchmark: erb.result

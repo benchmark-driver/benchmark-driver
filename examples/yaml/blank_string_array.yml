@@ -1,0 +1,8 @@
+before: |
+  class Array
+    alias_method :blank?, :empty?
+  end
+  array = []
+benchmark:
+  - array.empty?
+  - array.blank?
