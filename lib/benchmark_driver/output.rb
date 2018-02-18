@@ -1,4 +1,4 @@
-require 'benchmark_driver/output/default'
+require 'benchmark_driver/output/compare'
 
 module BenchmarkDriver
   class << Output

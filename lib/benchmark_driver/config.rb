@@ -11,7 +11,7 @@ module BenchmarkDriver
     :repeat_count, # @param [Integer]
     defaults: {
       runner_type: 'ips',
-      output_type: 'default',
+      output_type: 'compare',
       executables: [],
       filters: [],
       repeat_count: 1,

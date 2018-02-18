@@ -1,7 +1,7 @@
 # Output like benchmark-ips
 module BenchmarkDriver
   module Output
-    class Default
+    class Compare
       NAME_LENGTH = 20
 
       # @param [Array<BenchmarkDriver::*::Job>] jobs
@@ -17,6 +17,7 @@ module BenchmarkDriver
       def with_warmup(&block)
         without_stdout_buffering do
           $stdout.puts 'Warming up --------------------------------------'
+          # TODO: show exec name if it has multiple ones
           block.call
         end
       end
