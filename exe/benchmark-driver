@@ -40,7 +40,7 @@ parsed_config = BenchmarkDriver::Config.new(repeat_count: 1).tap do |config|
         version, *args = spec.split(',')
         config.execs << BenchmarkDriver::Config::Executable.new(
           name: version,
-          command: [Rbenv.ruby_path(version), *args],
+          command: [BenchmarkDriver::Rbenv.ruby_path(version), *args],
         )
       end
     end

@@ -1,18 +1,14 @@
-require 'benchmark_driver/freezable_struct'
+require 'benchmark_driver/struct'
 
 module BenchmarkDriver
-  Config = FreezableStruct.new(
+  Config = ::BenchmarkDriver::Struct.new(
     :output,       # @param [String] output
     :execs,        # @param [Array<BenchmarkDriver::Config::Executable>]
     :repeat_count, # @param [Integer] repeat_count
-  ) do
-    def initialize(*)
-      super
-      self.execs ||= []
-    end
-  end
+    defaults: { execs: [] },
+  )
 
-  Config::Executable = FreezableStruct.new(
+  Config::Executable = ::BenchmarkDriver::Struct.new(
     :name,    # @param [String]
     :command, # @param [Array<String>]
   )
