@@ -8,12 +8,12 @@ require 'shellwords'
 class BenchmarkDriver::Runner::Ips
   # JobParser returns this, `BenchmarkDriver::Runner.runner_for` searches "*::Job"
   Job = Class.new(BenchmarkDriver::DefaultJob)
-
   # Dynamically fetched and used by `BenchmarkDriver::JobParser.parse`
   JobParser = BenchmarkDriver::DefaultJobParser.for(Job)
-
-  # Set to `output` by `BenchmarkDriver::Runner.run`
+  # Passed to `output` by `BenchmarkDriver::Runner.run`
   MetricsType = BenchmarkDriver::Metrics::Type.new(unit: 'i/s')
+
+  BENCHMARK_DURATION = 3
 
   # @param [BenchmarkDriver::Config::RunnerConfig] config
   # @param [BenchmarkDriver::Output::*] output
@@ -33,7 +33,7 @@ class BenchmarkDriver::Runner::Ips
           @output.with_job(job) do
             metrics = run_warmup(job, exec: @config.executables.first)
             @output.report(metrics)
-            Job.new(job.to_h.merge(loop_count: 100))
+            Job.new(job.to_h.merge(loop_count: (metrics.value * BENCHMARK_DURATION).floor))
           end
         end
       end
@@ -71,7 +71,6 @@ class BenchmarkDriver::Runner::Ips
 
     BenchmarkDriver::Metrics.new(
       value: hash.fetch(:loop_count).to_f / hash.fetch(:duration),
-      loop_count: hash.fetch(:loop_count),
       executable: exec,
     )
   end
@@ -96,7 +95,7 @@ class BenchmarkDriver::Runner::Ips
 
     BenchmarkDriver::Metrics.new(
       value: job.loop_count.to_f / duration,
-      loop_count: job.loop_count,
+      duration: duration,
       executable: exec,
     )
   end
@@ -117,10 +116,45 @@ class BenchmarkDriver::Runner::Ips
   end
 
   WarmupScript = ::BenchmarkDriver::Struct.new(:before, :script, :after, :loop_count) do
+    FIRST_WARMUP_DURATION  = 0.5
+    SECOND_WARMUP_DURATION = 1.0
+
     # @param [String] result - A file to write result
     def render(result:)
       <<-RUBY
-File.write(#{result.dump}, { duration: 1, loop_count: 1000 })
+#{before}
+
+# first warmup
+__bmdv_i = 0
+__bmdv_before = Time.now
+__bmdv_target = __bmdv_before + #{FIRST_WARMUP_DURATION}
+while Time.now < __bmdv_target
+  #{script}
+  __bmdv_i += 1
+end
+__bmdv_after = Time.now
+
+# second warmup
+__bmdv_ip100ms = (__bmdv_i.to_f / (__bmdv_after - __bmdv_before) / 10.0).floor
+__bmdv_loops = 0
+__bmdv_duration = 0.0
+__bmdv_target = Time.now + #{SECOND_WARMUP_DURATION}
+while Time.now < __bmdv_target
+  __bmdv_i = 0
+  __bmdv_before = Time.now
+  while __bmdv_i < __bmdv_ip100ms
+    #{script}
+    __bmdv_i += 1
+  end
+  __bmdv_after = Time.now
+
+  __bmdv_loops += __bmdv_i
+  __bmdv_duration += (__bmdv_after - __bmdv_before)
+end
+
+#{after}
+
+File.write(#{result.dump}, { duration: __bmdv_duration, loop_count: __bmdv_loops }.inspect)
       RUBY
     end
   end
@@ -137,33 +171,31 @@ File.write(#{result.dump}, { duration: 1, loop_count: 1000 })
 #{before}
 
 if Process.respond_to?(:clock_gettime) # Ruby 2.1+
-  __benchmark_driver_empty_start = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+  __bmdv_empty_before = Process.clock_gettime(Process::CLOCK_MONOTONIC)
   #{while_loop('', loop_count)}
-  __benchmark_driver_empty_finish = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+  __bmdv_empty_after = Process.clock_gettime(Process::CLOCK_MONOTONIC)
 else
-  __benchmark_driver_empty_start = Time.now
+  __bmdv_empty_before = Time.now
   #{while_loop('', loop_count)}
-  __benchmark_driver_empty_finish = Time.now
+  __bmdv_empty_after = Time.now
 end
 
 if Process.respond_to?(:clock_gettime) # Ruby 2.1+
-  __benchmark_driver_script_start = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+  __bmdv_script_before = Process.clock_gettime(Process::CLOCK_MONOTONIC)
   #{while_loop(script, loop_count)}
-  __benchmark_driver_script_finish = Process.clock_gettime(Process::CLOCK_MONOTONIC)
+  __bmdv_script_after = Process.clock_gettime(Process::CLOCK_MONOTONIC)
 else
-  __benchmark_driver_script_start = Time.now
+  __bmdv_script_before = Time.now
   #{while_loop(script, loop_count)}
-  __benchmark_driver_script_finish = Time.now
+  __bmdv_script_after = Time.now
 end
 
 #{after}
 
-__benchmark_driver_result = __benchmark_driver_script_finish - __benchmark_driver_script_start
-if (__benchmark_driver_overhead = __benchmark_driver_empty_finish - __benchmark_driver_empty_start) < __benchmark_driver_result
-  # TODO: show something in output
-  __benchmark_driver_result -= __benchmark_driver_overhead
-end
-File.write(#{result.dump}, __benchmark_driver_result.to_s)
+File.write(
+  #{result.dump},
+  ((__bmdv_script_after - __bmdv_script_before) - (__bmdv_empty_after - __bmdv_empty_before)).inspect,
+)
       RUBY
     end
 
@@ -176,10 +208,10 @@ File.write(#{result.dump}, __benchmark_driver_result.to_s)
 
       # TODO: execute in batch
       <<-RUBY
-__benchmark_driver_i = 0
-while __benchmark_driver_i < #{times}
+__bmdv_i = 0
+while __bmdv_i < #{times}
   #{content}
-  __benchmark_driver_i += 1
+  __bmdv_i += 1
 end
       RUBY
     end

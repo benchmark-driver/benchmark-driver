@@ -45,17 +45,31 @@ module BenchmarkDriver
         else
           $stdout.print("%#{NAME_LENGTH}s" % job.name)
         end
+        @job_metrics = []
         block.call
       ensure
-        $stdout.puts(@metrics_type.unit)
+        $stdout.print(@metrics_type.unit)
+        if job.loop_count && @job_metrics.all? { |metrics| metrics.duration }
+          $stdout.print(" - #{humanize(job.loop_count)} in")
+          show_durations
+        end
+        $stdout.puts
       end
 
       # @param [BenchmarkDriver::Metrics] metrics
       def report(metrics)
+        @job_metrics << metrics
         $stdout.print("#{humanize(metrics.value, [10, metrics.executable.name.length].max)} ")
       end
 
       private
+
+      def show_durations
+        @job_metrics.each do |metrics|
+          $stdout.print(' %3.6fs' % metrics.duration)
+          # TODO: show clocks again
+        end
+      end
 
       # benchmark_driver ouputs logs ASAP. This enables sync flag for it.
       def without_stdout_buffering

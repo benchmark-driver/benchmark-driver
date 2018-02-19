@@ -34,7 +34,7 @@ module BenchmarkDriver
       when String
         [parse_job(benchmark)]
       when Array
-        benchmark.map { |b| parse_each_benchmark(b) }
+        benchmark.map { |b| parse_job(b) }
       when Hash
         benchmark.map do |key, value|
           job_class.new(name: key.to_s, script: value)
