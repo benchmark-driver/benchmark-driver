@@ -39,10 +39,10 @@ module BenchmarkDriver
           block.call
         end
       ensure
-        if @executables.size == 1
-          compare_jobs
-        else
+        if @executables.size > 1
           compare_executables
+        elsif @jobs.size > 1
+          compare_jobs
         end
       end
 
@@ -116,7 +116,23 @@ module BenchmarkDriver
       def compare_jobs
         $stdout.puts "\nComparison:"
         results = @metrics_by_job.map { |job, metrics| Result.new(job: job, metrics: metrics.first) }
-        results.sort_by! do |result|
+        show_results(results, show_executable: false)
+      end
+
+      def compare_executables
+        $stdout.puts "\nComparison:"
+
+        @metrics_by_job.each do |job, metrics|
+          $stdout.puts("%#{NAME_LENGTH + 2 + 11}s" % job.name)
+          results = metrics.map { |metrics| Result.new(job: job, metrics: metrics) }
+          show_results(results, show_executable: true)
+        end
+      end
+
+      # @param [Array<BenchmarkDriver::Output::Compare::Result>] results
+      # @param [TrueClass,FalseClass] show_executable
+      def show_results(results, show_executable:)
+        results = results.sort_by do |result|
           if @metrics_type.larger_better
             -result.metrics.value
           else
@@ -126,19 +142,17 @@ module BenchmarkDriver
 
         first = results.first
         results.each do |result|
-          if result == first
-            slower = ''
-          else
+          if result != first
             slower = '- %.2fx  slower' % (first.metrics.value / result.metrics.value)
           end
-
-          $stdout.puts("%#{NAME_LENGTH}s: %11.1f %s #{slower}" % [result.job.name, result.metrics.value, @metrics_type.unit])
+          if show_executable
+            name = result.metrics.executable.name
+          else
+            name = result.job.name
+          end
+          $stdout.puts("%#{NAME_LENGTH}s: %11.1f %s #{slower}" % [name, result.metrics.value, @metrics_type.unit])
         end
         $stdout.puts
-      end
-
-      def compare_executables
-        # TODO: implement
       end
 
       Result = ::BenchmarkDriver::Struct.new(:job, :metrics)
