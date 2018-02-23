@@ -133,7 +133,7 @@ module BenchmarkDriver
         when r >= 1/1000r
           "#{'%3.2f' % (r * 1_000).to_f}ms"
         when r >= 1/1000_000r
-          "#{'%3.2f' % (r * 1_000_000).to_f}us"
+          "#{'%3.2f' % (r * 1_000_000).to_f}μs"
         else
           "#{'%3.2f' % (r * 1_000_000_000).to_f}ns"
         end
