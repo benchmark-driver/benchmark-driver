@@ -56,9 +56,12 @@ class BenchmarkDriver::Output::Compare
     block.call
   ensure
     $stdout.print(@metrics_type.unit)
-    if job.loop_count && @job_metrics.all? { |metrics| metrics.duration }
-      $stdout.print(" - #{humanize(job.loop_count)} in")
-      show_durations
+    if job.loop_count
+      $stdout.print(" - #{humanize(job.loop_count)} times")
+      if @job_metrics.all? { |metrics| metrics.duration }
+        $stdout.print(" in")
+        show_durations
+      end
     end
     $stdout.puts
   end

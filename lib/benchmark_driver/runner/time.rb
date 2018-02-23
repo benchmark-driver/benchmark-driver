@@ -12,7 +12,6 @@ class BenchmarkDriver::Runner::Time < BenchmarkDriver::Runner::Ips
   def build_metrics(duration:, executable:, loop_count:)
     BenchmarkDriver::Metrics.new(
       value: duration,
-      duration: duration,
       executable: executable,
     )
   end
