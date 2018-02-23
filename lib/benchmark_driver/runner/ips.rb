@@ -13,8 +13,6 @@ class BenchmarkDriver::Runner::Ips
   # Passed to `output` by `BenchmarkDriver::Runner.run`
   MetricsType = BenchmarkDriver::Metrics::Type.new(unit: 'i/s')
 
-  BENCHMARK_DURATION = 3
-
   # @param [BenchmarkDriver::Config::RunnerConfig] config
   # @param [BenchmarkDriver::Output::*] output
   def initialize(config:, output:)
@@ -35,7 +33,7 @@ class BenchmarkDriver::Runner::Ips
             metrics = build_metrics(result)
             @output.report(metrics)
 
-            loop_count = (result.fetch(:loop_count).to_f * BENCHMARK_DURATION / result.fetch(:duration)).floor
+            loop_count = (result.fetch(:loop_count).to_f * @config.run_duration / result.fetch(:duration)).floor
             Job.new(job.to_h.merge(loop_count: loop_count))
           end
         end
@@ -66,6 +64,8 @@ class BenchmarkDriver::Runner::Ips
       script:     job.script,
       teardown:   job.teardown,
       loop_count: job.loop_count,
+      first_warmup_duration: @config.run_duration / 6.0,  # default: 0.5
+      second_warmup_duration: @config.run_duration / 3.0, # default: 1.0
     )
 
     hash = Tempfile.open(['benchmark_driver-', '.rb']) do |f|
@@ -137,10 +137,7 @@ class BenchmarkDriver::Runner::Ips
     end
   end
 
-  WarmupScript = ::BenchmarkDriver::Struct.new(:prelude, :script, :teardown, :loop_count) do
-    FIRST_WARMUP_DURATION  = 0.5
-    SECOND_WARMUP_DURATION = 1.0
-
+  WarmupScript = ::BenchmarkDriver::Struct.new(:prelude, :script, :teardown, :loop_count, :first_warmup_duration, :second_warmup_duration) do
     # @param [String] result - A file to write result
     def render(result:)
       <<-RUBY
@@ -149,7 +146,7 @@ class BenchmarkDriver::Runner::Ips
 # first warmup
 __bmdv_i = 0
 __bmdv_before = Time.now
-__bmdv_target = __bmdv_before + #{FIRST_WARMUP_DURATION}
+__bmdv_target = __bmdv_before + #{first_warmup_duration}
 while Time.now < __bmdv_target
   #{script}
   __bmdv_i += 1
@@ -160,7 +157,7 @@ __bmdv_after = Time.now
 __bmdv_ip100ms = (__bmdv_i.to_f / (__bmdv_after - __bmdv_before) / 10.0).floor
 __bmdv_loops = 0
 __bmdv_duration = 0.0
-__bmdv_target = Time.now + #{SECOND_WARMUP_DURATION}
+__bmdv_target = Time.now + #{second_warmup_duration}
 while Time.now < __bmdv_target
   __bmdv_i = 0
   __bmdv_before = Time.now

@@ -46,11 +46,18 @@ config = BenchmarkDriver::Config.new.tap do |c|
         abort "-r, --repeat-count must take Integer, but got #{v.inspect}"
       end
     end
+    o.on('--bundler', 'Install and use gems specified in Gemfile') do |v|
+      bundler = v
+    end
     o.on('--filter [REGEXP]', 'Filter out benchmarks with given regexp') do |v|
       c.filters << Regexp.compile(v)
     end
-    o.on('--bundler', 'Install and use gems specified in Gemfile') do |v|
-      bundler = v
+    o.on('--run-duration [SECONDS]', 'Warmup esitmates loop_count to run for this duration (default: 3)') do |v|
+      begin
+        c.run_duration = Integer(v)
+      rescue ArgumentError
+        abort "--run-duration must take Integer, but got #{v.inspect}"
+      end
     end
   end
   c.paths = parser.parse!(ARGV)

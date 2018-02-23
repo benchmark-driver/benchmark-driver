@@ -14,6 +14,7 @@ module BenchmarkDriver
       runner_config = Config::RunnerConfig.new(
         executables: config.executables,
         repeat_count: config.repeat_count,
+        run_duration: config.run_duration,
       )
 
       jobs.group_by(&:class).each do |klass, jobs_group|
