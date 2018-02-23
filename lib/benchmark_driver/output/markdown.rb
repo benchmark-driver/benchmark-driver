@@ -1,4 +1,4 @@
-class BenchmarkDriver::Output::Simple
+class BenchmarkDriver::Output::Markdown
   NAME_LENGTH = 8
 
   # @param [Array<BenchmarkDriver::*::Job>] jobs
@@ -26,14 +26,21 @@ class BenchmarkDriver::Output::Simple
     @with_benchmark = true
     without_stdout_buffering do
       # Show header
-      $stdout.puts "benchmark results (#{@metrics_type.unit}):"
+      $stdout.puts "# benchmark results (#{@metrics_type.unit})\n\n"
 
       # Show executable names
-      $stdout.print("#{' ' * @name_length}  ")
+      $stdout.print("|#{' ' * @name_length}  ")
       @executables.each do |executable|
-        $stdout.print("%-#{NAME_LENGTH}s  " % executable.name)
+        $stdout.print("|%-#{NAME_LENGTH}s  " % executable.name) # same size as humanize
       end
-      $stdout.puts
+      $stdout.puts('|')
+
+      # Show header separator
+      $stdout.print("|:#{'-' * (@name_length - 1)}--")
+      @executables.each do |executable|
+        $stdout.print("|#{'-' * NAME_LENGTH}--") # same size as humanize
+      end
+      $stdout.puts('|')
 
       block.call
     end
@@ -44,19 +51,19 @@ class BenchmarkDriver::Output::Simple
   # @param [BenchmarkDriver::*::Job] job
   def with_job(job, &block)
     if @with_benchmark
-      $stdout.print("%-#{@name_length}s  " % job.name)
+      $stdout.print("|%-#{@name_length}s  " % job.name)
     end
     block.call
   ensure
     if @with_benchmark
-      $stdout.puts
+      $stdout.puts('|')
     end
   end
 
   # @param [BenchmarkDriver::Metrics] metrics
   def report(metrics)
     if @with_benchmark
-      $stdout.print("%#{NAME_LENGTH}s  " % humanize(metrics.value))
+      $stdout.print("|%#{NAME_LENGTH}s  " % humanize(metrics.value))
     else
       $stdout.print '.'
     end
