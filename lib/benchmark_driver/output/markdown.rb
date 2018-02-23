@@ -31,14 +31,14 @@ class BenchmarkDriver::Output::Markdown
       # Show executable names
       $stdout.print("|#{' ' * @name_length}  ")
       @executables.each do |executable|
-        $stdout.print("|%-#{NAME_LENGTH}s  " % executable.name) # same size as humanize
+        $stdout.print("|%#{NAME_LENGTH}s" % executable.name) # same size as humanize
       end
       $stdout.puts('|')
 
       # Show header separator
       $stdout.print("|:#{'-' * (@name_length - 1)}--")
       @executables.each do |executable|
-        $stdout.print("|#{'-' * NAME_LENGTH}--") # same size as humanize
+        $stdout.print("|:#{'-' * (NAME_LENGTH - 1)}") # same size as humanize
       end
       $stdout.puts('|')
 
@@ -63,7 +63,7 @@ class BenchmarkDriver::Output::Markdown
   # @param [BenchmarkDriver::Metrics] metrics
   def report(metrics)
     if @with_benchmark
-      $stdout.print("|%#{NAME_LENGTH}s  " % humanize(metrics.value))
+      $stdout.print("|%#{NAME_LENGTH}s" % humanize(metrics.value))
     else
       $stdout.print '.'
     end

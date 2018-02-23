@@ -11,6 +11,7 @@ module BenchmarkDriver
   Metrics::Type = ::BenchmarkDriver::Struct.new(
     :unit,          # @param [String] - A label of unit for the value.
     :larger_better, # @param [TrueClass,FalseClass] - If true, larger value is preferred when measured multiple times.
-    defaults: { larger_better: true },
+    :worse_word,    # @param [String] - A label shown when the value is worse.
+    defaults: { larger_better: true, worse_word: 'slower' },
   )
 end

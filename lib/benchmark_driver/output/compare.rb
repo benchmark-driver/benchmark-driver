@@ -172,7 +172,12 @@ class BenchmarkDriver::Output::Compare
     first = results.first
     results.each do |result|
       if result != first
-        slower = '- %.2fx  slower' % (first.metrics.value / result.metrics.value)
+        if @metrics_type.larger_better
+          ratio = (first.metrics.value / result.metrics.value)
+        else
+          ratio = (result.metrics.value / first.metrics.value)
+        end
+        slower = "- %.2fx  #{@metrics_type.worse_word}" % ratio
       end
       if show_executable
         name = result.metrics.executable.name
