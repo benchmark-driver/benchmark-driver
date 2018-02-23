@@ -72,8 +72,9 @@ class BenchmarkDriver::Runner::Ips
       eval(f.read)
     end
 
-    BenchmarkDriver::Metrics.new(
-      value: hash.fetch(:loop_count).to_f / hash.fetch(:duration),
+    build_metrics(
+      loop_count: hash.fetch(:loop_count),
+      duration: hash.fetch(:duration),
       executable: exec,
     )
   end
@@ -106,10 +107,19 @@ class BenchmarkDriver::Runner::Ips
       Float(f.read)
     end
 
-    BenchmarkDriver::Metrics.new(
-      value: job.loop_count.to_f / duration,
+    build_metrics(
+      loop_count: job.loop_count,
       duration: duration,
       executable: exec,
+    )
+  end
+
+  # This method is overridden by BenchmarkDriver::Runner::Time
+  def build_metrics(duration:, executable:, loop_count:)
+    BenchmarkDriver::Metrics.new(
+      value: loop_count.to_f / duration,
+      duration: duration,
+      executable: executable,
     )
   end
 

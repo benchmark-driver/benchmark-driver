@@ -31,7 +31,7 @@ class BenchmarkDriver::Output::Simple
       # Show executable names
       $stdout.print("#{' ' * @name_length}  ")
       @executables.each do |executable|
-        $stdout.print("%-#{NAME_LENGTH}s  " % executable.name)
+        $stdout.print("%#{NAME_LENGTH}s  " % executable.name)
       end
       $stdout.puts
 

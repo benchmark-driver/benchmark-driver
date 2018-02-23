@@ -1,6 +1,7 @@
 module BenchmarkDriver
   module Runner
     require 'benchmark_driver/runner/ips'
+    require 'benchmark_driver/runner/time'
   end
 
   class << Runner
