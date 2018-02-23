@@ -15,7 +15,7 @@ config = BenchmarkDriver::Config.new.tap do |c|
       abort '-r, --runner must take argument but not given' if d.nil?
       c.runner_type = d
     end
-    o.on('-o', '--output [TYPE]', 'Specify output type: compare, simple, markdown, record (default: compare)') do |out|
+    o.on('-o', '--output [TYPE]', 'Specify output type: compare, simple, markdown (default: compare)') do |out|
       abort '-o, --output must take argument but not given' if out.nil?
       c.output_type = out
     end

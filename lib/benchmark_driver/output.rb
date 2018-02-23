@@ -1,6 +1,9 @@
-require 'benchmark_driver/output/compare'
-
 module BenchmarkDriver
+  module Output
+    require 'benchmark_driver/output/compare'
+    require 'benchmark_driver/output/simple'
+  end
+
   class << Output
     # BenchmarkDriver::Output is pluggable.
     # Create `BenchmarkDriver::Output::Foo` as benchmark_dirver-output-foo.gem and specify `-o foo`.
