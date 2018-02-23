@@ -59,9 +59,9 @@ class BenchmarkDriver::Runner::Ips
   # @param [BenchmarkDriver::Config::Executable] exec
   def run_warmup(job, exec:)
     warmup = WarmupScript.new(
-      before:     job.before,
+      prelude:    job.prelude,
       script:     job.script,
-      after:      job.after,
+      teardown:   job.teardown,
       loop_count: job.loop_count,
     )
 
@@ -94,9 +94,9 @@ class BenchmarkDriver::Runner::Ips
   # @return [BenchmarkDriver::Metrics]
   def run_benchmark(job, exec:)
     benchmark = BenchmarkScript.new(
-      before:     job.before,
+      prelude:    job.prelude,
       script:     job.script,
-      after:      job.after,
+      teardown:   job.teardown,
       loop_count: job.loop_count,
     )
 
@@ -138,14 +138,14 @@ class BenchmarkDriver::Runner::Ips
     end
   end
 
-  WarmupScript = ::BenchmarkDriver::Struct.new(:before, :script, :after, :loop_count) do
+  WarmupScript = ::BenchmarkDriver::Struct.new(:prelude, :script, :teardown, :loop_count) do
     FIRST_WARMUP_DURATION  = 0.5
     SECOND_WARMUP_DURATION = 1.0
 
     # @param [String] result - A file to write result
     def render(result:)
       <<-RUBY
-#{before}
+#{prelude}
 
 # first warmup
 __bmdv_i = 0
@@ -175,7 +175,7 @@ while Time.now < __bmdv_target
   __bmdv_duration += (__bmdv_after - __bmdv_before)
 end
 
-#{after}
+#{teardown}
 
 File.write(#{result.dump}, { duration: __bmdv_duration, loop_count: __bmdv_loops }.inspect)
       RUBY
@@ -183,15 +183,15 @@ File.write(#{result.dump}, { duration: __bmdv_duration, loop_count: __bmdv_loops
   end
   private_constant :WarmupScript
 
-  # @param [String] before
+  # @param [String] prelude
   # @param [String] script
-  # @param [String] after
+  # @param [String] teardown
   # @param [Integer] loop_count
-  BenchmarkScript = ::BenchmarkDriver::Struct.new(:before, :script, :after, :loop_count) do
+  BenchmarkScript = ::BenchmarkDriver::Struct.new(:prelude, :script, :teardown, :loop_count) do
     # @param [String] result - A file to write result
     def render(result:)
       <<-RUBY
-#{before}
+#{prelude}
 
 if Process.respond_to?(:clock_gettime) # Ruby 2.1+
   __bmdv_empty_before = Process.clock_gettime(Process::CLOCK_MONOTONIC)
@@ -213,7 +213,7 @@ else
   __bmdv_script_after = Time.now
 end
 
-#{after}
+#{teardown}
 
 File.write(
   #{result.dump},

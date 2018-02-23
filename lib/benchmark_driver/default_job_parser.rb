@@ -13,15 +13,15 @@ module BenchmarkDriver
     end
 
     # This method is dynamically called by `BenchmarkDriver::JobParser.parse`
-    # @param [String] before
+    # @param [String] prelude
     # @param [String,Array<String,Hash{ Symbol => String }>,Hash{ Symbol => String }] benchmark
-    # @param [String] after
+    # @param [String] teardown
     # @param [Integer] loop_count
     # @return [Array<BenchmarkDriver::Default::Job>]
-    def parse(before: nil, benchmark:, after: nil, loop_count: nil)
+    def parse(prelude: nil, benchmark:, teardown: nil, loop_count: nil)
       parse_benchmark(benchmark).each do |job|
-        job.before.prepend("#{before}\n") if before
-        job.after.prepend("#{after}\n") if after
+        job.prelude.prepend("#{prelude}\n") if prelude
+        job.teardown.prepend("#{teardown}\n") if teardown
         job.loop_count ||= loop_count
       end.each(&:freeze)
     end
@@ -56,9 +56,9 @@ module BenchmarkDriver
       end
     end
 
-    def parse_job_hash(name: nil, before: '', script:, after: '', loop_count: nil)
+    def parse_job_hash(name: nil, prelude: '', script:, teardown: '', loop_count: nil)
       name ||= script
-      job_class.new(name: name, before: before, script: script, after: after, loop_count: loop_count)
+      job_class.new(name: name, prelude: prelude, script: script, teardown: teardown, loop_count: loop_count)
     end
 
     def job_class

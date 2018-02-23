@@ -1,4 +1,4 @@
-before: |
+prelude: |
   a = 'a' * 100
   b = 'b' * 100
 benchmark:
