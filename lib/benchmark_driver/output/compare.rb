@@ -82,6 +82,18 @@ module BenchmarkDriver
           $stdout.print(' %3.6fs' % metrics.duration)
           # TODO: show clocks again
         end
+
+        # Show pretty seconds / clocks too. As it takes long width, it's shown only with a single executable.
+        if @job_metrics.size == 1
+          metrics = @job_metrics.first
+          sec = metrics.duration
+          iter = @current_job.loop_count
+          if File.exist?('/proc/cpuinfo') && (clks = estimate_clock(sec, iter)) < 1_000
+            $stdout.print(" (#{pretty_sec(sec, iter)}/i, #{clks}clocks/i)")
+          else
+            $stdout.print(" (#{pretty_sec(sec, iter)}/i)")
+          end
+        end
       end
 
       # benchmark_driver ouputs logs ASAP. This enables sync flag for it.
@@ -111,6 +123,26 @@ module BenchmarkDriver
             return " #{prefix}"
           end
         "#{prefix}#{suffix}"
+      end
+
+      def pretty_sec(sec, iter)
+        r = Rational(sec, iter)
+        case
+        when r >= 1
+          "#{'%3.2f' % r.to_f}s"
+        when r >= 1/1000r
+          "#{'%3.2f' % (r * 1_000).to_f}ms"
+        when r >= 1/1000_000r
+          "#{'%3.2f' % (r * 1_000_000).to_f}us"
+        else
+          "#{'%3.2f' % (r * 1_000_000_000).to_f}ns"
+        end
+      end
+
+      def estimate_clock sec, iter
+        hz = File.read('/proc/cpuinfo').scan(/cpu MHz\s+:\s+([\d\.]+)/){|(f)| break hz = Rational(f.to_f) * 1_000_000}
+        r = Rational(sec, iter)
+        Integer(r/(1/hz))
       end
 
       def compare_jobs
