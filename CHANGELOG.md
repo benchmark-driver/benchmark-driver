@@ -1,3 +1,8 @@
+# v0.9.1
+
+- Fix memory runner bug that actually doesn't run the benchmarked script
+- Add once runner to test benchmark script in a short time
+
 # v0.9.0
 
 - The concept of runner is renewed
