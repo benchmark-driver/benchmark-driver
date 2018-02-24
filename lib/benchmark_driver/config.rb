@@ -10,12 +10,14 @@ module BenchmarkDriver
     :filters,      # @param [Array<Regexp>]
     :repeat_count, # @param [Integer]
     :run_duration, # @param [Integer]
+    :verbose,      # @param [Integer]
     defaults: {
       runner_type: 'ips',
       output_type: 'compare',
       filters: [],
       repeat_count: 1,
       run_duration: 3,
+      verbose: 0,
     },
   )
 

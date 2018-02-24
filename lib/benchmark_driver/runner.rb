@@ -11,6 +11,12 @@ module BenchmarkDriver
     # @param [Array<BenchmarkDriver::*::Job>] jobs
     # @param [BenchmarkDriver::Config] config
     def run(jobs, config:)
+      if config.verbose >= 1
+        config.executables.each do |exec|
+          $stdout.puts "#{exec.name}: #{IO.popen([*exec.command, '-v'], &:read)}"
+        end
+      end
+
       runner_config = Config::RunnerConfig.new(
         executables: config.executables,
         repeat_count: config.repeat_count,

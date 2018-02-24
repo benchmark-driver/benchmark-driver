@@ -52,6 +52,13 @@ config = BenchmarkDriver::Config.new.tap do |c|
     o.on('--filter [REGEXP]', 'Filter out benchmarks with given regexp') do |v|
       c.filters << Regexp.compile(v)
     end
+    o.on('--verbose [LEVEL]', 'Show some verbose outputs: 0, 1, 2 (default: 0)') do |v|
+      begin
+        c.verbose = Integer(v)
+      rescue ArgumentError
+        abort "--verbose must take Integer, but got #{v.inspect}"
+      end
+    end
     o.on('--run-duration [SECONDS]', 'Warmup esitmates loop_count to run for this duration (default: 3)') do |v|
       begin
         c.run_duration = Integer(v)
