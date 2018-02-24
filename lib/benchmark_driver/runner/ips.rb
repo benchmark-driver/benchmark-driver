@@ -5,6 +5,7 @@ require 'benchmark_driver/default_job_parser'
 require 'tempfile'
 require 'shellwords'
 
+# Show iteration per second.
 class BenchmarkDriver::Runner::Ips
   # JobParser returns this, `BenchmarkDriver::Runner.runner_for` searches "*::Job"
   Job = Class.new(BenchmarkDriver::DefaultJob)

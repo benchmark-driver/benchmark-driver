@@ -2,6 +2,7 @@ module BenchmarkDriver
   module Runner
     require 'benchmark_driver/runner/ips'
     require 'benchmark_driver/runner/memory'
+    require 'benchmark_driver/runner/once'
     require 'benchmark_driver/runner/time'
   end
 

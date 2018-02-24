@@ -110,6 +110,8 @@ class BenchmarkDriver::Output::Compare
     end
 
     scale = (Math.log10(value) / 3).to_i
+    return "%#{width}s" % value.to_s if scale < 0 # like 1.23e-04
+
     prefix = "%#{width}.3f" % (value.to_f / (1000 ** scale))
     suffix =
       case scale
