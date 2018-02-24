@@ -72,10 +72,8 @@ class BenchmarkDriver::Runner::Memory
       loop_count: job.loop_count,
     )
 
-    output = Tempfile.open(['benchmark_driver-', '.rb']) do |f|
-      with_script(benchmark.render(result: f.path)) do |path|
-        execute('/usr/bin/time', *exec.command, path)
-      end
+    output = with_script(benchmark.render) do |path|
+      execute('/usr/bin/time', *exec.command, path)
     end
 
     match_data = /^(?<user>\d+.\d+)user\s+(?<system>\d+.\d+)system\s+(?<elapsed1>\d+):(?<elapsed2>\d+.\d+)elapsed.+\([^\s]+\s+(?<maxresident>\d+)maxresident\)k$/.match(output)
@@ -108,11 +106,10 @@ class BenchmarkDriver::Runner::Memory
   # @param [String] teardown
   # @param [Integer] loop_count
   BenchmarkScript = ::BenchmarkDriver::Struct.new(:prelude, :script, :teardown, :loop_count) do
-    # @param [String] result - A file to write result
-    def render(result:)
+    def render
       <<-RUBY
 #{prelude}
-#{while_loop('', loop_count)}
+#{while_loop(script, loop_count)}
 #{teardown}
       RUBY
     end
