@@ -1,10 +1,10 @@
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
-require 'benchmark/driver/version'
+require 'benchmark_driver/version'
 
 Gem::Specification.new do |spec|
   spec.name          = 'benchmark_driver'
-  spec.version       = Benchmark::Driver::VERSION
+  spec.version       = BenchmarkDriver::VERSION
   spec.authors       = ['Takashi Kokubun']
   spec.email         = ['takashikkbn@gmail.com']
 
@@ -19,6 +19,7 @@ Gem::Specification.new do |spec|
   spec.bindir        = 'exe'
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ['lib']
+  spec.required_ruby_version = '>= 2.1.0'
 
   spec.add_development_dependency 'bundler'
   spec.add_development_dependency 'rake'
