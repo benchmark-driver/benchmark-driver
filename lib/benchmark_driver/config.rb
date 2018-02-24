@@ -26,6 +26,7 @@ module BenchmarkDriver
     :executables,  # @param [Array<BenchmarkDriver::Config::Executable>]
     :repeat_count, # @param [Integer]
     :run_duration, # @param [Integer]
+    :verbose,      # @param [Integer]
   )
 
   Config::Executable = ::BenchmarkDriver::Struct.new(

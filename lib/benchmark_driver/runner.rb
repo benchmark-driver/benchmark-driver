@@ -21,6 +21,7 @@ module BenchmarkDriver
         executables: config.executables,
         repeat_count: config.repeat_count,
         run_duration: config.run_duration,
+        verbose: config.verbose,
       )
 
       jobs.group_by(&:class).each do |klass, jobs_group|

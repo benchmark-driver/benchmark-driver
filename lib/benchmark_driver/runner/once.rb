@@ -68,6 +68,11 @@ class BenchmarkDriver::Runner::Once
   end
 
   def with_script(script)
+    if @config.verbose >= 2
+      sep = '-' * 30
+      $stdout.puts "\n\n#{sep}[Script begin]#{sep}\n#{script}#{sep}[Script end]#{sep}\n\n"
+    end
+
     Tempfile.open(['benchmark_driver-', '.rb']) do |f|
       f.puts script
       f.close
