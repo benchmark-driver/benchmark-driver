@@ -1,3 +1,12 @@
+# v0.9.0
+
+- The concept of runner is renewed
+  - Now it's for specifying metrics like ips, time, memory usage
+  - Old runners (:call and :eval) are no longer supported. :exec only.
+     - So Ruby interface can't take Proc
+  - YAML can have arbitrary format depending on the runner
+- `--compare` option is dropped and changed to `--output compare`
+
 # v0.8.6
 
 - Automatically require `benchmark/output/foo` when `-o foo` is specified
