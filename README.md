@@ -1,4 +1,4 @@
-# Benchmark::Driver [![Build Status](https://travis-ci.org/k0kubun/benchmark_driver.svg?branch=master)](https://travis-ci.org/k0kubun/benchmark_driver)
+# BenchmarkDriver [![Build Status](https://travis-ci.org/k0kubun/benchmark_driver.svg?branch=master)](https://travis-ci.org/k0kubun/benchmark_driver)
 
 Fully-featured accurate benchmark driver for Ruby
 
@@ -34,22 +34,7 @@ $ gem install benchmark_driver
 
 ## Usage
 
-### Ruby Interface: Compatible Mode
-
-This interface is compatible with `Benchmark.bm` and `Benchmark.ips`, so it's good for migration.
-
-```rb
-require 'benchmark_driver'
-require 'active_support/all'
-array = []
-
-Benchmark.drive do |x|
-  x.report('blank?') { array.blank? }
-  x.report('empty?') { array.empty? }
-end
-```
-
-### Ruby Interface: Low Overhead Mode
+### Ruby Interface
 
 This interface generates code to profile with low overhead and executes it.
 

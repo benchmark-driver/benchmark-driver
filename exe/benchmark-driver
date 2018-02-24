@@ -8,6 +8,7 @@ require 'yaml'
 
 # Parse command line options
 config = BenchmarkDriver::Config.new.tap do |c|
+  executables = []
   bundler = false
   parser = OptionParser.new do |o|
     o.banner = "Usage: #{File.basename($0, '.*')} [options] [YAML]"
@@ -23,7 +24,7 @@ config = BenchmarkDriver::Config.new.tap do |c|
       abort '--executable must take argument but not given' if e.nil?
       e.split(';').each do |name_path|
         name, path = name_path.split('::', 2)
-        c.executables << BenchmarkDriver::Config::Executable.new(
+        executables << BenchmarkDriver::Config::Executable.new(
           name: name,
           command: path ? path.split(',') : [name],
         )
@@ -33,7 +34,7 @@ config = BenchmarkDriver::Config.new.tap do |c|
       abort '--rbenv must take argument but not given' if r.nil?
       r.split(';').each do |spec|
         version, *args = spec.split(',')
-        c.executables << BenchmarkDriver::Config::Executable.new(
+        executables << BenchmarkDriver::Config::Executable.new(
           name: version,
           command: [BenchmarkDriver::Rbenv.ruby_path(version), *args],
         )
@@ -66,8 +67,8 @@ config = BenchmarkDriver::Config.new.tap do |c|
   end
 
   # Configs that need to be set lazily
-  if c.executables.empty?
-    c.executables = [BenchmarkDriver::Config::Executable.new(name: RUBY_VERSION, command: [RbConfig.ruby])]
+  unless executables.empty?
+    c.executables = executables
   end
   if bundler
     c.executables.each do |exec|

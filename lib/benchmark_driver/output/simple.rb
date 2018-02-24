@@ -29,11 +29,13 @@ class BenchmarkDriver::Output::Simple
       $stdout.puts "benchmark results (#{@metrics_type.unit}):"
 
       # Show executable names
-      $stdout.print("#{' ' * @name_length}  ")
-      @executables.each do |executable|
-        $stdout.print("%#{NAME_LENGTH}s  " % executable.name)
+      if @executables.size > 1
+        $stdout.print("#{' ' * @name_length}  ")
+        @executables.each do |executable|
+          $stdout.print("%#{NAME_LENGTH}s  " % executable.name)
+        end
+        $stdout.puts
       end
-      $stdout.puts
 
       block.call
     end

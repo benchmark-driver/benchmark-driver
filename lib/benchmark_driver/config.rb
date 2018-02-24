@@ -13,7 +13,6 @@ module BenchmarkDriver
     defaults: {
       runner_type: 'ips',
       output_type: 'compare',
-      executables: [],
       filters: [],
       repeat_count: 1,
       run_duration: 3,
@@ -31,4 +30,7 @@ module BenchmarkDriver
     :name,    # @param [String]
     :command, # @param [Array<String>]
   )
+  Config.defaults[:executables] = [
+    BenchmarkDriver::Config::Executable.new(name: RUBY_VERSION, command: [RbConfig.ruby]),
+  ]
 end

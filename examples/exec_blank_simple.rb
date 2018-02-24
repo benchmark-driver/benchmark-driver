@@ -1,6 +1,6 @@
-require 'benchmark/driver'
+require 'benchmark_driver'
 
-Benchmark.driver(runner: :exec) do |x|
+Benchmark.driver(output: :simple) do |x|
   x.prelude <<-EOS
     class Array
       alias_method :blank?, :empty?
@@ -9,5 +9,4 @@ Benchmark.driver(runner: :exec) do |x|
   EOS
   x.report %{ array.empty? }
   x.report %{ array.blank? }
-  x.compare!
 end
