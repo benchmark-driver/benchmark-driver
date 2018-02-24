@@ -1,10 +1,15 @@
 language: ruby
 rvm:
-  - 2.4.2
+  - 2.1.10
+  - 2.2.8
+  - 2.3.6
+  - 2.4.3
+  - 2.5.0
 cache: bundler
 branches:
   only:
     - master
 before_install: gem install bundler -v 1.15.4
 script:
+  - bundle exec rake ruby_examples
   - bundle exec rake yaml_examples
