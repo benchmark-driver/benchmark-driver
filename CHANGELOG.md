@@ -1,3 +1,9 @@
+# v0.9.2
+
+- Add `--verbose` option
+  - `--verbose 1` shows `ruby -v` for each executable
+  - `--verbose 2` shows executed scripts
+
 # v0.9.1
 
 - Fix memory runner bug that actually doesn't run the benchmarked script
