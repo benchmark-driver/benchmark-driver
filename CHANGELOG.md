@@ -1,3 +1,7 @@
+# v0.10.2
+
+- Optionalize `working_directory` of "command\_stdout" runner
+
 # v0.10.1
 
 - Add "command\_stdout" runner to plug in existing benchmark
