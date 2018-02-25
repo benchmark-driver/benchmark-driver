@@ -60,7 +60,7 @@ module BenchmarkDriver
                 value = value.dup
               rescue TypeError # for Ruby <= 2.3, like `true.dup`
               end
-              public_send("#{key}=", value.dup)
+              public_send("#{key}=", value)
             end
           end
         end
