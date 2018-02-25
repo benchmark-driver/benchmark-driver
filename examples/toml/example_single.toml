@@ -1,0 +1,5 @@
+benchmark = "erb.result"
+prelude = """
+require 'erb'
+erb = ERB.new(%q[Hello <%= 'World' %>])
+"""

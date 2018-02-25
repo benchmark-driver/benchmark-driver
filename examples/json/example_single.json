@@ -1,0 +1,4 @@
+{
+    "prelude": "require 'erb'\nerb = ERB.new(%q[Hello <%= 'World' %>])\n",
+    "benchmark": "erb.result"
+}

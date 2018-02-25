@@ -1,0 +1,8 @@
+{
+    "prelude": "class Array\n  alias_method :blank?, :empty?\nend\narray = []\n",
+    "benchmark": [{
+        "name": "Array#empty?","script":"array.empty?"
+    }, {
+        "name": "Array#blank?","script":"array.blank?"
+    }]
+}

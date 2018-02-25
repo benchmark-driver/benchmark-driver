@@ -1,4 +1,5 @@
 require 'benchmark_driver/config'
+require 'benchmark_driver/benchmark_file'
 require 'benchmark_driver/job_parser'
 require 'benchmark_driver/output'
 require 'benchmark_driver/rbenv'

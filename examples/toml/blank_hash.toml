@@ -1,0 +1,10 @@
+prelude = """
+class Array
+  alias_method :blank?, :empty?
+end
+array = []
+"""
+
+[benchmark]
+blank = "array.blank?"
+empty = "array.empty?"
