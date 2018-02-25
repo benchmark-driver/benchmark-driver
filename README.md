@@ -4,7 +4,9 @@ Fully-featured accurate benchmark driver for Ruby
 
 ## Project Status
 
-**Under Construction**
+Beta.
+
+Interface might be changed in the future, but it's almost fixed and many features can run well.
 
 ## Features
 ### Accurate Measurement
