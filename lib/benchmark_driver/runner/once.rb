@@ -11,8 +11,8 @@ class BenchmarkDriver::Runner::Once
   Job = Class.new(BenchmarkDriver::DefaultJob)
   # Dynamically fetched and used by `BenchmarkDriver::JobParser.parse`
   JobParser = BenchmarkDriver::DefaultJobParser.for(Job)
-  # Passed to `output` by `BenchmarkDriver::Runner.run`
-  MetricsType = BenchmarkDriver::Metrics::Type.new(unit: 'i/s')
+
+  METRICS_TYPE = BenchmarkDriver::Metrics::Type.new(unit: 'i/s')
 
   # @param [BenchmarkDriver::Config::RunnerConfig] config
   # @param [BenchmarkDriver::Output::*] output
@@ -24,6 +24,8 @@ class BenchmarkDriver::Runner::Once
   # This method is dynamically called by `BenchmarkDriver::JobRunner.run`
   # @param [Array<BenchmarkDriver::Default::Job>] jobs
   def run(jobs)
+    @output.metrics_type = METRICS_TYPE
+
     jobs = jobs.map do |job|
       Job.new(job.to_h.merge(loop_count: 1)) # to show this on output
     end

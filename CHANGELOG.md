@@ -1,3 +1,10 @@
+# v0.10.0
+
+- Add "record" output and "recorded" runner
+  - You can record metrics to yaml and change how to output later
+- Change output interface to set metrics\_type
+  - Now runner needs to call `output#metrics_type=`
+
 # v0.9.2
 
 - Add `--verbose` option

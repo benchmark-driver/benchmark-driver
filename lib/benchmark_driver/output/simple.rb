@@ -1,17 +1,17 @@
 class BenchmarkDriver::Output::Simple
   NAME_LENGTH = 8
 
+  # @param [BenchmarkDriver::Metrics::Type] metrics_type
+  attr_writer :metrics_type
+
   # @param [Array<BenchmarkDriver::*::Job>] jobs
   # @param [Array<BenchmarkDriver::Config::Executable>] executables
-  # @param [BenchmarkDriver::Metrics::Type] metrics_type
-  def initialize(jobs:, executables:, metrics_type:)
+  def initialize(jobs:, executables:)
     @jobs = jobs
     @executables = executables
-    @metrics_type = metrics_type
     @name_length = jobs.map { |j| j.name.size }.max
   end
 
-  # @param [BenchmarkDriver::Metrics] metrics
   def with_warmup(&block)
     without_stdout_buffering do
       $stdout.print 'warming up'
@@ -21,7 +21,6 @@ class BenchmarkDriver::Output::Simple
     $stdout.puts
   end
 
-  # @param [BenchmarkDriver::Metrics] metrics
   def with_benchmark(&block)
     @with_benchmark = true
     without_stdout_buffering do

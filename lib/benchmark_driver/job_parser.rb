@@ -29,7 +29,12 @@ module BenchmarkDriver
       when Hash
         config.dup.tap do |hash|
           hash.keys.each do |key|
-            hash[key.to_sym] = symbolize_keys(hash.delete(key))
+            case key
+            when String, Symbol
+              hash[key.to_sym] = symbolize_keys(hash.delete(key))
+            else # Struct
+              hash[key] = symbolize_keys(hash.delete(key))
+            end
           end
         end
       when Array

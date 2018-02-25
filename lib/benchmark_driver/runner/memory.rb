@@ -11,8 +11,8 @@ class BenchmarkDriver::Runner::Memory
   Job = Class.new(BenchmarkDriver::DefaultJob)
   # Dynamically fetched and used by `BenchmarkDriver::JobParser.parse`
   JobParser = BenchmarkDriver::DefaultJobParser.for(Job)
-  # Passed to `output` by `BenchmarkDriver::Runner.run`
-  MetricsType = BenchmarkDriver::Metrics::Type.new(unit: 'bytes', larger_better: false, worse_word: 'larger')
+
+  METRICS_TYPE = BenchmarkDriver::Metrics::Type.new(unit: 'bytes', larger_better: false, worse_word: 'larger')
 
   # @param [BenchmarkDriver::Config::RunnerConfig] config
   # @param [BenchmarkDriver::Output::*] output
@@ -28,6 +28,8 @@ class BenchmarkDriver::Runner::Memory
     if Etc.uname.fetch(:sysname) != 'Linux'
       raise "memory output is not supported for '#{Etc.uname[:sysname]}' for now"
     end
+
+    @output.metrics_type = METRICS_TYPE
 
     if jobs.any? { |job| job.loop_count.nil? }
       jobs = jobs.map do |job|

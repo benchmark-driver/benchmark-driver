@@ -2,6 +2,7 @@ module BenchmarkDriver
   module Output
     require 'benchmark_driver/output/compare'
     require 'benchmark_driver/output/markdown'
+    require 'benchmark_driver/output/record'
     require 'benchmark_driver/output/simple'
   end
 

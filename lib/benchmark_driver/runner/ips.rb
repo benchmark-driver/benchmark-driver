@@ -11,8 +11,8 @@ class BenchmarkDriver::Runner::Ips
   Job = Class.new(BenchmarkDriver::DefaultJob)
   # Dynamically fetched and used by `BenchmarkDriver::JobParser.parse`
   JobParser = BenchmarkDriver::DefaultJobParser.for(Job)
-  # Passed to `output` by `BenchmarkDriver::Runner.run`
-  MetricsType = BenchmarkDriver::Metrics::Type.new(unit: 'i/s')
+
+  METRICS_TYPE = BenchmarkDriver::Metrics::Type.new(unit: 'i/s')
 
   # @param [BenchmarkDriver::Config::RunnerConfig] config
   # @param [BenchmarkDriver::Output::*] output
@@ -24,6 +24,8 @@ class BenchmarkDriver::Runner::Ips
   # This method is dynamically called by `BenchmarkDriver::JobRunner.run`
   # @param [Array<BenchmarkDriver::Default::Job>] jobs
   def run(jobs)
+    set_metrics_type
+
     if jobs.any? { |job| job.loop_count.nil? }
       @output.with_warmup do
         jobs = jobs.map do |job|
@@ -121,6 +123,11 @@ class BenchmarkDriver::Runner::Ips
       duration: duration,
       executable: executable,
     )
+  end
+
+  # This method is overridden by BenchmarkDriver::Runner::Time
+  def set_metrics_type
+    @output.metrics_type = METRICS_TYPE
   end
 
   def with_script(script)

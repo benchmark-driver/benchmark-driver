@@ -3,6 +3,7 @@ module BenchmarkDriver
     require 'benchmark_driver/runner/ips'
     require 'benchmark_driver/runner/memory'
     require 'benchmark_driver/runner/once'
+    require 'benchmark_driver/runner/recorded'
     require 'benchmark_driver/runner/time'
   end
 
@@ -29,7 +30,6 @@ module BenchmarkDriver
         output = Output.find(config.output_type).new(
           jobs: jobs,
           executables: config.executables,
-          metrics_type: runner::MetricsType,
         )
         runner.new(config: runner_config, output: output).run(jobs)
       end
