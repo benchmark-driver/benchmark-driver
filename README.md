@@ -18,9 +18,9 @@ Interface might be changed in the future, but it's almost fixed and many feature
 ### Pluggable & Fully Featured
 
 - Flexible and real-time output format in ips, execution time, markdown table, etc.
-- Benchmark with various profiling/running options
+- Benchmark with various running options
 - Integrated benchmark support using external libraries
-- Runner, profiler and output format are all pluggable
+- Runner and output format are all pluggable
 
 ### Flexible Interface
 
@@ -77,13 +77,14 @@ With `benchmark-driver` command, you can describe benchmark with YAML input.
 ```
 $ benchmark-driver -h
 Usage: benchmark-driver [options] [YAML]
-    -r, --runner [TYPE]              Specify runner type: ips, time, memory (default: ips)
-    -o, --output [TYPE]              Specify output type: compare, simple, markdown (default: compare)
+    -r, --runner [TYPE]              Specify runner type: ips, time, memory, once (default: ips)
+    -o, --output [TYPE]              Specify output type: compare, simple, markdown, record (default: compare)
     -e, --executables [EXECS]        Ruby executables (e1::path1,arg1,...; e2::path2,arg2;...)
         --rbenv [VERSIONS]           Ruby executables in rbenv (x.x.x,arg1,...;y.y.y,arg2,...;...)
         --repeat-count [NUM]         Try benchmark NUM times and use the fastest result (TODO)
         --bundler                    Install and use gems specified in Gemfile
         --filter [REGEXP]            Filter out benchmarks with given regexp
+        --verbose [LEVEL]            Show some verbose outputs: 0, 1, 2 (default: 0)
         --run-duration [SECONDS]     Warmup esitmates loop_count to run for this duration (default: 3)
 ```
 
