@@ -1,3 +1,9 @@
+# v0.10.1
+
+- Explicitly bump supported version to >= 2.2
+  - v0.10.0 actually does not work with 2.1
+  - You can still benchmark Ruby 2.0, 2.1 by --executable, but you need to use newer Ruby for driver
+
 # v0.10.0
 
 - Add "record" output and "recorded" runner
