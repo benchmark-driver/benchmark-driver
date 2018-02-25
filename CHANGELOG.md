@@ -1,5 +1,6 @@
 # v0.10.3
 
+- Allow specifying name in `--rbenv`
 - Don't print stderr in "command\_stdout" runner
 
 # v0.10.2
