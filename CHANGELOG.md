@@ -1,3 +1,7 @@
+# v0.10.6
+
+- Fix TypeError on Ruby <= 2.3
+
 # v0.10.5
 
 - Run runners with Bundler's clean env
