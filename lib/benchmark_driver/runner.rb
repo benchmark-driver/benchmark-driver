@@ -1,5 +1,6 @@
 module BenchmarkDriver
   module Runner
+    require 'benchmark_driver/runner/command_stdout'
     require 'benchmark_driver/runner/ips'
     require 'benchmark_driver/runner/memory'
     require 'benchmark_driver/runner/once'
