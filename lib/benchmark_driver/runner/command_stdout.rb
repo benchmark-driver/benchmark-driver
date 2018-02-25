@@ -2,6 +2,7 @@ require 'benchmark_driver/struct'
 require 'benchmark_driver/metrics'
 require 'tempfile'
 require 'shellwords'
+require 'open3'
 
 # Run only once, for testing
 class BenchmarkDriver::Runner::CommandStdout
@@ -91,9 +92,9 @@ class BenchmarkDriver::Runner::CommandStdout
   end
 
   def execute(*args)
-    stdout = IO.popen(args, &:read)
-    unless $?.success?
-      raise "Failed to execute: #{args.shelljoin} (status: #{$?.exitstatus})"
+    stdout, stderr, status = Open3.capture3(*args)
+    unless status.success?
+      raise "Failed to execute: #{args.shelljoin} (status: #{$?.exitstatus}):\n[stdout]:\n#{stdout}\n[stderr]:\n#{stderr}"
     end
     stdout
   end
