@@ -1,3 +1,7 @@
+# v0.10.5
+
+- Run runners with Bundler's clean env
+
 # v0.10.4
 
 - Fix frozen string error when parsing multiple jobs
