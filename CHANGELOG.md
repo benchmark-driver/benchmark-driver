@@ -1,3 +1,7 @@
+# v0.10.4
+
+- Fix frozen string error when parsing multiple jobs
+
 # v0.10.3
 
 - Allow specifying name in `--rbenv`
