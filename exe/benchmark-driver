@@ -5,7 +5,6 @@ require 'benchmark_driver'
 require 'optparse'
 require 'yaml'
 
-
 # Parse command line options
 config = BenchmarkDriver::Config.new.tap do |c|
   executables = []

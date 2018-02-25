@@ -1,6 +1,7 @@
 # v0.10.1
 
-- Explicitly bump supported version to >= 2.2
+- Add "command\_stdout" runner to plug in existing benchmark
+- Explicitly bump supported Ruby version to >= 2.2
   - v0.10.0 actually does not work with 2.1
   - You can still benchmark Ruby 2.0, 2.1 by --executable, but you need to use newer Ruby for driver
 
@@ -30,6 +31,7 @@
      - So Ruby interface can't take Proc
   - YAML can have arbitrary format depending on the runner
 - `--compare` option is dropped and changed to `--output compare`
+- `--dir` option is dropped for now
 
 # v0.8.6
 
