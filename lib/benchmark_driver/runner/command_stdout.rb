@@ -20,7 +20,7 @@ class BenchmarkDriver::Runner::CommandStdout
     # @param [String,NilClass] working_directory
     # @param [Hash] metrics_type
     # @param [String] stdout_to_metrics
-    def parse(name:, command:, working_directory:, metrics_type:, stdout_to_metrics:)
+    def parse(name:, command:, working_directory: nil, metrics_type:, stdout_to_metrics:)
       Job.new(
         name: name,
         command: command.shellsplit,
