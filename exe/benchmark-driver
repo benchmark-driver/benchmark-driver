@@ -23,17 +23,20 @@ config = BenchmarkDriver::Config.new.tap do |c|
       abort '--executable must take argument but not given' if e.nil?
       e.split(';').each do |name_path|
         name, path = name_path.split('::', 2)
-        command = (path || name).split(',') # if `::` is not given, regard whole string as path
+        path ||= name # if `::` is not given, regard whole string as path
+        command = path.split(',')
         command[0] = File.expand_path(command[0])
         executables << BenchmarkDriver::Config::Executable.new(name: name, command: command)
       end
     end
     o.on('--rbenv [VERSIONS]', 'Ruby executables in rbenv (x.x.x,arg1,...;y.y.y,arg2,...;...)') do |r|
       abort '--rbenv must take argument but not given' if r.nil?
-      r.split(';').each do |spec|
+      r.split(';').each do |full_spec|
+        name, spec = full_spec.split('::', 2)
+        spec ||= name # if `::` is not given, regard whole string as spec
         version, *args = spec.split(',')
         executables << BenchmarkDriver::Config::Executable.new(
-          name: spec,
+          name: name,
           command: [BenchmarkDriver::Rbenv.ruby_path(version), *args],
         )
       end
