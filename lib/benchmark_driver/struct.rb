@@ -56,6 +56,10 @@ module BenchmarkDriver
           super
           self.class.defaults.each do |key, value|
             if public_send(key).nil?
+              begin
+                value = value.dup
+              rescue TypeError # for Ruby <= 2.3, like `true.dup`
+              end
               public_send("#{key}=", value.dup)
             end
           end
