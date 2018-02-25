@@ -32,7 +32,9 @@ module BenchmarkDriver
           jobs: jobs,
           executables: config.executables,
         )
-        runner.new(config: runner_config, output: output).run(jobs)
+        with_clean_env do
+          runner.new(config: runner_config, output: output).run(jobs)
+        end
       end
     end
 
@@ -46,6 +48,15 @@ module BenchmarkDriver
         raise "Unexpected job class: #{klass}"
       end
       BenchmarkDriver.const_get("Runner::#{match[:namespace]}", false)
+    end
+
+    def with_clean_env(&block)
+      require 'bundler'
+      Bundler.with_clean_env do
+        block.call
+      end
+    rescue LoadError
+      block.call
     end
   end
 end
