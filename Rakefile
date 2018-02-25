@@ -12,7 +12,9 @@ task :test do
   }.each do |runner, output|
     Bundler.with_clean_env do
       sh ['time', 'bundle', 'exec', 'exe/benchmark-driver', blank_loop, '-r', runner, '-o', output].shelljoin
+      puts
       sh ['time', 'bundle', 'exec', 'exe/benchmark-driver', blank_hash, '-r', runner, '-o', output, '--run-duration', '1'].shelljoin
+      puts
     end
   end
 end
@@ -20,9 +22,13 @@ end
 task :test_record do
   blank_loop = File.expand_path('./examples/yaml/blank_loop.yml', __dir__) # no warmup
   sh ['time', 'bundle', 'exec', 'exe/benchmark-driver', blank_loop, '-r', 'ips', '-o', 'record'].shelljoin
+  puts
   sh ['time', 'bundle', 'exec', 'exe/benchmark-driver', 'benchmark_driver.record.yml', '-o', 'compare'].shelljoin
+  puts
   sh ['time', 'bundle', 'exec', 'exe/benchmark-driver', 'benchmark_driver.record.yml', '-o', 'record'].shelljoin
+  puts
   sh ['time', 'bundle', 'exec', 'exe/benchmark-driver', 'benchmark_driver.record.yml', '-o', 'simple'].shelljoin
+  puts
 end
 
 task :test_ruby do
