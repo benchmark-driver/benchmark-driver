@@ -1,0 +1,8 @@
+{
+    "loop_count": 20000000,
+    "prelude": "class Array\n  alias_method :blank?, :empty?\nend\narray = []\n",
+    "benchmark": {
+        "empty": "array.empty?",
+        "blank": "array.blank?"
+    }
+}
