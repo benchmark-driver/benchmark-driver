@@ -56,7 +56,7 @@ module BenchmarkDriver
           super
           self.class.defaults.each do |key, value|
             if public_send(key).nil?
-              public_send("#{key}=", value)
+              public_send("#{key}=", value.dup)
             end
           end
         end
