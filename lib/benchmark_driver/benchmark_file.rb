@@ -1,4 +1,5 @@
 require 'json'
+require 'toml-rb'
 require 'yaml'
 
 module BenchmarkDriver
@@ -10,6 +11,8 @@ module BenchmarkDriver
           YAML.load(File.read(path))
         when /json$/i
           JSON.parse(File.read(path))
+        when /toml$/i
+          TomlRB.parse(File.read(path))
         else
           raise "unknown file type"
         end

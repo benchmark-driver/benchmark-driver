@@ -9,7 +9,7 @@ config = BenchmarkDriver::Config.new.tap do |c|
   executables = []
   bundler = false
   parser = OptionParser.new do |o|
-    o.banner = "Usage: #{File.basename($0, '.*')} [options] [Benmark files(YAML, JSON)]"
+    o.banner = "Usage: #{File.basename($0, '.*')} [options] [Benmark files(YAML, JSON, TOML)]"
     o.on('-r', '--runner [TYPE]', 'Specify runner type: ips, time, memory, once (default: ips)') do |d|
       abort '-r, --runner must take argument but not given' if d.nil?
       c.runner_type = d
