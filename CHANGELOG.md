@@ -1,3 +1,7 @@
+# v0.10.7
+
+- Pass `$RBENV_VERSION` for `command_stdout` runner with --rbenv option
+
 # v0.10.6
 
 - Fix TypeError on Ruby <= 2.3
