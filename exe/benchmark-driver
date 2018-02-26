@@ -35,7 +35,7 @@ config = BenchmarkDriver::Config.new.tap do |c|
         name, spec = full_spec.split('::', 2)
         spec ||= name # if `::` is not given, regard whole string as spec
         version, *args = spec.split(',')
-        executables << BenchmarkDriver::Config::RbenvExecutable.new(
+        executables << BenchmarkDriver::Config::Executable.new(
           name: name,
           command: [BenchmarkDriver::Rbenv.ruby_path(version), *args],
         )

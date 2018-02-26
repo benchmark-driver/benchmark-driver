@@ -1,6 +1,5 @@
 require 'benchmark_driver/struct'
 require 'benchmark_driver/metrics'
-require 'benchmark_driver/rbenv'
 require 'tempfile'
 require 'shellwords'
 require 'open3'
@@ -62,7 +61,7 @@ class BenchmarkDriver::Runner::CommandStdout
           @config.executables.each do |exec|
             best_value = with_repeat(metrics_type) do
               stdout = with_chdir(job.working_directory) do
-                with_rbenv_version(exec) { execute(*exec.command, *job.command) }
+                execute(*exec.command, *job.command)
               end
               StdoutToMetrics.new(
                 stdout: stdout,
@@ -83,20 +82,6 @@ class BenchmarkDriver::Runner::CommandStdout
   end
 
   private
-
-  def with_rbenv_version(executable, &block)
-    if executable.is_a?(BenchmarkDriver::Config::RbenvExecutable) && executable.rbenv_version
-      begin
-        env = ENV.to_h.dup
-        ENV['RBENV_VERSION'] = executable.rbenv_version
-        block.call
-      ensure
-        ENV.replace(env)
-      end
-    else
-      block.call
-    end
-  end
 
   def with_chdir(working_directory, &block)
     if working_directory

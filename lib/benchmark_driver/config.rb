@@ -36,17 +36,4 @@ module BenchmarkDriver
   Config.defaults[:executables] = [
     BenchmarkDriver::Config::Executable.new(name: RUBY_VERSION, command: [RbConfig.ruby]),
   ]
-
-  class Config::RbenvExecutable < Config::Executable
-    def freeze
-      rbenv_version # avoid `can't modify frozen xxx`
-      super
-    end
-
-    def rbenv_version
-      return @rbenv_version if defined?(@rbenv_version)
-      match = command.first.match(%r[/(?<version>[^/]+)/bin/ruby\z])
-      @rbenv_version = match && match[:version]
-    end
-  end
 end
