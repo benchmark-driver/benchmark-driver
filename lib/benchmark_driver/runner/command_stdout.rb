@@ -61,7 +61,7 @@ class BenchmarkDriver::Runner::CommandStdout
           @config.executables.each do |exec|
             best_value = with_repeat(metrics_type) do
               stdout = with_chdir(job.working_directory) do
-                execute(*exec.command, *job.command)
+                with_ruby_prefix(exec) { execute(*exec.command, *job.command) }
               end
               StdoutToMetrics.new(
                 stdout: stdout,
@@ -82,6 +82,14 @@ class BenchmarkDriver::Runner::CommandStdout
   end
 
   private
+
+  def with_ruby_prefix(executable, &block)
+    env = ENV.to_h.dup
+    ENV['PATH'] = "#{File.dirname(executable.command.first)}:#{ENV['PATH']}"
+    block.call
+  ensure
+    ENV.replace(env)
+  end
 
   def with_chdir(working_directory, &block)
     if working_directory
