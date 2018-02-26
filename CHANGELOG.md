@@ -1,3 +1,8 @@
+# v0.10.8
+
+- In `command_stdout`, `$RBENV_VERSION` is no longer passed to --rbenv option because it has no effect for rbenv
+- Instead, now dirname of executable path is prefixed to $PATH in `command_stdout`
+
 # v0.10.7
 
 - Pass `$RBENV_VERSION` for `command_stdout` runner with --rbenv option
