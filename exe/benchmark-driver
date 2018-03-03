@@ -31,14 +31,8 @@ config = BenchmarkDriver::Config.new.tap do |c|
     end
     o.on('--rbenv [VERSIONS]', 'Ruby executables in rbenv (x.x.x,arg1,...;y.y.y,arg2,...;...)') do |r|
       abort '--rbenv must take argument but not given' if r.nil?
-      r.split(';').each do |full_spec|
-        name, spec = full_spec.split('::', 2)
-        spec ||= name # if `::` is not given, regard whole string as spec
-        version, *args = spec.split(',')
-        executables << BenchmarkDriver::Config::Executable.new(
-          name: name,
-          command: [BenchmarkDriver::Rbenv.ruby_path(version), *args],
-        )
+      r.split(';').each do |version|
+        executables << BenchmarkDriver::Rbenv.parse_spec(version)
       end
     end
     o.on('--repeat-count [NUM]', 'Try benchmark NUM times and use the fastest result (TODO)') do |v|
