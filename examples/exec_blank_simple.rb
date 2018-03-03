@@ -9,4 +9,5 @@ Benchmark.driver(output: :simple) do |x|
   EOS
   x.report %{ array.empty? }
   x.report %{ array.blank? }
+  x.loop_count 10000000
 end

@@ -14,6 +14,7 @@ module BenchmarkDriver
         BenchmarkDriver::JobParser.parse({
           type: @config.runner_type,
           prelude: @prelude,
+          loop_count: @loop_count,
         }.merge!(job))
       end
       BenchmarkDriver::Runner.run(jobs, config: @config)
@@ -27,6 +28,7 @@ module BenchmarkDriver
     # @param [String,NilClass] runner
     def initialize(output: nil, runner: nil)
       @prelude = ''
+      @loop_count = nil
       @jobs = []
       @config = BenchmarkDriver::Config.new
       @config.output_type = output.to_s if output
@@ -37,6 +39,11 @@ module BenchmarkDriver
     # @param [String] script
     def prelude(script)
       @prelude << "#{script}\n"
+    end
+
+    # @param [Integer] count
+    def loop_count(count)
+      @loop_count = count
     end
 
     # @param [String] name - Name shown on result output.
