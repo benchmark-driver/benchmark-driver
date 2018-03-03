@@ -65,5 +65,9 @@ module BenchmarkDriver
         @executables << BenchmarkDriver::Rbenv.parse_spec(version)
       end
     end
+
+    def verbose(level = 1)
+      @config.verbose = level
+    end
   end
 end
