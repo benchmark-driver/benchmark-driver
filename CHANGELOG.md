@@ -1,3 +1,7 @@
+# v0.10.9
+
+- Add `x.rbenv`, `x.loop_count`, `x.verbose` supports to Ruby interface
+
 # v0.10.8
 
 - In `command_stdout`, `$RBENV_VERSION` is no longer passed to --rbenv option because it has no effect for rbenv
