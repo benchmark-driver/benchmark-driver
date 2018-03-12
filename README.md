@@ -44,7 +44,7 @@ This interface generates code to profile with low overhead and executes it.
 require 'benchmark_driver'
 
 Benchmark.driver do |x|
-  x.prelude = <<~RUBY
+  x.prelude <<~RUBY
     require 'active_support/all'
     array = []
   RUBY
@@ -60,7 +60,7 @@ or simply:
 require 'benchmark_driver'
 
 Benchmark.driver do |x|
-  x.prelude = <<~RUBY
+  x.prelude <<~RUBY
     require 'active_support/all'
     array = []
   RUBY
