@@ -1,3 +1,7 @@
+# v0.10.10
+
+- Add `BenchmarkDriver::Config::Executable#description` method to return `ruby -v` result for output plugins.
+
 # v0.10.9
 
 - Add `x.rbenv`, `x.loop_count`, `x.verbose` supports to Ruby interface
