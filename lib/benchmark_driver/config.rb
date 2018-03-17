@@ -32,7 +32,17 @@ module BenchmarkDriver
   Config::Executable = ::BenchmarkDriver::Struct.new(
     :name,    # @param [String]
     :command, # @param [Array<String>]
-  )
+  ) do
+    def initialize(*)
+      super
+      @cache = {} # modifiable storage even after `#freeze`
+    end
+
+    # @return [String] - Return result of `ruby -v`. This is for convenience of output plugins.
+    def description
+      @cache[:description] ||= IO.popen([*command, '-v'], &:read).rstrip
+    end
+  end
   Config.defaults[:executables] = [
     BenchmarkDriver::Config::Executable.new(name: RUBY_VERSION, command: [RbConfig.ruby]),
   ]
