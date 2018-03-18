@@ -1,3 +1,7 @@
+# v0.10.11
+
+- Add `:required_ruby_option` parameter in YAML format
+
 # v0.10.10
 
 - Add `BenchmarkDriver::Config::Executable#description` method to return `ruby -v` result for output plugins.
