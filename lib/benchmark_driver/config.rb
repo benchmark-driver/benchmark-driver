@@ -42,6 +42,11 @@ module BenchmarkDriver
     def description
       @cache[:description] ||= IO.popen([*command, '-v'], &:read).rstrip
     end
+
+    # @return [String] - Return RUBY_VERSION
+    def version
+      @cache[:version] ||= IO.popen([*command, '-e', 'print RUBY_VERSION'], &:read)
+    end
   end
   Config.defaults[:executables] = [
     BenchmarkDriver::Config::Executable.new(name: RUBY_VERSION, command: [RbConfig.ruby]),

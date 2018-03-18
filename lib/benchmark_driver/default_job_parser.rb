@@ -17,12 +17,14 @@ module BenchmarkDriver
     # @param [String,Array<String,Hash{ Symbol => String }>,Hash{ Symbol => String }] benchmark
     # @param [String] teardown
     # @param [Integer] loop_count
+    # @param [String] required_ruby_version
     # @return [Array<BenchmarkDriver::Default::Job>]
-    def parse(prelude: nil, benchmark:, teardown: nil, loop_count: nil)
+    def parse(prelude: nil, benchmark:, teardown: nil, loop_count: nil, required_ruby_version: nil)
       parse_benchmark(benchmark).each do |job|
         job.prelude.prepend("#{prelude}\n") if prelude
         job.teardown.prepend("#{teardown}\n") if teardown
         job.loop_count ||= loop_count
+        job.required_ruby_version ||= required_ruby_version
       end.each(&:freeze)
     end
 
@@ -56,9 +58,9 @@ module BenchmarkDriver
       end
     end
 
-    def parse_job_hash(name: nil, prelude: '', script:, teardown: '', loop_count: nil)
+    def parse_job_hash(name: nil, prelude: '', script:, teardown: '', loop_count: nil, required_ruby_version: nil)
       name ||= script
-      job_class.new(name: name, prelude: prelude, script: script, teardown: teardown, loop_count: loop_count)
+      job_class.new(name: name, prelude: prelude, script: script, teardown: teardown, loop_count: loop_count, required_ruby_version: required_ruby_version)
     end
 
     def job_class

@@ -32,7 +32,7 @@ class BenchmarkDriver::Runner::Ips
           next job if job.loop_count # skip warmup if loop_count is set
 
           @output.with_job(job) do
-            result = run_warmup(job, exec: @config.executables.first)
+            result = run_warmup(job, exec: job.runnable_execs(@config.executables).first)
             metrics = build_metrics(result)
             @output.report(metrics)
 
@@ -46,7 +46,7 @@ class BenchmarkDriver::Runner::Ips
     @output.with_benchmark do
       jobs.each do |job|
         @output.with_job(job) do
-          @config.executables.each do |exec|
+          job.runnable_execs(@config.executables).each do |exec|
             best_metrics = with_repeat(@config.repeat_count) do
               run_benchmark(job, exec: exec)
             end
