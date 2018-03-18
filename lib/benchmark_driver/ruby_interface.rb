@@ -66,6 +66,12 @@ module BenchmarkDriver
       end
     end
 
+    def rubies(*versions)
+      versions.each do |version|
+        @executables << BenchmarkDriver::Rubies.parse_spec(version)
+      end
+    end
+
     def verbose(level = 1)
       @config.verbose = level
     end

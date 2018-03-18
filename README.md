@@ -81,6 +81,7 @@ Usage: benchmark-driver [options] [YAML]
     -o, --output [TYPE]              Specify output type: compare, simple, markdown, record (default: compare)
     -e, --executables [EXECS]        Ruby executables (e1::path1,arg1,...; e2::path2,arg2;...)
         --rbenv [VERSIONS]           Ruby executables in rbenv (x.x.x,arg1,...;y.y.y,arg2,...;...)
+        --rubies [VERSIONS]          Ruby executables (x.x.x,arg1,...;y.y.y,arg2,...;...)
         --repeat-count [NUM]         Try benchmark NUM times and use the fastest result (TODO)
         --bundler                    Install and use gems specified in Gemfile
         --filter [REGEXP]            Filter out benchmarks with given regexp
