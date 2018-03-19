@@ -85,7 +85,7 @@ Usage: benchmark-driver [options] [YAML]
         --bundler                    Install and use gems specified in Gemfile
         --filter [REGEXP]            Filter out benchmarks with given regexp
         --verbose [LEVEL]            Show some verbose outputs: 0, 1, 2 (default: 0)
-        --run-duration [SECONDS]     Warmup esitmates loop_count to run for this duration (default: 3)
+        --run-duration [SECONDS]     Warmup estimates loop_count to run for this duration (default: 3)
 ```
 
 #### Running single script

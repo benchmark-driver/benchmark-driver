@@ -55,7 +55,7 @@ config = BenchmarkDriver::Config.new.tap do |c|
         abort "--verbose must take Integer, but got #{v.inspect}"
       end
     end
-    o.on('--run-duration [SECONDS]', 'Warmup esitmates loop_count to run for this duration (default: 3)') do |v|
+    o.on('--run-duration [SECONDS]', 'Warmup estimates loop_count to run for this duration (default: 3)') do |v|
       begin
         c.run_duration = Integer(v)
       rescue ArgumentError

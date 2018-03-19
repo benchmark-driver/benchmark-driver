@@ -33,7 +33,7 @@ module BenchmarkDriver
           def initialize(**args)
             args.each do |key, value|
               unless members.include?(key)
-                raise ArgumentError.new("unknwon keywords: #{key}")
+                raise ArgumentError.new("unknown keywords: #{key}")
                 next
               end
 
