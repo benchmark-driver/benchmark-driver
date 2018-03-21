@@ -168,6 +168,77 @@ Benchmark.driver do |x|
 end
 ```
 
+### compare
+
+```
+$ benchmark-driver examples/yaml/blank_loop.yml --output compare --rbenv '2.4.2;2.5.0'
+Calculating -------------------------------------
+                          2.4.2       2.5.0
+               empty   195.957M    129.970M i/s -     20.000M times in 0.102063s 0.153882s
+               blank    66.554M     55.630M i/s -     20.000M times in 0.300507s 0.359519s
+
+Comparison:
+                            empty
+               2.4.2: 195957398.5 i/s
+               2.5.0: 129969716.9 i/s - 1.51x  slower
+
+                            blank
+               2.4.2:  66554190.0 i/s
+               2.5.0:  55629883.2 i/s - 1.20x  slower
+```
+
+### simple
+
+```
+$ benchmark-driver examples/yaml/blank_loop.yml --output simple --rbenv '2.4.2;2.5.0'
+benchmark results (i/s):
+          2.4.2     2.5.0
+empty  184.084M  117.319M
+blank   65.843M   62.093M
+```
+
+### markdown
+
+```
+$ benchmark-driver examples/yaml/blank_loop.yml --output markdown --rbenv '2.4.2;2.5.0'
+# benchmark results (i/s)
+
+|       |   2.4.2|   2.5.0|
+|:------|:-------|:-------|
+|empty  |187.296M|117.662M|
+|blank  | 58.895M| 58.852M|
+```
+
+### record
+
+Measure first, output with various formats later.
+
+```
+$ benchmark-driver examples/yaml/blank_loop.yml --output record --rbenv '2.4.2;2.5.0'
+benchmarking....
+
+$ benchmark-driver benchmark_driver.record.yml --output compare
+Calculating -------------------------------------
+               empty   153.380M    114.228M i/s -     20.000M times in 0.130395s 0.175088s
+               blank    67.834M     64.328M i/s -     20.000M times in 0.294836s 0.310906s
+
+Comparison:
+               empty: 153380113.9 i/s
+               blank:  67834321.4 i/s - 2.26x  slower
+
+$ benchmark-driver benchmark_driver.record.yml --output simple
+benchmark results (i/s):
+empty  153.380M  114.228M
+blank   67.834M   64.328M
+```
+
+### gruff
+
+There is [benchmark\_driver-output-gruff](https://github.com/benchmark-driver/benchmark_driver-output-gruff)
+plugin that renders a graph using gruff.gem.
+
+![](./images/optcarrot.png)
+
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/k0kubun/benchmark_driver.
