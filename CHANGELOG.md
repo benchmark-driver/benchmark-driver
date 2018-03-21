@@ -1,3 +1,8 @@
+# v0.10.12
+
+- Fix some typo in help
+- Add dynamic require for convenience to implement output plugins
+
 # v0.10.11
 
 - Add `:required_ruby_option` parameter in YAML format
