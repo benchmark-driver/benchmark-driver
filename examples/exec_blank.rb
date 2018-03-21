@@ -9,5 +9,5 @@ Benchmark.driver do |x|
   EOS
   x.report 'Array#empty?', %{ array.empty? }
   x.report 'Array#blank?', %{ array.blank? }
-  x.compare!
+  x.output 'markdown'
 end

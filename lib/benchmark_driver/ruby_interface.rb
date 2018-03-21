@@ -55,6 +55,10 @@ module BenchmarkDriver
       @jobs << { benchmark: [{ name: name, script: script }] }
     end
 
+    def output(type)
+      @config.output_type = type
+    end
+
     # Backward compatibility. This is actually default now.
     def compare!
       @config.output_type = 'compare'

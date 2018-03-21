@@ -145,6 +145,27 @@ Comparison:
                2.4.1:   1889805.6 i/s - 1.72x  slower
 ```
 
+## Output options
+
+By default, there are following output options.
+
+* compare: benchmark-ips's `compare!`-like output (default)
+* simple: ruby's original `benchmark/driver.rb`-like simple output
+* markdown: output in markdown table
+* record: serialize results in `benchmark_driver.record.yml`, to change outputs later as you like
+
+With `benchmark-driver` CLI, you can specify it with `-o [output]` or `--output [output]`.
+
+With Ruby interface, you can specify it like:
+
+```rb
+Benchmark.driver do |x|
+  x.prelude %{ array = [] }
+  x.report 'Array#empty?', %{ array.empty? }
+  x.output 'markdown'
+end
+```
+
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/k0kubun/benchmark_driver.
