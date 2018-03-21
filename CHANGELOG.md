@@ -1,3 +1,8 @@
+# v0.10.13
+
+- Add `x.output` to specify output plugin to Ruby interface
+  - You can still use `Benchmark.driver(output: xxx)` form too
+
 # v0.10.12
 
 - Fix some typo in help
