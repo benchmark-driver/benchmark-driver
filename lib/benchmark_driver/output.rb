@@ -16,6 +16,7 @@ module BenchmarkDriver
         raise ArgumentError.new("Output type '#{type}' cannot contain ':'")
       end
 
+      require "benchmark_driver/output/#{type}" # for plugin
       ::BenchmarkDriver::Output.const_get(camelize(type), false)
     end
 
