@@ -240,6 +240,11 @@ plugin that renders a graph using gruff.gem.
 
 ![](./images/optcarrot.png)
 
+### benchmark-driver.github.io
+
+Benchmark results for https://benchmark-driver.github.io are also stored by [output plugin](https://github.com/benchmark-driver/skybench/tree/master/plugins/benchmark_driver-output-skybench).
+You can integrate any system as you like.
+
 ## Runner Options
 
 Runner decides metrics to be collected. There are following default runner options.
