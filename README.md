@@ -201,13 +201,14 @@ blank   65.843M   62.093M
 
 ```
 $ benchmark-driver examples/yaml/blank_loop.yml --output markdown --rbenv '2.4.2;2.5.0'
-# benchmark results (i/s)
+```
+
+benchmark results (i/s)
 
 |       |   2.4.2|   2.5.0|
 |:------|:-------|:-------|
 |empty  |187.296M|117.662M|
 |blank  | 58.895M| 58.852M|
-```
 
 ### record
 
