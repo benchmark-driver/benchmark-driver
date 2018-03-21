@@ -149,10 +149,12 @@ Comparison:
 
 By default, there are following output options.
 
-* compare: benchmark-ips's `compare!`-like output (default)
-* simple: ruby's original `benchmark/driver.rb`-like simple output
-* markdown: output in markdown table
-* record: serialize results in `benchmark_driver.record.yml`, to change outputs later as you like
+| Output | Description |
+|:-------|:------------|
+| compare | benchmark-ips's `compare!`-like output (default) |
+| simple | ruby's original `benchmark/driver.rb`-like simple output |
+| markdown | output in markdown table |
+| record | serialize results in `benchmark_driver.record.yml`, to change outputs later as you like |
 
 With `benchmark-driver` CLI, you can specify it with `-o [output]` or `--output [output]`.
 
