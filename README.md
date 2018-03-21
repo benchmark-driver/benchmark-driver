@@ -145,7 +145,7 @@ Comparison:
                2.4.1:   1889805.6 i/s - 1.72x  slower
 ```
 
-## Output options
+## Output Options
 
 By default, there are following output options.
 
@@ -239,6 +239,122 @@ There is [benchmark\_driver-output-gruff](https://github.com/benchmark-driver/be
 plugin that renders a graph using gruff.gem.
 
 ![](./images/optcarrot.png)
+
+## Runner Options
+
+Runner decides metrics to be collected. There are following default runner options.
+
+ips, time, memory, once
+
+| Runner | Description |
+|:-------|:------------|
+| ips | Iteration per second (default) |
+| time | Elapsed seconds |
+| memory | Max resident set. This is supported only on Linux for now. |
+| once | Forces `loop_count` to 1 to test scripts |
+| command\_stdout | Special runner to integrate existing benchmarks |
+
+### ips
+
+```
+$ benchmark-driver examples/yaml/blank_loop.yml --runner ips --rbenv '2.4.3;2.5.0'
+Calculating -------------------------------------
+                          2.4.3       2.5.0
+               empty   228.802M    180.125M i/s -     20.000M times in 0.087412s 0.111034s
+               blank    90.012M     88.853M i/s -     20.000M times in 0.222193s 0.225090s
+
+Comparison:
+                            empty
+               2.4.3: 228801720.5 i/s
+               2.5.0: 180124821.8 i/s - 1.27x  slower
+
+                            blank
+               2.4.3:  90012021.7 i/s
+               2.5.0:  88853269.4 i/s - 1.01x  slower
+```
+
+### time
+
+```
+$ benchmark-driver examples/yaml/blank_loop.yml --runner time --rbenv '2.4.3;2.5.0'
+Calculating -------------------------------------
+                          2.4.3       2.5.0
+               empty      0.087       0.110 s -     20.000M times
+               blank      0.217       0.219 s -     20.000M times
+
+Comparison:
+                            empty
+               2.5.0:         0.1 s
+               2.4.3:         0.1 s - 1.26x  slower
+
+                            blank
+               2.5.0:         0.2 s
+               2.4.3:         0.2 s - 1.01x  slower
+```
+
+### memory
+
+```
+$ be exe/benchmark-driver examples/yaml/blank_loop.yml --runner memory --rbenv '2.4.3;2.5.0'
+Calculating -------------------------------------
+                          2.4.3       2.5.0
+               empty     9.192M      9.364M bytes -     20.000M times
+               blank     9.080M      9.372M bytes -     20.000M times
+
+Comparison:
+                            empty
+               2.4.3:   9192000.0 bytes
+               2.5.0:   9364000.0 bytes - 1.02x  larger
+
+                            blank
+               2.4.3:   9080000.0 bytes
+               2.5.0:   9372000.0 bytes - 1.03x  larger
+```
+
+### once
+
+Only for testing purpose.
+
+```
+$ benchmark-driver examples/yaml/blank_loop.yml --runner once --rbenv '2.4.3;2.5.0'
+Calculating -------------------------------------
+                          2.4.3       2.5.0
+               empty     1.818M      2.681M i/s -       1.000 times in 0.000001s 0.000000s
+               blank     1.531M      2.421M i/s -       1.000 times in 0.000001s 0.000000s
+
+Comparison:
+                            empty
+               2.5.0:   2680965.1 i/s
+               2.4.3:   1818181.8 i/s - 1.47x  slower
+
+                            blank
+               2.5.0:   2421307.5 i/s
+               2.4.3:   1531393.6 i/s - 1.58x  slower
+```
+
+### command\_stdout
+
+See following examples:
+
+* https://github.com/benchmark-driver/optcarrot
+* https://github.com/benchmark-driver/fluentd-benchmark
+
+If you benchmark can run with `ruby foo bar`, specify `foo bar` to `command:`.
+Then write `stdout_to_metrics:` to convert stdout to metrics. This runner can be used only with YAML interface for now.
+
+```
+$ benchmark-driver benchmark.yml --verbose 1 --rbenv '2.6.0-dev;2.6.0-dev,--jit'
+2.6.0-dev: ruby 2.6.0dev (2018-03-21 trunk 62870) [x86_64-linux]
+2.6.0-dev,--jit: ruby 2.6.0dev (2018-03-21 trunk 62870) +JIT [x86_64-linux]
+Calculating -------------------------------------
+                      2.6.0-dev  2.6.0-dev,--jit
+           optcarrot     51.866           67.445 fps
+
+Comparison:
+                        optcarrot
+     2.6.0-dev,--jit:        67.4 fps
+           2.6.0-dev:        51.9 fps - 1.30x  slower
+```
 
 ## Contributing
 
