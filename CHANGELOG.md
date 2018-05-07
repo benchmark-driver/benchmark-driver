@@ -1,3 +1,7 @@
+# v0.10.15
+
+- Make `Benchmark.driver` take `repeat_count:` keyword argument
+
 # v0.10.14
 
 - Fix a bug that large time is shown as better in time runner
