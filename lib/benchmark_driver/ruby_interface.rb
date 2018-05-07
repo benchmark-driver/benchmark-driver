@@ -26,13 +26,14 @@ module BenchmarkDriver
 
     # @param [String,NilClass] output
     # @param [String,NilClass] runner
-    def initialize(output: nil, runner: nil)
+    def initialize(output: nil, runner: nil, repeat_count: 1)
       @prelude = ''
       @loop_count = nil
       @jobs = []
       @config = BenchmarkDriver::Config.new
       @config.output_type = output.to_s if output
       @config.runner_type = runner.to_s if runner
+      @config.repeat_count = Integer(repeat_count)
       @executables = []
     end
 
