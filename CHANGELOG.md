@@ -1,3 +1,7 @@
+# v0.10.14
+
+- Fix a bug that large time is shown as better in time runner
+
 # v0.10.13
 
 - Add `x.output` to specify output plugin to Ruby interface
