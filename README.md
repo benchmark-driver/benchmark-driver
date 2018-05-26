@@ -300,7 +300,7 @@ Comparison:
 ### memory
 
 ```
-$ be exe/benchmark-driver examples/yaml/blank_loop.yml --runner memory --rbenv '2.4.3;2.5.0'
+$ benchmark-driver examples/yaml/blank_loop.yml --runner memory --rbenv '2.4.3;2.5.0'
 Calculating -------------------------------------
                           2.4.3       2.5.0
                empty     9.192M      9.364M bytes -     20.000M times
