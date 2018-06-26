@@ -1,3 +1,7 @@
+# v0.10.16
+
+- `command_stdout` runner uses YAML's dirname as `working_directory` by default
+
 # v0.10.15
 
 - Make `Benchmark.driver` take `repeat_count:` keyword argument
