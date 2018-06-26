@@ -3,7 +3,8 @@ require 'benchmark_driver/runner'
 module BenchmarkDriver
   class << JobParser = Module.new
     # @param [Hash] config
-    def parse(config)
+    # @param [Hash] default_params - Special default values not written in job definition
+    def parse(config, default_params: {})
       config = symbolize_keys(config)
       type = config.fetch(:type)
       if !type.is_a?(String)
@@ -14,7 +15,13 @@ module BenchmarkDriver
       config.delete(:type)
 
       # Dynamic dispatch for plugin support
-      ::BenchmarkDriver.const_get("Runner::#{camelize(type)}::JobParser", false).parse(config)
+      job = ::BenchmarkDriver.const_get("Runner::#{camelize(type)}::JobParser", false).parse(config)
+      default_params.each do |key, value|
+        if job.respond_to?(key) && job.respond_to?("#{key}=") && job.public_send(key).nil?
+          job.public_send("#{key}=", value)
+        end
+      end
+      job
     end
 
     private

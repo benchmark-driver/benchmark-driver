@@ -87,7 +87,8 @@ jobs = config.paths.flat_map do |path|
   job = { 'type' => config.runner_type }.merge!(job)
 
   begin
-    BenchmarkDriver::JobParser.parse(job)
+    # `working_directory` is YAML-specific special parameter, mainly for "command_stdout"
+    BenchmarkDriver::JobParser.parse(job, default_params: { working_directory: File.dirname(path) })
   rescue ArgumentError
     $stderr.puts "benchmark-driver: Failed to parse #{path.dump}."
     $stderr.puts '  YAML format may be wrong. See error below:'
