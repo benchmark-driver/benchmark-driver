@@ -7,12 +7,3 @@ RSpec::Core::RakeTask.new(:spec) do |t|
 end
 
 task default: :spec
-
-# task :test_ruby do
-#   Dir.glob(File.expand_path('./examples/*.rb', __dir__)).sort.each do |file|
-#     Bundler.with_clean_env do
-#       sh ['time', 'bundle', 'exec', 'ruby', file].shelljoin
-#     end
-#     puts
-#   end
-# end

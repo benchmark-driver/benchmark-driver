@@ -10,4 +10,5 @@ Benchmark.driver do |x|
   x.report 'Array#empty?', %{ array.empty? }
   x.report 'Array#blank?', %{ array.blank? }
   x.output 'markdown'
+  x.loop_count 1000
 end
