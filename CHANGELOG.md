@@ -1,5 +1,6 @@
 # unreleased
 
+- Now benchmark-driver.gem can be used as an alias to install benchmark\_driver.gem
 - `--run-duration` accepts floating-point number
 
 # v0.10.16
