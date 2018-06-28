@@ -1,3 +1,7 @@
+# unreleased
+
+- `--run-duration` accepts floating-point number
+
 # v0.10.16
 
 - `command_stdout` runner uses YAML's dirname as `working_directory` by default
