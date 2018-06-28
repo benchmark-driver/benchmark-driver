@@ -168,10 +168,26 @@ Benchmark.driver do |x|
 end
 ```
 
+With following `blank_loop.yml`,
+
+```
+loop_count: 20000000
+prelude: |
+  class Array
+    alias_method :blank?, :empty?
+  end
+  array = []
+benchmark:
+  empty: array.empty?
+  blank: array.blank?
+```
+
+you can output results in various ways like:
+
 ### compare
 
 ```
-$ benchmark-driver examples/yaml/blank_loop.yml --output compare --rbenv '2.4.2;2.5.0'
+$ benchmark-driver blank_loop.yml --output compare --rbenv '2.4.2;2.5.0'
 Calculating -------------------------------------
                           2.4.2       2.5.0
                empty   195.957M    129.970M i/s -     20.000M times in 0.102063s 0.153882s
@@ -190,7 +206,7 @@ Comparison:
 ### simple
 
 ```
-$ benchmark-driver examples/yaml/blank_loop.yml --output simple --rbenv '2.4.2;2.5.0'
+$ benchmark-driver blank_loop.yml --output simple --rbenv '2.4.2;2.5.0'
 benchmark results (i/s):
           2.4.2     2.5.0
 empty  184.084M  117.319M
@@ -200,7 +216,7 @@ blank   65.843M   62.093M
 ### markdown
 
 ```
-$ benchmark-driver examples/yaml/blank_loop.yml --output markdown --rbenv '2.4.2;2.5.0'
+$ benchmark-driver blank_loop.yml --output markdown --rbenv '2.4.2;2.5.0'
 ```
 
 benchmark results (i/s)
@@ -215,7 +231,7 @@ benchmark results (i/s)
 Measure first, output with various formats later.
 
 ```
-$ benchmark-driver examples/yaml/blank_loop.yml --output record --rbenv '2.4.2;2.5.0'
+$ benchmark-driver blank_loop.yml --output record --rbenv '2.4.2;2.5.0'
 benchmarking....
 
 $ benchmark-driver benchmark_driver.record.yml --output compare
@@ -262,7 +278,7 @@ ips, time, memory, once
 ### ips
 
 ```
-$ benchmark-driver examples/yaml/blank_loop.yml --runner ips --rbenv '2.4.3;2.5.0'
+$ benchmark-driver blank_loop.yml --runner ips --rbenv '2.4.3;2.5.0'
 Calculating -------------------------------------
                           2.4.3       2.5.0
                empty   228.802M    180.125M i/s -     20.000M times in 0.087412s 0.111034s
@@ -281,7 +297,7 @@ Comparison:
 ### time
 
 ```
-$ benchmark-driver examples/yaml/blank_loop.yml --runner time --rbenv '2.4.3;2.5.0'
+$ benchmark-driver blank_loop.yml --runner time --rbenv '2.4.3;2.5.0'
 Calculating -------------------------------------
                           2.4.3       2.5.0
                empty      0.087       0.110 s -     20.000M times
@@ -300,7 +316,7 @@ Comparison:
 ### memory
 
 ```
-$ benchmark-driver examples/yaml/blank_loop.yml --runner memory --rbenv '2.4.3;2.5.0'
+$ benchmark-driver blank_loop.yml --runner memory --rbenv '2.4.3;2.5.0'
 Calculating -------------------------------------
                           2.4.3       2.5.0
                empty     9.192M      9.364M bytes -     20.000M times
@@ -321,7 +337,7 @@ Comparison:
 Only for testing purpose.
 
 ```
-$ benchmark-driver examples/yaml/blank_loop.yml --runner once --rbenv '2.4.3;2.5.0'
+$ benchmark-driver blank_loop.yml --runner once --rbenv '2.4.3;2.5.0'
 Calculating -------------------------------------
                           2.4.3       2.5.0
                empty     1.818M      2.681M i/s -       1.000 times in 0.000001s 0.000000s
