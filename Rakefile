@@ -8,18 +8,6 @@ end
 
 task default: :spec
 
-# task :test_record do
-#   blank_loop = File.expand_path('./examples/yaml/blank_loop.yml', __dir__) # no warmup
-#   sh ['time', 'bundle', 'exec', 'exe/benchmark-driver', blank_loop, '-r', 'ips', '-o', 'record'].shelljoin
-#   puts
-#   sh ['time', 'bundle', 'exec', 'exe/benchmark-driver', 'benchmark_driver.record.yml', '-o', 'compare'].shelljoin
-#   puts
-#   sh ['time', 'bundle', 'exec', 'exe/benchmark-driver', 'benchmark_driver.record.yml', '-o', 'record'].shelljoin
-#   puts
-#   sh ['time', 'bundle', 'exec', 'exe/benchmark-driver', 'benchmark_driver.record.yml', '-o', 'simple'].shelljoin
-#   puts
-# end
-
 # task :test_ruby do
 #   Dir.glob(File.expand_path('./examples/*.rb', __dir__)).sort.each do |file|
 #     Bundler.with_clean_env do
