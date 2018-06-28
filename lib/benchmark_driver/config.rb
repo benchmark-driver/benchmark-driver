@@ -9,14 +9,14 @@ module BenchmarkDriver
     :executables,  # @param [Array<BenchmarkDriver::Config::Executable>]
     :filters,      # @param [Array<Regexp>]
     :repeat_count, # @param [Integer]
-    :run_duration, # @param [Integer]
+    :run_duration, # @param [Float]
     :verbose,      # @param [Integer]
     defaults: {
       runner_type: 'ips',
       output_type: 'compare',
       filters: [],
       repeat_count: 1,
-      run_duration: 3,
+      run_duration: 3.0,
       verbose: 0,
     },
   )
@@ -25,7 +25,7 @@ module BenchmarkDriver
   Config::RunnerConfig = ::BenchmarkDriver::Struct.new(
     :executables,  # @param [Array<BenchmarkDriver::Config::Executable>]
     :repeat_count, # @param [Integer]
-    :run_duration, # @param [Integer]
+    :run_duration, # @param [Float]
     :verbose,      # @param [Integer]
   )
 
