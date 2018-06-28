@@ -5,10 +5,10 @@ require 'tempfile'
 describe 'benchmark-driver command' do
   def assert_execute(*command)
     stdout, stderr, status = Bundler.with_clean_env { Open3.capture3(*command) }
+    command_to_show = command.map { |c| c.gsub(Dir.pwd, '.') }.shelljoin
 
     on_failure = -> {
       # Show output directly since RSpec truncates long output
-      command_to_show = command.map { |c| c.gsub(Dir.pwd, '.') }.shelljoin
       puts "\n\n#{'=' * 100}"
       puts "Failed to execute:\n#{command_to_show}"
       puts "\nstdout:\n```\n#{stdout}```\n\nstderr:\n```\n#{stderr}```\n\n\n"
@@ -18,7 +18,7 @@ describe 'benchmark-driver command' do
     expect(status.success?).to eq(true), on_failure
 
     if ENV.key?('VERBOSE')
-      puts "\n#{stdout}\n"
+      puts "\n```\n$ #{command_to_show}\n#{stdout}```\n\n"
     end
     unless stderr.empty?
       $stderr.puts "stderr:\n```\n#{stderr}```"
