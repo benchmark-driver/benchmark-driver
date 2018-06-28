@@ -10,4 +10,4 @@ branches:
     - master
 before_install: gem install bundler -v 1.15.4
 script:
-  - VERBOSE=1 bundle exec rake
+  - RSPEC_RETRIES=3 VERBOSE=1 bundle exec rake
