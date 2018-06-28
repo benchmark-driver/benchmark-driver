@@ -16,14 +16,3 @@ task default: :spec
 #     puts
 #   end
 # end
-
-# task :test_yaml do
-#   Dir.glob(File.expand_path('./examples/yaml/*.yml', __dir__)).sort.each do |file|
-#     Bundler.with_clean_env do
-#       sh ['time', 'bundle', 'exec', 'exe/benchmark-driver', file, '--run-duration', '1'].shelljoin
-#     end
-#     puts
-#   end
-# end
-
-# task default: [:test, :test_record, :test_ruby, :test_yaml]

@@ -3,11 +3,10 @@ require 'shellwords'
 require 'tempfile'
 
 describe 'benchmark-driver command' do
-  def benchmark_driver(*args)
-    command = [File.expand_path('../exe/benchmark-driver', __dir__), *args]
+  def assert_execute(*command)
     stdout, stderr, status = Bundler.with_clean_env { Open3.capture3(*command) }
 
-    expect(status.success?).to eq(true), -> {
+    on_failure = -> {
       # Show output directly since RSpec truncates long output
       command_to_show = command.map { |c| c.gsub(Dir.pwd, '.') }.shelljoin
       puts "\n\n#{'=' * 100}"
@@ -16,6 +15,7 @@ describe 'benchmark-driver command' do
 
       "Failed to execute: #{command_to_show}"
     }
+    expect(status.success?).to eq(true), on_failure
 
     if ENV.key?('VERBOSE')
       puts "\n#{stdout}\n"
@@ -25,8 +25,12 @@ describe 'benchmark-driver command' do
     end
   end
 
-  def fixture(name)
-    File.expand_path("./fixtures/#{name}", __dir__)
+  def benchmark_driver(*args)
+    assert_execute(File.expand_path('../exe/benchmark-driver', __dir__), *args)
+  end
+
+  def fixture_yaml(name)
+    File.expand_path("./fixtures/yaml/#{name}", __dir__)
   end
 
   {
@@ -36,28 +40,28 @@ describe 'benchmark-driver command' do
     'once' => 'markdown',
   }.each do |runner, output|
     it "runs benchmark with fixed loop_count, #{runner.dump} runner and #{output.dump} output" do
-      expect {
-        benchmark_driver fixture('blank_loop.yml'), '-r', runner, '-o', output
-      }.not_to raise_error
+      benchmark_driver fixture_yaml('blank_loop.yml'), '-r', runner, '-o', output
     end
 
     it "runs benchmark with run duration, #{runner.dump} runner and #{output.dump} output" do
-      expect {
-        benchmark_driver fixture('blank_hash.yml'), '-r', runner, '-o', output, '--run-duration', '0.1'
-      }.not_to raise_error
+      benchmark_driver fixture_yaml('blank_hash.yml'), '-r', runner, '-o', output, '--run-duration', '0.1'
     end
   end
 
   it 'records a result and outputs it in multiple ways' do
     Dir.mktmpdir do |dir|
       Dir.chdir(dir) do
-        expect {
-          benchmark_driver fixture('blank_loop.yml'), '-r', 'ips', '-o', 'record'
-          benchmark_driver 'benchmark_driver.record.yml', '-o', 'compare'
-          benchmark_driver 'benchmark_driver.record.yml', '-o', 'record'
-          benchmark_driver 'benchmark_driver.record.yml', '-o', 'simple'
-        }.not_to raise_error
+        benchmark_driver fixture_yaml('blank_loop.yml'), '-r', 'ips', '-o', 'record'
+        benchmark_driver 'benchmark_driver.record.yml', '-o', 'compare'
+        benchmark_driver 'benchmark_driver.record.yml', '-o', 'record'
+        benchmark_driver 'benchmark_driver.record.yml', '-o', 'simple'
       end
+    end
+  end
+
+  Dir.glob(File.expand_path('./fixtures/yaml/*.yml', __dir__)).each do |yaml|
+    it "runs #{File.basename(yaml)} with default options" do
+      benchmark_driver yaml, '--run-duration', '0.2'
     end
   end
 end
