@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
 
   spec.summary       = 'Fully-featured accurate benchmark driver for Ruby'
   spec.description   = 'Fully-featured accurate benchmark driver for Ruby'
-  spec.homepage      = 'https://github.com/k0kubun/benchmark_driver'
+  spec.homepage      = 'https://github.com/benchmark-driver/benchmark-driver'
   spec.license       = 'MIT'
 
   spec.files         = `git ls-files -z`.split("\x0").reject do |f|
