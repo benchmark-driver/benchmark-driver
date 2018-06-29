@@ -2,10 +2,9 @@ class BenchmarkDriver::Output::Record
   # @param [BenchmarkDriver::Metrics::Type] metrics_type
   attr_writer :metrics_type
 
-  # @param [Array<BenchmarkDriver::*::Job>] jobs
+  # @param [Array<String>] jobs
   # @param [Array<BenchmarkDriver::Config::Executable>] executables
   def initialize(jobs:, executables:)
-    @jobs = jobs
     @executables = executables
     @metrics_by_job = Hash.new do |h1, k1|
       h1[k1] = Hash.new { |h2, k2| h2[k2] = [] }
@@ -29,9 +28,9 @@ class BenchmarkDriver::Output::Record
     save_record
   end
 
-  # @param [BenchmarkDriver::*::Job] job
-  def with_job(job, &block)
-    @current_job = job
+  # @param [String] job_name
+  def with_job(job_name, &block)
+    @current_job = job_name
     block.call
   end
 

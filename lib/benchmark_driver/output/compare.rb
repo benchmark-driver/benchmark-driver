@@ -5,7 +5,7 @@ class BenchmarkDriver::Output::Compare
   # @param [BenchmarkDriver::Metrics::Type] metrics_type
   attr_writer :metrics_type
 
-  # @param [Array<BenchmarkDriver::*::Job>] jobs
+  # @param [Array<String>] jobs
   # @param [Array<BenchmarkDriver::Config::Executable>] executables
   def initialize(jobs:, executables:)
     @jobs = jobs
@@ -43,25 +43,25 @@ class BenchmarkDriver::Output::Compare
     end
   end
 
-  # @param [BenchmarkDriver::*::Job] job
-  def with_job(job, &block)
-    if job.name.length > NAME_LENGTH
-      $stdout.puts(job.name)
+  # @param [String] job_name
+  def with_job(job_name, &block)
+    if job_name.length > NAME_LENGTH
+      $stdout.puts(job_name)
     else
-      $stdout.print("%#{NAME_LENGTH}s" % job.name)
+      $stdout.print("%#{NAME_LENGTH}s" % job_name)
     end
-    @current_job = job
+    @current_job = job_name
     @job_metrics = []
     block.call
   ensure
     $stdout.print(@metrics_type.unit)
-    if job.respond_to?(:loop_count) && job.loop_count
-      $stdout.print(" - #{humanize(job.loop_count)} times")
-      if @job_metrics.all? { |metrics| metrics.duration }
-        $stdout.print(" in")
-        show_durations
-      end
-    end
+    # if job.respond_to?(:loop_count) && job.loop_count
+    #   $stdout.print(" - #{humanize(job.loop_count)} times")
+    #   if @job_metrics.all? { |metrics| metrics.duration }
+    #     $stdout.print(" in")
+    #     show_durations
+    #   end
+    # end
     $stdout.puts
   end
 
@@ -156,7 +156,7 @@ class BenchmarkDriver::Output::Compare
     $stdout.puts "\nComparison:"
 
     @metrics_by_job.each do |job, metrics|
-      $stdout.puts("%#{NAME_LENGTH + 2 + 11}s" % job.name)
+      $stdout.puts("%#{NAME_LENGTH + 2 + 11}s" % job)
       results = metrics.map { |metrics| Result.new(job: job, metrics: metrics) }
       show_results(results, show_executable: true)
     end
@@ -186,7 +186,7 @@ class BenchmarkDriver::Output::Compare
       if show_executable
         name = result.metrics.executable.name
       else
-        name = result.job.name
+        name = result.job
       end
       $stdout.puts("%#{NAME_LENGTH}s: %11.1f %s #{slower}" % [name, result.metrics.value, @metrics_type.unit])
     end

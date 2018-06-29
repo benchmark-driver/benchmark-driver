@@ -8,7 +8,6 @@ class BenchmarkDriver::Runner::Recorded
   # JobParser returns this, `BenchmarkDriver::Runner.runner_for` searches "*::Job"
   Job = ::BenchmarkDriver::Struct.new(
     :name,              # @param [String] name - This is mandatory for all runner
-    :job,               # @param [BenchmarkDriver::Runner::*::Job]
     :warmup_metrics,    # @param [Hash]
     :benchmark_metrics, # @param [Hash]
     :metrics_type,      # @param [BenchmarkDriver::Metrics::Type]
@@ -20,8 +19,7 @@ class BenchmarkDriver::Runner::Recorded
     def parse(metrics_by_job:, metrics_type:)
       metrics_by_job.map do |job, metrics_hash|
         Job.new(
-          name: job.name,
-          job: job,
+          name: job,
           warmup_metrics: metrics_hash.fetch(:warmup, []),
           benchmark_metrics: metrics_hash.fetch(:benchmark),
           metrics_type: metrics_type,
@@ -38,7 +36,7 @@ class BenchmarkDriver::Runner::Recorded
   end
 
   # This method is dynamically called by `BenchmarkDriver::JobRunner.run`
-  # @param [Array<BenchmarkDriver::Default::Job>] jobs
+  # @param [Array<BenchmarkDriver::Runner::Recorded::Job>] record
   def run(records)
     @output.metrics_type = records.first.metrics_type
 
@@ -50,7 +48,7 @@ class BenchmarkDriver::Runner::Recorded
 
     @output.with_benchmark do
       records.each do |record|
-        @output.with_job(record.job) do
+        @output.with_job(record.name) do
           record.benchmark_metrics.each do |metrics|
             @output.report(metrics)
           end

@@ -4,12 +4,11 @@ class BenchmarkDriver::Output::Simple
   # @param [BenchmarkDriver::Metrics::Type] metrics_type
   attr_writer :metrics_type
 
-  # @param [Array<BenchmarkDriver::*::Job>] jobs
+  # @param [Array<String>] jobs
   # @param [Array<BenchmarkDriver::Config::Executable>] executables
   def initialize(jobs:, executables:)
-    @jobs = jobs
     @executables = executables
-    @name_length = jobs.map { |j| j.name.size }.max
+    @name_length = jobs.map(&:size).max
   end
 
   def with_warmup(&block)
@@ -42,10 +41,10 @@ class BenchmarkDriver::Output::Simple
     @with_benchmark = false
   end
 
-  # @param [BenchmarkDriver::*::Job] job
-  def with_job(job, &block)
+  # @param [String] job_name
+  def with_job(job_name, &block)
     if @with_benchmark
-      $stdout.print("%-#{@name_length}s  " % job.name)
+      $stdout.print("%-#{@name_length}s  " % job_name)
     end
     block.call
   ensure
