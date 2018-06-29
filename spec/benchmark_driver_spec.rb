@@ -16,12 +16,13 @@ describe 'benchmark-driver command' do
     end
   end
 
+  # 'recorded' => 'record'
   it 'records a result and outputs it in multiple ways' do
     Dir.mktmpdir do |dir|
       Dir.chdir(dir) do
         benchmark_driver fixture_yaml('blank_loop.yml'), '-r', 'ips', '-o', 'record'
         benchmark_driver 'benchmark_driver.record.yml', '-o', 'compare'
-        benchmark_driver 'benchmark_driver.record.yml', '-o', 'record'
+        benchmark_driver 'benchmark_driver.record.yml', '-o', 'record' # bootstrap
         benchmark_driver 'benchmark_driver.record.yml', '-o', 'simple'
       end
     end
