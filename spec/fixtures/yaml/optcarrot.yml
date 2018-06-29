@@ -1,7 +1,8 @@
 type: command_stdout
 name: optcarrot
 command: |
-  -e "puts %Q[fps: 42.06945107722498\nchecksum: 59662]"
+  -e "puts %Q[fps: 42.06945107722498
+  checksum: 59662]"
 metrics_type:
   unit: fps
 stdout_to_metrics: |
