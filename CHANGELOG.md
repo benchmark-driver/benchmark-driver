@@ -1,4 +1,4 @@
-# unreleased
+# v0.11.0
 
 - [breaking change] Plugin interface is completely changed, so all plugins need migration
   - YAML/Ruby interface is not changed at all
