@@ -5,14 +5,13 @@ module BenchmarkDriver
   # BenchmarkDriver returns benchmark results with the following nested Hash structure:
   # {
   #   String (job name) => {
-  #     BenchmarkDriver::Metric => {
-  #       BenchmarkDriver::Context => Float (value)
-  #     }
+  #     BenchmarkDriver::Context => Array<BenchmarkDriver::Metric>
   #   }
   # }
 
   # A kind of thing to be measured
   Metric = ::BenchmarkDriver::Struct.new(
+    :value,         # @param [Float] - Measured metric value
     :name,          # @param [String] - Metric name or description like "Max Resident Set Size"
     :unit,          # @param [String] - A unit like "MiB"
     :larger_better, # @param [TrueClass,FalseClass] - If true, larger value is preferred when measured multiple times.
