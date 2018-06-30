@@ -34,9 +34,9 @@ class BenchmarkDriver::Runner::Once
       jobs.each do |job|
         @output.with_job(name: job.name) do
           job.runnable_execs(@config.executables).each do |exec|
-            metrics = run_benchmark(job, exec: exec) # no repeat support
+            duration = run_benchmark(job, exec: exec) # no repeat support
             @output.with_context(name: exec.name, executable: exec) do
-              @output.report(metrics)
+              @output.report(value: 1.0 / duration, duration: duration)
             end
           end
         end
@@ -48,7 +48,7 @@ class BenchmarkDriver::Runner::Once
 
   # @param [BenchmarkDriver::Runner::Ips::Job] job - loop_count is not nil
   # @param [BenchmarkDriver::Config::Executable] exec
-  # @return [BenchmarkDriver::Metrics]
+  # @return [Float] duration
   def run_benchmark(job, exec:)
     benchmark = BenchmarkScript.new(
       prelude:    job.prelude,
@@ -57,17 +57,12 @@ class BenchmarkDriver::Runner::Once
       loop_count: job.loop_count,
     )
 
-    duration = Tempfile.open(['benchmark_driver-', '.rb']) do |f|
+    Tempfile.open(['benchmark_driver-', '.rb']) do |f|
       with_script(benchmark.render(result: f.path)) do |path|
         execute(*exec.command, path)
       end
       Float(f.read)
     end
-
-    BenchmarkDriver::Metrics.new(
-      value: 1.0 / duration,
-      duration: duration,
-    )
   end
 
   def with_script(script)

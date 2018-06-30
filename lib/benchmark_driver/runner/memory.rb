@@ -41,11 +41,11 @@ class BenchmarkDriver::Runner::Memory
       jobs.each do |job|
         @output.with_job(name: job.name) do
           job.runnable_execs(@config.executables).each do |exec|
-            best_metrics = with_repeat(@config.repeat_count) do
+            best_value = with_repeat(@config.repeat_count) do
               run_benchmark(job, exec: exec)
             end
             @output.with_context(name: exec.name, executable: exec) do
-              @output.report(best_metrics)
+              @output.report(value: best_value)
             end
           end
         end
@@ -83,9 +83,7 @@ class BenchmarkDriver::Runner::Memory
     match_data = /^(?<user>\d+.\d+)user\s+(?<system>\d+.\d+)system\s+(?<elapsed1>\d+):(?<elapsed2>\d+.\d+)elapsed.+\([^\s]+\s+(?<maxresident>\d+)maxresident\)k$/.match(output)
     raise "Unexpected format given from /usr/bin/time:\n#{out}" unless match_data[:maxresident]
 
-    BenchmarkDriver::Metrics.new(
-      value: Integer(match_data[:maxresident]) * 1000.0, # kilobytes -> bytes
-    )
+    Integer(match_data[:maxresident]) * 1000.0 # kilobytes -> bytes
   end
 
   def with_script(script)

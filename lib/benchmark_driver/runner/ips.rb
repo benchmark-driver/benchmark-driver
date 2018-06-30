@@ -34,10 +34,9 @@ class BenchmarkDriver::Runner::Ips
           @output.with_job(name: job.name) do
             executable = job.runnable_execs(@config.executables).first
             result = run_warmup(job, exec: executable)
-            metrics = build_metrics(result)
 
             @output.with_context(name: executable.name, executable: executable) do
-              @output.report(metrics)
+              @output.report(metric_params(result))
             end
 
             loop_count = (result.fetch(:loop_count).to_f * @config.run_duration / result.fetch(:duration)).floor
@@ -51,11 +50,11 @@ class BenchmarkDriver::Runner::Ips
       jobs.each do |job|
         @output.with_job(name: job.name) do
           job.runnable_execs(@config.executables).each do |exec|
-            best_metrics = with_repeat(@config.repeat_count) do
+            best_metric = with_repeat(@config.repeat_count) do
               run_benchmark(job, exec: exec)
             end
             @output.with_context(name: exec.name, executable: exec) do
-              @output.report(best_metrics)
+              @output.report(best_metric)
             end
           end
         end
@@ -91,7 +90,7 @@ class BenchmarkDriver::Runner::Ips
       block.call
     end
     all_metrics.sort_by do |metrics|
-      metrics.value
+      metrics.fetch(:value)
     end.last
   end
 
@@ -113,18 +112,18 @@ class BenchmarkDriver::Runner::Ips
       Float(f.read)
     end
 
-    build_metrics(
+    metric_params(
       loop_count: job.loop_count,
       duration: duration,
     )
   end
 
   # This method is overridden by BenchmarkDriver::Runner::Time
-  def build_metrics(duration:, loop_count:)
-    BenchmarkDriver::Metrics.new(
+  def metric_params(duration:, loop_count:)
+    {
       value: loop_count.to_f / duration,
       duration: duration,
-    )
+    }
   end
 
   # This method is overridden by BenchmarkDriver::Runner::Time

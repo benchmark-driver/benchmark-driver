@@ -41,7 +41,7 @@ module BenchmarkDriver
       )
     end
 
-    def_delegators :@output, :metrics_type=, :with_warmup, :with_benchmark, :report
+    def_delegators :@output, :metrics_type=, :with_warmup, :with_benchmark
 
     # @param [String]
     def with_job(name:, &block)
@@ -58,6 +58,13 @@ module BenchmarkDriver
       @output.with_context(context) do
         block.call
       end
+    end
+
+    # @param [Float] value
+    # @param [Float,nil] duration (optional)
+    def report(value:, duration: nil)
+      metric = Metrics.new(value: value, duration: duration)
+      @output.report(metric)
     end
   end
 end

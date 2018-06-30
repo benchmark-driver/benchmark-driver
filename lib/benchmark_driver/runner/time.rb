@@ -13,8 +13,8 @@ class BenchmarkDriver::Runner::Time < BenchmarkDriver::Runner::Ips
     @output.metrics_type = METRICS_TYPE
   end
 
-  # Overriding BenchmarkDriver::Runner::Ips#build_metrics
-  def build_metrics(duration:, loop_count:)
-    BenchmarkDriver::Metrics.new(value: duration)
+  # Overriding BenchmarkDriver::Runner::Ips#metric_params
+  def metric_params(duration:, loop_count:)
+    { value: duration }
   end
 end

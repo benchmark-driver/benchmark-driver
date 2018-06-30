@@ -33,7 +33,7 @@ module BenchmarkDriver
     defaults: { gems: {}, environment: {} },
   )
 
-  # Identifier of measured workload
+  # Holding identifier of measured workload
   Job = ::BenchmarkDriver::Struct.new(
     :name, # @param [String] - Name of the benchmark task
   )
