@@ -9,11 +9,11 @@ module BenchmarkDriver
   # Runner should call its interface in the following manner:
   #   with_warmup
   #     with_job(name:)
-  #       with_context(name:, executable:, duration: nil)
+  #       with_context(name:, executable:, duration: nil, loop_count: nil)
   #         report(value:)
   #   with_benchmark
   #     with_job(name:)
-  #       with_context(name:, executable:, duration: nil)
+  #       with_context(name:, executable:, duration: nil, loop_count: nil)
   #         report(value:)
   class Output
     require 'benchmark_driver/output/compare'
@@ -53,8 +53,10 @@ module BenchmarkDriver
 
     # @param [String]
     # @param [BenchmarkDriver::Config::Executable]
-    def with_context(name:, executable:, duration: nil, &block)
-      context = BenchmarkDriver::Context.new(name: name, executable: executable, duration: duration)
+    def with_context(name:, executable:, duration: nil, loop_count: nil, &block)
+      context = BenchmarkDriver::Context.new(
+        name: name, executable: executable, duration: duration, loop_count: loop_count,
+      )
       @output.with_context(context) do
         block.call
       end

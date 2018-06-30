@@ -36,7 +36,7 @@ class BenchmarkDriver::Runner::Ips
             duration, loop_count = run_warmup(job, exec: executable)
             value, duration = value_duration(duration: duration, loop_count: loop_count)
 
-            @output.with_context(name: executable.name, executable: executable, duration: duration) do
+            @output.with_context(name: executable.name, executable: executable, duration: duration, loop_count: loop_count) do
               @output.report(value: value)
             end
 

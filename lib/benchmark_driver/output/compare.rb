@@ -56,13 +56,14 @@ class BenchmarkDriver::Output::Compare
     block.call
   ensure
     $stdout.print(@metrics_type.unit)
-    # if job.respond_to?(:loop_count) && job.loop_count
-    #   $stdout.print(" - #{humanize(job.loop_count)} times")
-    #   if @job_contexts.all? { |context| !context.duration.nil? }
-    #     $stdout.print(" in")
-    #     show_durations
-    #   end
-    # end
+    loop_count = @job_contexts.first.loop_count
+    if loop_count && @job_contexts.all? { |c| c.loop_count == loop_count }
+      $stdout.print(" - #{humanize(loop_count)} times")
+      if @job_contexts.all? { |context| !context.duration.nil? }
+        $stdout.print(" in")
+        show_durations
+      end
+    end
     $stdout.puts
   end
 
@@ -93,7 +94,7 @@ class BenchmarkDriver::Output::Compare
     if @job_contexts.size == 1
       context = @job_contexts.first
       sec = context.duration
-      iter = @current_job.loop_count
+      iter = context.loop_count
       if File.exist?('/proc/cpuinfo') && (clks = estimate_clock(sec, iter)) < 1_000
         $stdout.print(" (#{pretty_sec(sec, iter)}/i, #{clks}clocks/i)")
       else

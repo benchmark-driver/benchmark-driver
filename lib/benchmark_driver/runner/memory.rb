@@ -44,7 +44,7 @@ class BenchmarkDriver::Runner::Memory
             best_value = with_repeat(@config.repeat_count) do
               run_benchmark(job, exec: exec)
             end
-            @output.with_context(name: exec.name, executable: exec) do
+            @output.with_context(name: exec.name, executable: exec, loop_count: job.loop_count) do
               @output.report(value: best_value)
             end
           end
