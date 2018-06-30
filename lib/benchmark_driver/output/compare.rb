@@ -46,7 +46,7 @@ class BenchmarkDriver::Output::Compare
   # @param [BenchmarkDriver::Job] job
   def with_job(job, &block)
     name = job.name
-    if name
+    if name.length > NAME_LENGTH
       $stdout.puts(name)
     else
       $stdout.print("%#{NAME_LENGTH}s" % name)
