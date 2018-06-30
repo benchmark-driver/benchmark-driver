@@ -10,6 +10,7 @@ class BenchmarkDriver::Output::Compare
   def initialize(job_names:, context_names:)
     @job_names = job_names
     @context_names = context_names
+    @name_length = [job_names.map(&:length).max, NAME_LENGTH].max
   end
 
   def with_warmup(&block)
@@ -28,7 +29,7 @@ class BenchmarkDriver::Output::Compare
     without_stdout_buffering do
       $stdout.puts 'Calculating -------------------------------------'
       if @context_names.size > 1
-        $stdout.print(' ' * NAME_LENGTH)
+        $stdout.print(' ' * @name_length)
         @context_names.each do |context_name|
           $stdout.print(' %10s ' % context_name)
         end
@@ -48,10 +49,10 @@ class BenchmarkDriver::Output::Compare
   # @param [BenchmarkDriver::Job] job
   def with_job(job, &block)
     name = job.name
-    if name.length > NAME_LENGTH
+    if name.length > @name_length
       $stdout.puts(name)
     else
-      $stdout.print("%#{NAME_LENGTH}s" % name)
+      $stdout.print("%#{@name_length}s" % name)
     end
     @job = name
     @job_contexts = []
@@ -169,7 +170,7 @@ class BenchmarkDriver::Output::Compare
     $stdout.puts "\nComparison:"
 
     @job_context_values.each do |job, context_values|
-      $stdout.puts("%#{NAME_LENGTH + 2 + 11}s" % job)
+      $stdout.puts("%#{@name_length + 2 + 11}s" % job)
       results = context_values.flat_map do |context, values|
         values.map { |value| Result.new(job: job, value: value, executable: context.executable) }
       end
@@ -203,7 +204,7 @@ class BenchmarkDriver::Output::Compare
       else
         name = result.job
       end
-      $stdout.puts("%#{NAME_LENGTH}s: %11.1f %s #{slower}" % [name, result.value, @metrics.first.unit])
+      $stdout.puts("%#{@name_length}s: %11.1f %s #{slower}" % [name, result.value, @metrics.first.unit])
     end
     $stdout.puts
   end

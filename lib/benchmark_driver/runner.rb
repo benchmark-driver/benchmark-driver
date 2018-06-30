@@ -5,6 +5,7 @@ module BenchmarkDriver
     require 'benchmark_driver/runner/memory'
     require 'benchmark_driver/runner/once'
     require 'benchmark_driver/runner/recorded'
+    require 'benchmark_driver/runner/ruby_stdout'
     require 'benchmark_driver/runner/time'
   end
 

@@ -65,9 +65,9 @@ module BenchmarkDriver
     # @param [BenchmarkDriver::Config::Executable] executable
     # @param [Float] duration
     # @param [Integer] loop_count
-    def with_context(name:, executable:, duration: nil, loop_count: nil, &block)
+    def with_context(name:, executable:, duration: nil, loop_count: nil, environment: {}, &block)
       context = BenchmarkDriver::Context.new(
-        name: name, executable: executable, duration: duration, loop_count: loop_count,
+        name: name, executable: executable, duration: duration, loop_count: loop_count, environment: environment,
       )
       @output.with_context(context) do
         block.call

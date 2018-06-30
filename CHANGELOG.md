@@ -7,6 +7,9 @@
   - "executable" is renamed to be "context", but still configuring a context
     other than an executable is not supported yet
   - A metric can have a name
+- Add `ruby_stdout` runner
+  - This can parse an arbitrary "environment" for the "context"
+  - Metric can have name
 - Metric name is shwon on some outputs like markdown and simple
 - `--run-duration` accepts floating-point number
 - News: Now benchmark-driver.gem can be used as an alias to install benchmark\_driver.gem

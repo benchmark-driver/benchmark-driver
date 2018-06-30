@@ -57,12 +57,12 @@ class BenchmarkDriver::Runner::Memory
 
   private
 
-  # Return multiple times and return the *worst* metrics
+  # Return multiple times and return the best value (smallest usage)
   def with_repeat(repeat_times, &block)
-    all_metrics = repeat_times.times.map do
+    values = repeat_times.times.map do
       block.call
     end
-    all_metrics.sort.last
+    values.sort.first
   end
 
   # @param [BenchmarkDriver::Runner::Ips::Job] job - loop_count is not nil
