@@ -10,11 +10,11 @@ module BenchmarkDriver
   #   with_warmup
   #     with_job(name:)
   #       with_context(name:, executable:, duration: nil, loop_count: nil)
-  #         report(value:)
+  #         report(value:, metric:)
   #   with_benchmark
   #     with_job(name:)
   #       with_context(name:, executable:, duration: nil, loop_count: nil)
-  #         report(value:)
+  #         report(value:, metric:)
   class Output
     require 'benchmark_driver/output/compare'
     require 'benchmark_driver/output/markdown'
@@ -63,8 +63,9 @@ module BenchmarkDriver
     end
 
     # @param [Float] value
-    def report(value:)
-      @output.report(value: value)
+    # @param [BenchmarkDriver::Metric] metic
+    def report(value:, metric:)
+      @output.report(value: value, metric: metric)
     end
   end
 end

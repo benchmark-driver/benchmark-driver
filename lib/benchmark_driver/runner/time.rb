@@ -8,18 +8,13 @@ class BenchmarkDriver::Runner::Time < BenchmarkDriver::Runner::Ips
 
   METRICS_TYPE = BenchmarkDriver::Metrics::Type.new(unit: 's', larger_better: false)
 
-  # Overriding BenchmarkDriver::Runner::Ips#set_metrics_type
-  def set_metrics_type
-    @output.metrics_type = METRICS_TYPE
+  # Overriding BenchmarkDriver::Runner::Ips#metrics_type
+  def metrics_type
+    METRICS_TYPE
   end
 
   # Overriding BenchmarkDriver::Runner::Ips#value_duration
   def value_duration(duration:, loop_count:)
     [duration, duration]
-  end
-
-  # Overriding BenchmarkDriver::Runner::Ips#larger_better?
-  def larger_better?
-    false
   end
 end

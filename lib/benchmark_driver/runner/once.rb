@@ -36,7 +36,7 @@ class BenchmarkDriver::Runner::Once
           job.runnable_execs(@config.executables).each do |exec|
             duration = run_benchmark(job, exec: exec) # no repeat support
             @output.with_context(name: exec.name, executable: exec, duration: duration, loop_count: 1) do
-              @output.report(value: 1.0 / duration)
+              @output.report(value: 1.0 / duration, metric: METRICS_TYPE)
             end
           end
         end

@@ -77,7 +77,8 @@ class BenchmarkDriver::Output::Compare
   end
 
   # @param [Float] value
-  def report(value:)
+  # @param [BenchmarkDriver::Metric] metic
+  def report(value:, metric:)
     if defined?(@job_context_values)
       @job_context_values[@job][@context] << value
     end

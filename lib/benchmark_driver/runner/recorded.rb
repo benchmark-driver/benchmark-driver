@@ -14,10 +14,10 @@ class BenchmarkDriver::Runner::Recorded
   )
   # Dynamically fetched and used by `BenchmarkDriver::JobParser.parse`
   class << JobParser = Module.new
-    # @param [Hash{ String => Hash{ TrueClass,FalseClass => Hash{ BenchmarkDriver::Context => Array<Float> } } }] job_warmup_context_values
+    # @param [Hash{ String => Hash{ TrueClass,FalseClass => Hash{ BenchmarkDriver::Context => Hash{ BenchmarkDriver::Metric => Float } } } }] job_warmup_context_metric_value
     # @param [BenchmarkDriver::Metrics::Type] metrics_type
-    def parse(job_warmup_context_values:, metrics_type:)
-      job_warmup_context_values.map do |job_name, warmup_context_values|
+    def parse(job_warmup_context_metric_value:, metrics_type:)
+      job_warmup_context_metric_value.map do |job_name, warmup_context_values|
         Job.new(
           name: job_name,
           warmup_results: warmup_context_values.fetch(true, {}),
@@ -49,15 +49,15 @@ class BenchmarkDriver::Runner::Recorded
     @output.with_benchmark do
       records.each do |record|
         @output.with_job(name: record.name) do
-          record.benchmark_results.each do |context, values|
+          record.benchmark_results.each do |context, metric_values|
             @output.with_context(
               name: context.name,
               executable: context.executable,
               duration: context.duration,
               loop_count: context.loop_count,
             ) do
-              values.each do |value|
-                @output.report(value: value)
+              metric_values.each do |metric, value|
+                @output.report(value: value, metric: metric)
               end
             end
           end

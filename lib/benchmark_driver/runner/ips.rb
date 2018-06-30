@@ -24,7 +24,7 @@ class BenchmarkDriver::Runner::Ips
   # This method is dynamically called by `BenchmarkDriver::JobRunner.run`
   # @param [Array<BenchmarkDriver::Default::Job>] jobs
   def run(jobs)
-    set_metrics_type
+    @output.metrics_type = metrics_type
 
     if jobs.any? { |job| job.loop_count.nil? }
       @output.with_warmup do
@@ -37,7 +37,7 @@ class BenchmarkDriver::Runner::Ips
             value, duration = value_duration(duration: duration, loop_count: loop_count)
 
             @output.with_context(name: executable.name, executable: executable, duration: duration, loop_count: loop_count) do
-              @output.report(value: value)
+              @output.report(value: value, metric: metrics_type)
             end
 
             loop_count = (loop_count.to_f * @config.run_duration / duration).floor
@@ -55,7 +55,7 @@ class BenchmarkDriver::Runner::Ips
               run_benchmark(job, exec: exec)
             end
             @output.with_context(name: exec.name, executable: exec, duration: duration) do
-              @output.report(value: value)
+              @output.report(value: value, metric: metrics_type)
             end
           end
         end
@@ -93,7 +93,7 @@ class BenchmarkDriver::Runner::Ips
       block.call
     end
     value_durations.sort_by do |value, _|
-      larger_better? ? value : -value
+      metrics_type.larger_better ? value : -value
     end.last
   end
 
@@ -121,19 +121,14 @@ class BenchmarkDriver::Runner::Ips
     )
   end
 
+  # This method is overridden by BenchmarkDriver::Runner::Time
+  def metrics_type
+    METRICS_TYPE
+  end
+
   # Overridden by BenchmarkDriver::Runner::Time
   def value_duration(duration:, loop_count:)
     [loop_count.to_f / duration, duration]
-  end
-
-  # Overridden by BenchmarkDriver::Runner::Time
-  def larger_better?
-    true
-  end
-
-  # This method is overridden by BenchmarkDriver::Runner::Time
-  def set_metrics_type
-    @output.metrics_type = METRICS_TYPE
   end
 
   def with_script(script)

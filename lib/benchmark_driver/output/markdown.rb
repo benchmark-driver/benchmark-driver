@@ -64,7 +64,8 @@ class BenchmarkDriver::Output::Markdown
   end
 
   # @param [Floa] value
-  def report(value:)
+  # @param [BenchmarkDriver::Metric] metic
+  def report(value:, metric:)
     if @with_benchmark
       $stdout.print("|%#{NAME_LENGTH}s" % humanize(value))
     else

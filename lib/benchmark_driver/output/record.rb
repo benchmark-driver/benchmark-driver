@@ -6,10 +6,10 @@ class BenchmarkDriver::Output::Record
   # @param [Array<BenchmarkDriver::Config::Executable>] executables
   def initialize(jobs:, executables:)
     @executables = executables
-    @job_warmup_context_values = Hash.new do |h1, k1|
+    @job_warmup_context_metric_value = Hash.new do |h1, k1|
       h1[k1] = Hash.new do |h2, k2|
         h2[k2] = Hash.new do |h3, k3|
-          h3[k3] = []
+          h3[k3] = {}
         end
       end
     end
@@ -45,9 +45,10 @@ class BenchmarkDriver::Output::Record
   end
 
   # @param [Float] value
-  def report(value:)
+  # @param [BenchmarkDriver::Metric] metic
+  def report(value:, metric:)
     $stdout.print '.'
-    @job_warmup_context_values[@job][!@with_benchmark][@context] << value
+    @job_warmup_context_metric_value[@job][!@with_benchmark][@context][metric] = value
   end
 
   private
@@ -56,7 +57,7 @@ class BenchmarkDriver::Output::Record
     jobs = @benchmark_metrics
     yaml = {
       'type' => 'recorded',
-      'job_warmup_context_values' => @job_warmup_context_values,
+      'job_warmup_context_metric_value' => @job_warmup_context_metric_value,
       'metrics_type' => @metrics_type,
     }.to_yaml
     File.write('benchmark_driver.record.yml', yaml)

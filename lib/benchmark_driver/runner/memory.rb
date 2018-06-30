@@ -45,7 +45,7 @@ class BenchmarkDriver::Runner::Memory
               run_benchmark(job, exec: exec)
             end
             @output.with_context(name: exec.name, executable: exec, loop_count: job.loop_count) do
-              @output.report(value: best_value)
+              @output.report(value: best_value, metric: METRICS_TYPE)
             end
           end
         end
