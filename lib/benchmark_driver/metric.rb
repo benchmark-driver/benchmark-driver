@@ -4,8 +4,10 @@ require 'benchmark_driver/struct'
 module BenchmarkDriver
   # BenchmarkDriver returns benchmark results with the following nested Hash structure:
   # {
-  #   String (job name) => {
-  #     BenchmarkDriver::Context => [<BenchmarkDriver::Metric>, ...]
+  #   BenchmarkDriver::Job => {
+  #     BenchmarkDriver::Context => [
+  #       BenchmarkDriver::Metric, ...
+  #     ]
   #   }
   # }
 
@@ -29,6 +31,11 @@ module BenchmarkDriver
     # :loop_count,  # @param [Float,nil] - Times to run the benchmark job (optional)
     :environment, # @param [Hash] - Any other key -> value pairs to express the benchmark context
     defaults: { gems: {}, environment: {} },
+  )
+
+  # Identifier of measured workload
+  Job = ::BenchmarkDriver::Struct.new(
+    :name, # @param [String] - Name of the benchmark task
   )
 
   #=[RubyBench mapping]=================================|

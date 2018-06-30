@@ -43,8 +43,9 @@ class BenchmarkDriver::Output::Compare
     end
   end
 
-  # @param [String] name
-  def with_job(name:, &block)
+  # @param [BenchmarkDriver::Job] job
+  def with_job(job, &block)
+    name = job.name
     if name
       $stdout.puts(name)
     else

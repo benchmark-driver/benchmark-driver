@@ -46,10 +46,10 @@ class BenchmarkDriver::Output::Markdown
     @with_benchmark = false
   end
 
-  # @param [String] name
-  def with_job(name:, &block)
+  # @param [BenchmarkDriver::Job] job
+  def with_job(job, &block)
     if @with_benchmark
-      $stdout.print("|%-#{@name_length}s  " % name)
+      $stdout.print("|%-#{@name_length}s  " % job.name)
     end
     block.call
   ensure

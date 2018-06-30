@@ -32,9 +32,9 @@ class BenchmarkDriver::Output::Record
     save_record
   end
 
-  # @param [String] name
-  def with_job(name:, &block)
-    @job = name
+  # @param [BenchmarkDriver::Job] job
+  def with_job(job, &block)
+    @job = job.name
     block.call
   end
 

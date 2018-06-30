@@ -9,11 +9,11 @@ module BenchmarkDriver
   # Runner should call its interface in the following manner:
   #   with_warmup
   #     with_job(name:)
-  #       with_context
+  #       with_context(name:, executable:)
   #         report
   #   with_benchmark
   #     with_job(name:)
-  #       with_context
+  #       with_context(name:, executable:)
   #         report
   class Output
     require 'benchmark_driver/output/compare'
@@ -41,8 +41,18 @@ module BenchmarkDriver
       )
     end
 
-    def_delegators :@output, :metrics_type=, :with_warmup, :with_benchmark, :with_job, :report
+    def_delegators :@output, :metrics_type=, :with_warmup, :with_benchmark, :report
 
+    # @param [String]
+    def with_job(name:, &block)
+      job = BenchmarkDriver::Job.new(name: name)
+      @output.with_job(job) do
+        block.call
+      end
+    end
+
+    # @param [String]
+    # @param [BenchmarkDriver::Config::Executable]
     def with_context(name:, executable:, &block)
       context = BenchmarkDriver::Context.new(name: name, executable: executable)
       @output.with_context(context) do
