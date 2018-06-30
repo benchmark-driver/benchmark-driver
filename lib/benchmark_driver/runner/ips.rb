@@ -51,7 +51,8 @@ class BenchmarkDriver::Runner::Ips
       jobs.each do |job|
         @output.with_job(name: job.name) do
           job.runnable_execs(@config.executables).each do |exec|
-            value, duration = with_repeat(@config.repeat_count) do
+            repeat_params = { config: @config, larger_better: true, rest_on_average: :average }
+            value, duration = BenchmarkDriver::Repeater.with_repeat(repeat_params) do
               run_benchmark(job, exec: exec)
             end
             @output.with_context(name: exec.name, executable: exec, duration: duration) do
@@ -85,16 +86,6 @@ class BenchmarkDriver::Runner::Ips
     end
 
     [duration, loop_count]
-  end
-
-  # Return multiple times and return the best metrics
-  def with_repeat(repeat_times, &block)
-    value_durations = repeat_times.times.map do
-      block.call
-    end
-    value_durations.sort_by do |value, _|
-      metric.larger_better ? value : -value
-    end.last
   end
 
   # @param [BenchmarkDriver::Runner::Ips::Job] job - loop_count is not nil

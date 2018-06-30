@@ -3,19 +3,21 @@ require 'benchmark_driver/struct'
 module BenchmarkDriver
   # All CLI options
   Config = ::BenchmarkDriver::Struct.new(
-    :runner_type,  # @param [String]
-    :output_type,  # @param [String]
-    :paths,        # @param [Array<String>]
-    :executables,  # @param [Array<BenchmarkDriver::Config::Executable>]
-    :filters,      # @param [Array<Regexp>]
-    :repeat_count, # @param [Integer]
-    :run_duration, # @param [Float]
-    :verbose,      # @param [Integer]
+    :runner_type,   # @param [String]
+    :output_type,   # @param [String]
+    :paths,         # @param [Array<String>]
+    :executables,   # @param [Array<BenchmarkDriver::Config::Executable>]
+    :filters,       # @param [Array<Regexp>]
+    :repeat_count,  # @param [Integer]
+    :repeat_result, # @param [String]
+    :run_duration,  # @param [Float]
+    :verbose,       # @param [Integer]
     defaults: {
       runner_type: 'ips',
       output_type: 'compare',
       filters: [],
       repeat_count: 1,
+      repeat_result: 'best',
       run_duration: 3.0,
       verbose: 0,
     },
@@ -23,10 +25,11 @@ module BenchmarkDriver
 
   # Subset of FullConfig passed to JobRunner
   Config::RunnerConfig = ::BenchmarkDriver::Struct.new(
-    :executables,  # @param [Array<BenchmarkDriver::Config::Executable>]
-    :repeat_count, # @param [Integer]
-    :run_duration, # @param [Float]
-    :verbose,      # @param [Integer]
+    :executables,   # @param [Array<BenchmarkDriver::Config::Executable>]
+    :repeat_count,  # @param [Integer]
+    :repeat_result, # @param [String]
+    :run_duration,  # @param [Float]
+    :verbose,       # @param [Integer]
   )
 
   Config::Executable = ::BenchmarkDriver::Struct.new(

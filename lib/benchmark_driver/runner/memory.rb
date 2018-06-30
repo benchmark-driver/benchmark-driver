@@ -43,11 +43,11 @@ class BenchmarkDriver::Runner::Memory
       jobs.each do |job|
         @output.with_job(name: job.name) do
           job.runnable_execs(@config.executables).each do |exec|
-            best_value = with_repeat(@config.repeat_count) do
+            value = BenchmarkDriver::Repeater.with_repeat(config: @config, larger_better: false) do
               run_benchmark(job, exec: exec)
             end
             @output.with_context(name: exec.name, executable: exec, loop_count: job.loop_count) do
-              @output.report(value: best_value, metric: METRIC)
+              @output.report(value: value, metric: METRIC)
             end
           end
         end
@@ -56,14 +56,6 @@ class BenchmarkDriver::Runner::Memory
   end
 
   private
-
-  # Return multiple times and return the best value (smallest usage)
-  def with_repeat(repeat_times, &block)
-    values = repeat_times.times.map do
-      block.call
-    end
-    values.sort.first
-  end
 
   # @param [BenchmarkDriver::Runner::Ips::Job] job - loop_count is not nil
   # @param [BenchmarkDriver::Config::Executable] exec

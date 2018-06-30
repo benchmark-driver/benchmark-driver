@@ -32,4 +32,19 @@ describe 'benchmark-driver command' do
     benchmark_driver fixture_yaml('blank_loop.yml'), '-r', 'ips', '-o', 'compare',
       '-e', "ruby1::#{RbConfig.ruby}", '-e', "ruby2::#{RbConfig.ruby}"
   end
+
+  it 'returns best result with repeats' do
+    benchmark_driver fixture_yaml('blank_hash.yml'), '-r', 'ips', '-o', 'compare', '--run-duration', '0.1',
+      '--repeat-count', '2', '--repeat-result', 'best'
+  end
+
+  it 'returns worst result with repeats' do
+    benchmark_driver fixture_yaml('blank_hash.yml'), '-r', 'ips', '-o', 'compare', '--run-duration', '0.1',
+      '--repeat-count', '2', '--repeat-result', 'worst'
+  end
+
+  it 'returns average result with repeats' do
+    benchmark_driver fixture_yaml('blank_hash.yml'), '-r', 'ips', '-o', 'compare', '--run-duration', '0.1',
+      '--repeat-count', '2', '--repeat-result', 'average'
+  end
 end

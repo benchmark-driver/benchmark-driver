@@ -1,3 +1,7 @@
+# v0.11.1 (unreleased)
+
+- Add `--repeat-result`
+
 # v0.11.0
 
 - [breaking change] Plugin interface is completely changed, so all plugins need migration

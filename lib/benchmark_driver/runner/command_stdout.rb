@@ -62,7 +62,7 @@ class BenchmarkDriver::Runner::CommandStdout
       jobs.each do |job|
         @output.with_job(name: job.name) do
           @config.executables.each do |exec|
-            best_value = with_repeat(metric) do
+            value = BenchmarkDriver::Repeater.with_repeat(config: @config, larger_better: metric.larger_better) do
               stdout = with_chdir(job.working_directory) do
                 with_ruby_prefix(exec) { execute(*exec.command, *job.command) }
               end
@@ -73,7 +73,7 @@ class BenchmarkDriver::Runner::CommandStdout
             end
 
             @output.with_context(name: exec.name, executable: exec) do
-              @output.report(value: best_value, metric: metric)
+              @output.report(value: value, metric: metric)
             end
           end
         end
@@ -105,20 +105,6 @@ class BenchmarkDriver::Runner::CommandStdout
       raise "Failed to execute: #{args.shelljoin} (status: #{$?.exitstatus}):\n[stdout]:\n#{stdout}\n[stderr]:\n#{stderr}"
     end
     stdout
-  end
-
-  # Return multiple times and return the best metrics
-  def with_repeat(metric, &block)
-    values = @config.repeat_count.times.map do
-      block.call
-    end
-    values.sort_by do |value|
-      if metric.larger_better
-        value
-      else
-        -value
-      end
-    end.last
   end
 
   StdoutToMetrics = ::BenchmarkDriver::Struct.new(:stdout, :stdout_to_metrics) do

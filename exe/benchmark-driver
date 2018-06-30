@@ -42,6 +42,12 @@ config = BenchmarkDriver::Config.new.tap do |c|
         abort "-r, --repeat-count must take Integer, but got #{v.inspect}"
       end
     end
+    o.on('--repeat-result [TYPE]', 'Yield "best", "average" or "worst" result with --repeat-count (default: best)') do |v|
+      unless BenchmarkDriver::Repeater::VALID_TYPES.include?(v)
+        raise ArgumentError.new("--repeat-result must be #{BenchmarkDriver::Repeater::VALID_TYPES.join(', ')} but got #{v.inspect}")
+      end
+      c.repeat_result = v
+    end
     o.on('--bundler', 'Install and use gems specified in Gemfile') do |v|
       bundler = v
     end

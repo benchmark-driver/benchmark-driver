@@ -23,6 +23,7 @@ module BenchmarkDriver
       runner_config = Config::RunnerConfig.new(
         executables: config.executables,
         repeat_count: config.repeat_count,
+        repeat_result: config.repeat_result,
         run_duration: config.run_duration,
         verbose: config.verbose,
       )
