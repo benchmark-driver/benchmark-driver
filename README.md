@@ -273,7 +273,7 @@ ips, time, memory, once
 | time | Elapsed seconds |
 | memory | Max resident set. This is supported only on Linux for now. |
 | once | Forces `loop_count` to 1 for testing |
-| command\_stdout | Special runner to integrate existing benchmarks |
+| ruby\_stdout | Special runner to integrate existing benchmarks |
 
 ### ips
 
@@ -353,12 +353,11 @@ Comparison:
                2.4.3:   1531393.6 i/s - 1.58x  slower
 ```
 
-### command\_stdout
+### ruby\_stdout
 
-See following examples:
+See following example:
 
 * https://github.com/benchmark-driver/optcarrot
-* https://github.com/benchmark-driver/fluentd-benchmark
 
 If you benchmark can run with `ruby foo bar`, specify `foo bar` to `command:`.
 Then write `stdout_to_metrics:` to convert stdout to metrics. This runner can be used only with YAML interface for now.
