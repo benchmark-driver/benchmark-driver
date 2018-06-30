@@ -12,7 +12,7 @@ class BenchmarkDriver::Runner::Once
   # Dynamically fetched and used by `BenchmarkDriver::JobParser.parse`
   JobParser = BenchmarkDriver::DefaultJobParser.for(Job)
 
-  METRICS_TYPE = BenchmarkDriver::Metrics::Type.new(unit: 'i/s')
+  METRIC = BenchmarkDriver::Metric.new(name: 'Iteration per second', unit: 'i/s')
 
   # @param [BenchmarkDriver::Config::RunnerConfig] config
   # @param [BenchmarkDriver::Output] output
@@ -24,7 +24,7 @@ class BenchmarkDriver::Runner::Once
   # This method is dynamically called by `BenchmarkDriver::JobRunner.run`
   # @param [Array<BenchmarkDriver::Default::Job>] jobs
   def run(jobs)
-    @output.metrics_type = METRICS_TYPE
+    @output.metrics = [METRIC]
 
     jobs = jobs.map do |job|
       Job.new(job.to_h.merge(loop_count: 1)) # to show this on output
@@ -36,7 +36,7 @@ class BenchmarkDriver::Runner::Once
           job.runnable_execs(@config.executables).each do |exec|
             duration = run_benchmark(job, exec: exec) # no repeat support
             @output.with_context(name: exec.name, executable: exec, duration: duration, loop_count: 1) do
-              @output.report(value: 1.0 / duration, metric: METRICS_TYPE)
+              @output.report(value: 1.0 / duration, metric: METRIC)
             end
           end
         end

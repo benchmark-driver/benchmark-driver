@@ -2,8 +2,8 @@
 class BenchmarkDriver::Output::Compare
   NAME_LENGTH = 20
 
-  # @param [BenchmarkDriver::Metrics::Type] metrics_type
-  attr_writer :metrics_type
+  # @param [Array<BenchmarkDriver::Metric>] metrics
+  attr_writer :metrics
 
   # @param [Array<String>] jobs
   # @param [Array<BenchmarkDriver::Config::Executable>] executables
@@ -57,7 +57,7 @@ class BenchmarkDriver::Output::Compare
     @job_contexts = []
     block.call
   ensure
-    $stdout.print(@metrics_type.unit)
+    $stdout.print(@metrics.first.unit)
     loop_count = @job_contexts.first.loop_count
     if loop_count && @job_contexts.all? { |c| c.loop_count == loop_count }
       $stdout.print(" - #{humanize(loop_count)} times")
@@ -181,7 +181,7 @@ class BenchmarkDriver::Output::Compare
   # @param [TrueClass,FalseClass] show_executable
   def show_results(results, show_executable:)
     results = results.sort_by do |result|
-      if @metrics_type.larger_better
+      if @metrics.first.larger_better
         -result.value
       else
         result.value
@@ -191,19 +191,19 @@ class BenchmarkDriver::Output::Compare
     first = results.first
     results.each do |result|
       if result != first
-        if @metrics_type.larger_better
+        if @metrics.first.larger_better
           ratio = (first.value / result.value)
         else
           ratio = (result.value / first.value)
         end
-        slower = "- %.2fx  #{@metrics_type.worse_word}" % ratio
+        slower = "- %.2fx  #{@metrics.first.worse_word}" % ratio
       end
       if show_executable
         name = result.executable.name
       else
         name = result.job
       end
-      $stdout.puts("%#{NAME_LENGTH}s: %11.1f %s #{slower}" % [name, result.value, @metrics_type.unit])
+      $stdout.puts("%#{NAME_LENGTH}s: %11.1f %s #{slower}" % [name, result.value, @metrics.first.unit])
     end
     $stdout.puts
   end

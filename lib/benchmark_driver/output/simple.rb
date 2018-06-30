@@ -1,8 +1,8 @@
 class BenchmarkDriver::Output::Simple
   NAME_LENGTH = 8
 
-  # @param [BenchmarkDriver::Metrics::Type] metrics_type
-  attr_writer :metrics_type
+  # @param [Array<BenchmarkDriver::Metric>] metrics
+  attr_writer :metrics
 
   # @param [Array<String>] jobs
   # @param [Array<BenchmarkDriver::Config::Executable>] executables
@@ -24,7 +24,7 @@ class BenchmarkDriver::Output::Simple
     @with_benchmark = true
     without_stdout_buffering do
       # Show header
-      $stdout.puts "benchmark results (#{@metrics_type.unit}):"
+      $stdout.puts "#{@metrics.first.name} (#{@metrics.first.unit}):"
 
       # Show executable names
       if @executables.size > 1

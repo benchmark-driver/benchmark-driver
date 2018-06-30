@@ -12,7 +12,9 @@ class BenchmarkDriver::Runner::Memory
   # Dynamically fetched and used by `BenchmarkDriver::JobParser.parse`
   JobParser = BenchmarkDriver::DefaultJobParser.for(Job)
 
-  METRICS_TYPE = BenchmarkDriver::Metrics::Type.new(unit: 'bytes', larger_better: false, worse_word: 'larger')
+  METRIC = BenchmarkDriver::Metric.new(
+    name: 'Max resident set size', unit: 'bytes', larger_better: false, worse_word: 'larger',
+  )
 
   # @param [BenchmarkDriver::Config::RunnerConfig] config
   # @param [BenchmarkDriver::Output] output
@@ -29,7 +31,7 @@ class BenchmarkDriver::Runner::Memory
       raise "memory output is not supported for '#{Etc.uname[:sysname]}' for now"
     end
 
-    @output.metrics_type = METRICS_TYPE
+    @output.metrics = [METRIC]
 
     if jobs.any? { |job| job.loop_count.nil? }
       jobs = jobs.map do |job|
@@ -45,7 +47,7 @@ class BenchmarkDriver::Runner::Memory
               run_benchmark(job, exec: exec)
             end
             @output.with_context(name: exec.name, executable: exec, loop_count: job.loop_count) do
-              @output.report(value: best_value, metric: METRICS_TYPE)
+              @output.report(value: best_value, metric: METRIC)
             end
           end
         end

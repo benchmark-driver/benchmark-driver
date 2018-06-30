@@ -5,6 +5,7 @@ module BenchmarkDriver
   # coupled and to simplify implementation of both runner and output.
   #
   # Runner should call its interface in the following manner:
+  #   metrics=
   #   with_warmup
   #     with_job(name:)
   #       with_context(name:, executable:, duration: nil, loop_count: nil)
@@ -37,8 +38,9 @@ module BenchmarkDriver
       )
     end
 
-    def metrics_type=(type)
-      @output.metrics_type = type
+    # @param [Array<BenchmarkDriver::Metric>] metrics
+    def metrics=(metrics)
+      @output.metrics = metrics
     end
 
     def with_warmup(&block)
@@ -49,7 +51,7 @@ module BenchmarkDriver
       @output.with_benchmark(&block)
     end
 
-    # @param [String]
+    # @param [String] name
     def with_job(name:, &block)
       job = BenchmarkDriver::Job.new(name: name)
       @output.with_job(job) do
@@ -57,8 +59,10 @@ module BenchmarkDriver
       end
     end
 
-    # @param [String]
-    # @param [BenchmarkDriver::Config::Executable]
+    # @param [String] name
+    # @param [BenchmarkDriver::Config::Executable] executable
+    # @param [Float] duration
+    # @param [Integer] loop_count
     def with_context(name:, executable:, duration: nil, loop_count: nil, &block)
       context = BenchmarkDriver::Context.new(
         name: name, executable: executable, duration: duration, loop_count: loop_count,

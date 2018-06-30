@@ -1,6 +1,6 @@
 class BenchmarkDriver::Output::Record
-  # @param [BenchmarkDriver::Metrics::Type] metrics_type
-  attr_writer :metrics_type
+  # @param [Array<BenchmarkDriver::Metric>] metrics
+  attr_writer :metrics
 
   # @param [Array<String>] jobs
   # @param [Array<BenchmarkDriver::Config::Executable>] executables
@@ -58,7 +58,7 @@ class BenchmarkDriver::Output::Record
     yaml = {
       'type' => 'recorded',
       'job_warmup_context_metric_value' => @job_warmup_context_metric_value,
-      'metrics_type' => @metrics_type,
+      'metrics' => @metrics,
     }.to_yaml
     File.write('benchmark_driver.record.yml', yaml)
   end
