@@ -15,7 +15,7 @@ class BenchmarkDriver::Runner::Memory
   METRICS_TYPE = BenchmarkDriver::Metrics::Type.new(unit: 'bytes', larger_better: false, worse_word: 'larger')
 
   # @param [BenchmarkDriver::Config::RunnerConfig] config
-  # @param [BenchmarkDriver::Output::*] output
+  # @param [BenchmarkDriver::Output] output
   def initialize(config:, output:)
     @config = config
     @output = output

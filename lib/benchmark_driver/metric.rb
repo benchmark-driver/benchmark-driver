@@ -5,7 +5,7 @@ module BenchmarkDriver
   # BenchmarkDriver returns benchmark results with the following nested Hash structure:
   # {
   #   String (job name) => {
-  #     BenchmarkDriver::Context => Array<BenchmarkDriver::Metric>
+  #     BenchmarkDriver::Context => [<BenchmarkDriver::Metric>, ...]
   #   }
   # }
 

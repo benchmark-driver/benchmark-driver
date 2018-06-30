@@ -15,7 +15,7 @@ class BenchmarkDriver::Runner::Ips
   METRICS_TYPE = BenchmarkDriver::Metrics::Type.new(unit: 'i/s')
 
   # @param [BenchmarkDriver::Config::RunnerConfig] config
-  # @param [BenchmarkDriver::Output::*] output
+  # @param [BenchmarkDriver::Output] output
   def initialize(config:, output:)
     @config = config
     @output = output
