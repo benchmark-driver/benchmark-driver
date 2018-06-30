@@ -1,4 +1,4 @@
-# v0.11.1 (unreleased)
+# v0.11.1
 
 - Add `--repeat-result` option to return the best, the worst or an average result with `--repeat-count`
 - Add `BenchmarkDriver::BulkOutput` to make an output plugin casually
