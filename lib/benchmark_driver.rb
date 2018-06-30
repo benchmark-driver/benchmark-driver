@@ -1,3 +1,4 @@
+require 'benchmark_driver/bulk_output'
 require 'benchmark_driver/config'
 require 'benchmark_driver/job_parser'
 require 'benchmark_driver/output'

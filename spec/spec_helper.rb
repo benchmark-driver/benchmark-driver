@@ -1,5 +1,6 @@
 require 'open3'
 require 'shellwords'
+require 'benchmark_driver'
 
 module BenchmarkDriverSpecHelper
   def assert_execute(*command)
