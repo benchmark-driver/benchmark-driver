@@ -1,5 +1,12 @@
 # unreleased
 
+- [breaking change] Plugin interface is completely changed, so all plugins need migration
+  - Now the internal model allows to have multiple metrics in the same job,
+    but having multiple metrics is still not respected by built-in plugins
+  - "executable" is renamed to be "context", but still configuring a context
+    other than an executable is not supported yet
+  - A metric can have a name
+- Metric name is shwon on some outputs like markdown and simple
 - Now benchmark-driver.gem can be used as an alias to install benchmark\_driver.gem
 - `--run-duration` accepts floating-point number
 
