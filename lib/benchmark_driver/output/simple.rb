@@ -58,10 +58,10 @@ class BenchmarkDriver::Output::Simple
     block.call
   end
 
-  # @param [BenchmarkDriver::Metrics] metrics
-  def report(metrics)
+  # @param [Float] value
+  def report(value:)
     if @with_benchmark
-      $stdout.print("%#{NAME_LENGTH}s  " % humanize(metrics.value))
+      $stdout.print("%#{NAME_LENGTH}s  " % humanize(value))
     else
       $stdout.print '.'
     end

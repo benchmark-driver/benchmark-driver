@@ -21,7 +21,7 @@ class BenchmarkDriver::Output::Compare
   end
 
   def with_benchmark(&block)
-    @metrics_by_job = Hash.new { |h, k| h[k] = [] }
+    @values_by_job = Hash.new { |h, k| h[k] = [] }
 
     without_stdout_buffering do
       $stdout.puts 'Calculating -------------------------------------'
@@ -74,13 +74,13 @@ class BenchmarkDriver::Output::Compare
     block.call
   end
 
-  # @param [BenchmarkDriver::Metrics] metrics
-  def report(metrics)
-    if defined?(@metrics_by_job)
-      @metrics_by_job[@current_job] << metrics
+  # @param [Float] value
+  def report(value:)
+    if defined?(@values_by_job)
+      @values_by_job[@current_job] << value
     end
 
-    $stdout.print("#{humanize(metrics.value, [10, @context.name.length].max)} ")
+    $stdout.print("#{humanize(value, [10, @context.name.length].max)} ")
   end
 
   private
@@ -156,16 +156,16 @@ class BenchmarkDriver::Output::Compare
 
   def compare_jobs
     $stdout.puts "\nComparison:"
-    results = @metrics_by_job.map { |job, metrics| Result.new(job: job, metrics: metrics.first) }
+    results = @values_by_job.map { |job, values| Result.new(job: job, value: values.first) }
     show_results(results, show_executable: false)
   end
 
   def compare_executables
     $stdout.puts "\nComparison:"
 
-    @metrics_by_job.each do |job, metrics|
+    @values_by_job.each do |job, values|
       $stdout.puts("%#{NAME_LENGTH + 2 + 11}s" % job)
-      results = metrics.map { |metrics| Result.new(job: job, metrics: metrics) }
+      results = values.map { |value| Result.new(job: job, metrics: value) }
       show_results(results, show_executable: true)
     end
   end
@@ -175,9 +175,9 @@ class BenchmarkDriver::Output::Compare
   def show_results(results, show_executable:)
     results = results.sort_by do |result|
       if @metrics_type.larger_better
-        -result.metrics.value
+        -result.value
       else
-        result.metrics.value
+        result.value
       end
     end
 
@@ -185,21 +185,21 @@ class BenchmarkDriver::Output::Compare
     results.each do |result|
       if result != first
         if @metrics_type.larger_better
-          ratio = (first.metrics.value / result.metrics.value)
+          ratio = (first.value / result.value)
         else
-          ratio = (result.metrics.value / first.metrics.value)
+          ratio = (result.value / first.value)
         end
         slower = "- %.2fx  #{@metrics_type.worse_word}" % ratio
       end
       if show_executable
-        name = result.metrics.executable.name
+        name = result.executable.name # FIXME
       else
         name = result.job
       end
-      $stdout.puts("%#{NAME_LENGTH}s: %11.1f %s #{slower}" % [name, result.metrics.value, @metrics_type.unit])
+      $stdout.puts("%#{NAME_LENGTH}s: %11.1f %s #{slower}" % [name, result.value, @metrics_type.unit])
     end
     $stdout.puts
   end
 
-  Result = ::BenchmarkDriver::Struct.new(:job, :metrics)
+  Result = ::BenchmarkDriver::Struct.new(:job, :value)
 end

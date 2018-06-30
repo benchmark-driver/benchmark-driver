@@ -63,10 +63,8 @@ module BenchmarkDriver
     end
 
     # @param [Float] value
-    # @param [Float,nil] duration (optional)
     def report(value:)
-      metric = Metrics.new(value: value)
-      @output.report(metric)
+      @output.report(value: value)
     end
   end
 end
