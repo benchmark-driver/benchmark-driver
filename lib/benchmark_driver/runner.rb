@@ -30,8 +30,8 @@ module BenchmarkDriver
         runner = runner_for(klass)
         output = Output.new(
           type: config.output_type,
-          jobs: jobs,
-          executables: config.executables,
+          job_names: jobs.map(&:name),
+          context_names: config.executables.map(&:name),
         )
         with_clean_env do
           runner.new(config: runner_config, output: output).run(jobs)

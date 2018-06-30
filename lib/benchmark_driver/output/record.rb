@@ -2,10 +2,9 @@ class BenchmarkDriver::Output::Record
   # @param [Array<BenchmarkDriver::Metric>] metrics
   attr_writer :metrics
 
-  # @param [Array<String>] jobs
-  # @param [Array<BenchmarkDriver::Config::Executable>] executables
-  def initialize(jobs:, executables:)
-    @executables = executables
+  # @param [Array<String>] job_names
+  # @param [Array<String>] context_names
+  def initialize(job_names:, context_names:)
     @job_warmup_context_metric_value = Hash.new do |h1, k1|
       h1[k1] = Hash.new do |h2, k2|
         h2[k2] = Hash.new do |h3, k3|

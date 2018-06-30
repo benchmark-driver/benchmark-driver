@@ -24,7 +24,9 @@ module BenchmarkDriver
     # Create `BenchmarkDriver::Output::Foo` as benchmark_dirver-output-foo.gem and specify `-o foo`.
     #
     # @param [String] type
-    def initialize(type:, jobs:, executables:)
+    # @param [Array<String>] job_names
+    # @param [Array<String>] context_names
+    def initialize(type:, job_names:, context_names:)
       if type.include?(':')
         raise ArgumentError.new("Output type '#{type}' cannot contain ':'")
       end
@@ -33,8 +35,8 @@ module BenchmarkDriver
       camelized = type.split('_').map(&:capitalize).join
 
       @output = ::BenchmarkDriver::Output.const_get(camelized, false).new(
-        jobs: jobs,
-        executables: executables,
+        job_names: job_names,
+        context_names: context_names,
       )
     end
 

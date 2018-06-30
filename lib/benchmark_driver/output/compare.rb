@@ -5,11 +5,11 @@ class BenchmarkDriver::Output::Compare
   # @param [Array<BenchmarkDriver::Metric>] metrics
   attr_writer :metrics
 
-  # @param [Array<String>] jobs
-  # @param [Array<BenchmarkDriver::Config::Executable>] executables
-  def initialize(jobs:, executables:)
-    @jobs = jobs
-    @executables = executables
+  # @param [Array<String>] job_names
+  # @param [Array<String>] context_names
+  def initialize(job_names:, context_names:)
+    @job_names = job_names
+    @context_names = context_names
   end
 
   def with_warmup(&block)
@@ -27,10 +27,10 @@ class BenchmarkDriver::Output::Compare
 
     without_stdout_buffering do
       $stdout.puts 'Calculating -------------------------------------'
-      if @executables.size > 1
+      if @context_names.size > 1
         $stdout.print(' ' * NAME_LENGTH)
-        @executables.each do |executable|
-          $stdout.print(' %10s ' % executable.name)
+        @context_names.each do |context_name|
+          $stdout.print(' %10s ' % context_name)
         end
         $stdout.puts
       end
@@ -38,9 +38,9 @@ class BenchmarkDriver::Output::Compare
       block.call
     end
   ensure
-    if @executables.size > 1
+    if @context_names.size > 1
       compare_executables
-    elsif @jobs.size > 1
+    elsif @job_names.size > 1
       compare_jobs
     end
   end

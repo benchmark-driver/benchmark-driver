@@ -4,11 +4,11 @@ class BenchmarkDriver::Output::Markdown
   # @param [Array<BenchmarkDriver::Metric>] metrics
   attr_writer :metrics
 
-  # @param [Array<String>] jobs
-  # @param [Array<BenchmarkDriver::Config::Executable>] executables
-  def initialize(jobs:, executables:)
-    @executables = executables
-    @name_length = jobs.map(&:size).max
+  # @param [Array<String>] job_names
+  # @param [Array<String>] context_names
+  def initialize(job_names:, context_names:)
+    @context_names = context_names
+    @name_length = job_names.map(&:size).max
   end
 
   def with_warmup(&block)
@@ -28,14 +28,14 @@ class BenchmarkDriver::Output::Markdown
 
       # Show executable names
       $stdout.print("|#{' ' * @name_length}  ")
-      @executables.each do |executable|
-        $stdout.print("|%#{NAME_LENGTH}s" % executable.name) # same size as humanize
+      @context_names.each do |context_name|
+        $stdout.print("|%#{NAME_LENGTH}s" % context_name) # same size as humanize
       end
       $stdout.puts('|')
 
       # Show header separator
       $stdout.print("|:#{'-' * (@name_length - 1)}--")
-      @executables.each do |executable|
+      @context_names.each do |context_name|
         $stdout.print("|:#{'-' * (NAME_LENGTH - 1)}") # same size as humanize
       end
       $stdout.puts('|')

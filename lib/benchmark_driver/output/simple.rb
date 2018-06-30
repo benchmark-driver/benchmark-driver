@@ -4,11 +4,11 @@ class BenchmarkDriver::Output::Simple
   # @param [Array<BenchmarkDriver::Metric>] metrics
   attr_writer :metrics
 
-  # @param [Array<String>] jobs
-  # @param [Array<BenchmarkDriver::Config::Executable>] executables
-  def initialize(jobs:, executables:)
-    @executables = executables
-    @name_length = jobs.map(&:size).max
+  # @param [Array<String>] job_names
+  # @param [Array<String>] context_names
+  def initialize(job_names:, context_names:)
+    @context_names = context_names
+    @name_length = job_names.map(&:size).max
   end
 
   def with_warmup(&block)
@@ -27,10 +27,10 @@ class BenchmarkDriver::Output::Simple
       $stdout.puts "#{@metrics.first.name} (#{@metrics.first.unit}):"
 
       # Show executable names
-      if @executables.size > 1
+      if @context_names.size > 1
         $stdout.print("#{' ' * @name_length}  ")
-        @executables.each do |executable|
-          $stdout.print("%#{NAME_LENGTH}s  " % executable.name)
+        @context_name.each do |context_name|
+          $stdout.print("%#{NAME_LENGTH}s  " % context_name)
         end
         $stdout.puts
       end
