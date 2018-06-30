@@ -45,7 +45,7 @@ module BenchmarkDriver
   #   initiator           -> (not supported)            | #<Commit sha1: "6f0de6ed9...", message: "error.c: check redefined ...", url: "https://github.com/tgxworld/ruby/commit/6f0de6ed98...", repo_id: 6>
   #
   #   BenchmarkType:
-  #     category          -> job name                   | "app_erb", "Optcarrot Lan_Master.nes"
+  #     category          -> job.name                   | "app_erb", "Optcarrot Lan_Master.nes"
   #     script_url        -> (not supported)            | "https://raw.githubusercontent.com/mame/optcarrot/master/lib/optcarrot/nes.rb"
   #     repo              -> (not supported)            | #<Repo name: "ruby", url: "https://github.com/tgxworld/ruby">
   #     repo.organization -> (not supported)            | #<Organization name: "ruby", url: "https://github.com/tgxworld/">
@@ -59,15 +59,12 @@ module BenchmarkDriver
   #----
   # legacy
 
-  Metrics = ::BenchmarkDriver::Struct.new(
-    :value,      # @param [Float] - The main field of benchmark result
-    :duration,   # @param [Float,nil] - Time taken to run the script (optional)
-  )
-
-  Metrics::Type = ::BenchmarkDriver::Struct.new(
-    :unit,          # @param [String] - A label of unit for the value.
-    :larger_better, # @param [TrueClass,FalseClass] - If true, larger value is preferred when measured multiple times.
-    :worse_word,    # @param [String] - A label shown when the value is worse.
-    defaults: { larger_better: true, worse_word: 'slower' },
-  )
+  module Metrics
+    Type = ::BenchmarkDriver::Struct.new(
+      :unit,          # @param [String] - A label of unit for the value.
+      :larger_better, # @param [TrueClass,FalseClass] - If true, larger value is preferred when measured multiple times.
+      :worse_word,    # @param [String] - A label shown when the value is worse.
+      defaults: { larger_better: true, worse_word: 'slower' },
+    )
+  end
 end

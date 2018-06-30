@@ -21,7 +21,9 @@ class BenchmarkDriver::Output::Compare
   end
 
   def with_benchmark(&block)
-    @values_by_job = Hash.new { |h, k| h[k] = [] }
+    @job_context_values = Hash.new do |h1, k1|
+      h1[k1] = Hash.new { |h2, k2| h2[k2] = [] }
+    end
 
     without_stdout_buffering do
       $stdout.puts 'Calculating -------------------------------------'
@@ -51,7 +53,7 @@ class BenchmarkDriver::Output::Compare
     else
       $stdout.print("%#{NAME_LENGTH}s" % name)
     end
-    @current_job = name
+    @job = name
     @job_contexts = []
     block.call
   ensure
@@ -76,8 +78,8 @@ class BenchmarkDriver::Output::Compare
 
   # @param [Float] value
   def report(value:)
-    if defined?(@values_by_job)
-      @values_by_job[@current_job] << value
+    if defined?(@job_context_values)
+      @job_context_values[@job][@context] << value
     end
 
     $stdout.print("#{humanize(value, [10, @context.name.length].max)} ")
@@ -156,16 +158,20 @@ class BenchmarkDriver::Output::Compare
 
   def compare_jobs
     $stdout.puts "\nComparison:"
-    results = @values_by_job.map { |job, values| Result.new(job: job, value: values.first) }
+    results = @job_context_values.flat_map do |job, context_values|
+      context_values.map { |context, values| Result.new(job: job, value: values.first, executable: context.executable) }
+    end
     show_results(results, show_executable: false)
   end
 
   def compare_executables
     $stdout.puts "\nComparison:"
 
-    @values_by_job.each do |job, values|
+    @job_context_values.each do |job, context_values|
       $stdout.puts("%#{NAME_LENGTH + 2 + 11}s" % job)
-      results = values.map { |value| Result.new(job: job, metrics: value) }
+      results = context_values.flat_map do |context, values|
+        values.map { |value| Result.new(job: job, value: value, executable: context.executable) }
+      end
       show_results(results, show_executable: true)
     end
   end
@@ -192,7 +198,7 @@ class BenchmarkDriver::Output::Compare
         slower = "- %.2fx  #{@metrics_type.worse_word}" % ratio
       end
       if show_executable
-        name = result.executable.name # FIXME
+        name = result.executable.name
       else
         name = result.job
       end
@@ -201,5 +207,5 @@ class BenchmarkDriver::Output::Compare
     $stdout.puts
   end
 
-  Result = ::BenchmarkDriver::Struct.new(:job, :value)
+  Result = ::BenchmarkDriver::Struct.new(:job, :value, :executable)
 end

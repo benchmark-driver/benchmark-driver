@@ -27,4 +27,9 @@ describe 'benchmark-driver command' do
       end
     end
   end
+
+  it 'compares multiple Ruby executables' do
+    benchmark_driver fixture_yaml('blank_loop.yml'), '-r', 'ips', '-o', 'compare',
+      '-e', "ruby1::#{RbConfig.ruby}", '-e', "ruby2::#{RbConfig.ruby}"
+  end
 end
