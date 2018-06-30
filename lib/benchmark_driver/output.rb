@@ -1,5 +1,3 @@
-require 'forwardable'
-
 module BenchmarkDriver
   # BenchmarkDriver::Runner::* --> BenchmarkDriver::Output --> BenchmarkDriver::Output::*
   #
@@ -21,8 +19,6 @@ module BenchmarkDriver
     require 'benchmark_driver/output/record'
     require 'benchmark_driver/output/simple'
 
-    extend Forwardable
-
     # BenchmarkDriver::Output is pluggable.
     # Create `BenchmarkDriver::Output::Foo` as benchmark_dirver-output-foo.gem and specify `-o foo`.
     #
@@ -41,7 +37,17 @@ module BenchmarkDriver
       )
     end
 
-    def_delegators :@output, :metrics_type=, :with_warmup, :with_benchmark
+    def metrics_type=(type)
+      @output.metrics_type = type
+    end
+
+    def with_warmup(&block)
+      @output.with_warmup(&block)
+    end
+
+    def with_benchmark(&block)
+      @output.with_benchmark(&block)
+    end
 
     # @param [String]
     def with_job(name:, &block)
