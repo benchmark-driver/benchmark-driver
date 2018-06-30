@@ -5,15 +5,14 @@ module BenchmarkDriver
   # BenchmarkDriver returns benchmark results with the following nested Hash structure:
   # {
   #   BenchmarkDriver::Job => {
-  #     BenchmarkDriver::Context => [
-  #       BenchmarkDriver::Metric, ...
-  #     ]
+  #     BenchmarkDriver::Context => {
+  #       BenchmarkDriver::Metric => Float
+  #     }
   #   }
   # }
 
   # A kind of thing to be measured
   Metric = ::BenchmarkDriver::Struct.new(
-    :value,         # @param [Float] - Measured metric value
     :name,          # @param [String] - Metric name or description like "Max Resident Set Size"
     :unit,          # @param [String] - A unit like "MiB"
     :larger_better, # @param [TrueClass,FalseClass] - If true, larger value is preferred when measured multiple times.
@@ -27,7 +26,7 @@ module BenchmarkDriver
     :executable,  # @param [BenchmarkDriver::Config::Executable] - Measured Ruby executable
     :gems,        # @param [Hash{ String => String,nil }] - Gem -> version pairs used for the benchmark
     :prelude,     # @param [String,nil] - Context specific setup script (optional)
-    # :duration,    # @param [Float,nil] - Time taken to run the benchmark job (optional)
+    :duration,    # @param [Float,nil] - Time taken to run the benchmark job (optional)
     # :loop_count,  # @param [Float,nil] - Times to run the benchmark job (optional)
     :environment, # @param [Hash] - Any other key -> value pairs to express the benchmark context
     defaults: { gems: {}, environment: {} },

@@ -52,13 +52,13 @@ class BenchmarkDriver::Output::Compare
       $stdout.print("%#{NAME_LENGTH}s" % name)
     end
     @current_job = name
-    @job_metrics = []
+    @job_contexts = []
     block.call
   ensure
     $stdout.print(@metrics_type.unit)
     # if job.respond_to?(:loop_count) && job.loop_count
     #   $stdout.print(" - #{humanize(job.loop_count)} times")
-    #   if @job_metrics.all? { |metrics| metrics.duration }
+    #   if @job_contexts.all? { |context| !context.duration.nil? }
     #     $stdout.print(" in")
     #     show_durations
     #   end
@@ -69,6 +69,7 @@ class BenchmarkDriver::Output::Compare
   # @param [BenchmarkDriver::Context] context
   def with_context(context, &block)
     @context = context
+    @job_contexts << context
     block.call
   end
 
@@ -78,21 +79,20 @@ class BenchmarkDriver::Output::Compare
       @metrics_by_job[@current_job] << metrics
     end
 
-    @job_metrics << metrics
     $stdout.print("#{humanize(metrics.value, [10, @context.name.length].max)} ")
   end
 
   private
 
   def show_durations
-    @job_metrics.each do |metrics|
-      $stdout.print(' %3.6fs' % metrics.duration)
+    @job_contexts.each do |context|
+      $stdout.print(' %3.6fs' % context.duration)
     end
 
     # Show pretty seconds / clocks too. As it takes long width, it's shown only with a single executable.
-    if @job_metrics.size == 1
-      metrics = @job_metrics.first
-      sec = metrics.duration
+    if @job_contexts.size == 1
+      context = @job_contexts.first
+      sec = context.duration
       iter = @current_job.loop_count
       if File.exist?('/proc/cpuinfo') && (clks = estimate_clock(sec, iter)) < 1_000
         $stdout.print(" (#{pretty_sec(sec, iter)}/i, #{clks}clocks/i)")

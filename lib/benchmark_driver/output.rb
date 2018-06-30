@@ -9,12 +9,12 @@ module BenchmarkDriver
   # Runner should call its interface in the following manner:
   #   with_warmup
   #     with_job(name:)
-  #       with_context(name:, executable:)
-  #         report
+  #       with_context(name:, executable:, duration: nil)
+  #         report(value:)
   #   with_benchmark
   #     with_job(name:)
-  #       with_context(name:, executable:)
-  #         report
+  #       with_context(name:, executable:, duration: nil)
+  #         report(value:)
   class Output
     require 'benchmark_driver/output/compare'
     require 'benchmark_driver/output/markdown'
@@ -53,8 +53,8 @@ module BenchmarkDriver
 
     # @param [String]
     # @param [BenchmarkDriver::Config::Executable]
-    def with_context(name:, executable:, &block)
-      context = BenchmarkDriver::Context.new(name: name, executable: executable)
+    def with_context(name:, executable:, duration: nil, &block)
+      context = BenchmarkDriver::Context.new(name: name, executable: executable, duration: duration)
       @output.with_context(context) do
         block.call
       end
@@ -62,8 +62,8 @@ module BenchmarkDriver
 
     # @param [Float] value
     # @param [Float,nil] duration (optional)
-    def report(value:, duration: nil)
-      metric = Metrics.new(value: value, duration: duration)
+    def report(value:)
+      metric = Metrics.new(value: value)
       @output.report(metric)
     end
   end
