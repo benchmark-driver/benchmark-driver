@@ -35,7 +35,7 @@ config = BenchmarkDriver::Config.new.tap do |c|
         executables << BenchmarkDriver::Rbenv.parse_spec(version)
       end
     end
-    o.on('--repeat-count [NUM]', 'Try benchmark NUM times and use the fastest result (TODO)') do |v|
+    o.on('--repeat-count [NUM]', 'Try benchmark NUM times and use the fastest result or the worst memory usage') do |v|
       begin
         c.repeat_count = Integer(v)
       rescue ArgumentError

@@ -1,5 +1,5 @@
 require 'benchmark_driver/struct'
-require 'benchmark_driver/metrics'
+require 'benchmark_driver/metric'
 require 'benchmark_driver/default_job'
 require 'benchmark_driver/default_job_parser'
 require 'tempfile'
@@ -12,10 +12,10 @@ class BenchmarkDriver::Runner::Ips
   # Dynamically fetched and used by `BenchmarkDriver::JobParser.parse`
   JobParser = BenchmarkDriver::DefaultJobParser.for(Job)
 
-  METRICS_TYPE = BenchmarkDriver::Metrics::Type.new(unit: 'i/s')
+  METRIC = BenchmarkDriver::Metric.new(name: 'Iteration per second', unit: 'i/s')
 
   # @param [BenchmarkDriver::Config::RunnerConfig] config
-  # @param [BenchmarkDriver::Output::*] output
+  # @param [BenchmarkDriver::Output] output
   def initialize(config:, output:)
     @config = config
     @output = output
@@ -24,19 +24,23 @@ class BenchmarkDriver::Runner::Ips
   # This method is dynamically called by `BenchmarkDriver::JobRunner.run`
   # @param [Array<BenchmarkDriver::Default::Job>] jobs
   def run(jobs)
-    set_metrics_type
+    @output.metrics = [metric]
 
     if jobs.any? { |job| job.loop_count.nil? }
       @output.with_warmup do
         jobs = jobs.map do |job|
           next job if job.loop_count # skip warmup if loop_count is set
 
-          @output.with_job(job) do
-            result = run_warmup(job, exec: job.runnable_execs(@config.executables).first)
-            metrics = build_metrics(result)
-            @output.report(metrics)
+          @output.with_job(name: job.name) do
+            executable = job.runnable_execs(@config.executables).first
+            duration, loop_count = run_warmup(job, exec: executable)
+            value, duration = value_duration(duration: duration, loop_count: loop_count)
 
-            loop_count = (result.fetch(:loop_count).to_f * @config.run_duration / result.fetch(:duration)).floor
+            @output.with_context(name: executable.name, executable: executable, duration: duration, loop_count: loop_count) do
+              @output.report(value: value, metric: metric)
+            end
+
+            loop_count = (loop_count.to_f * @config.run_duration / duration).floor
             Job.new(job.to_h.merge(loop_count: loop_count))
           end
         end
@@ -45,12 +49,14 @@ class BenchmarkDriver::Runner::Ips
 
     @output.with_benchmark do
       jobs.each do |job|
-        @output.with_job(job) do
+        @output.with_job(name: job.name) do
           job.runnable_execs(@config.executables).each do |exec|
-            best_metrics = with_repeat(@config.repeat_count) do
+            value, duration = with_repeat(@config.repeat_count) do
               run_benchmark(job, exec: exec)
             end
-            @output.report(best_metrics)
+            @output.with_context(name: exec.name, executable: exec, duration: duration) do
+              @output.report(value: value, metric: metric)
+            end
           end
         end
       end
@@ -71,23 +77,23 @@ class BenchmarkDriver::Runner::Ips
       second_warmup_duration: @config.run_duration / 3.0, # default: 1.0
     )
 
-    hash = Tempfile.open(['benchmark_driver-', '.rb']) do |f|
+    duration, loop_count = Tempfile.open(['benchmark_driver-', '.rb']) do |f|
       with_script(warmup.render(result: f.path)) do |path|
         execute(*exec.command, path)
       end
       eval(f.read)
     end
 
-    hash.merge(executable: exec)
+    [duration, loop_count]
   end
 
   # Return multiple times and return the best metrics
   def with_repeat(repeat_times, &block)
-    all_metrics = repeat_times.times.map do
+    value_durations = repeat_times.times.map do
       block.call
     end
-    all_metrics.sort_by do |metrics|
-      metrics.value
+    value_durations.sort_by do |value, _|
+      metric.larger_better ? value : -value
     end.last
   end
 
@@ -109,25 +115,20 @@ class BenchmarkDriver::Runner::Ips
       Float(f.read)
     end
 
-    build_metrics(
+    value_duration(
       loop_count: job.loop_count,
       duration: duration,
-      executable: exec,
     )
   end
 
   # This method is overridden by BenchmarkDriver::Runner::Time
-  def build_metrics(duration:, executable:, loop_count:)
-    BenchmarkDriver::Metrics.new(
-      value: loop_count.to_f / duration,
-      duration: duration,
-      executable: executable,
-    )
+  def metric
+    METRIC
   end
 
-  # This method is overridden by BenchmarkDriver::Runner::Time
-  def set_metrics_type
-    @output.metrics_type = METRICS_TYPE
+  # Overridden by BenchmarkDriver::Runner::Time
+  def value_duration(duration:, loop_count:)
+    [loop_count.to_f / duration, duration]
   end
 
   def with_script(script)
@@ -186,7 +187,7 @@ end
 
 #{teardown}
 
-File.write(#{result.dump}, { duration: __bmdv_duration, loop_count: __bmdv_loops }.inspect)
+File.write(#{result.dump}, [__bmdv_duration, __bmdv_loops].inspect)
       RUBY
     end
   end

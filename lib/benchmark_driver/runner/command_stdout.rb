@@ -1,5 +1,5 @@
 require 'benchmark_driver/struct'
-require 'benchmark_driver/metrics'
+require 'benchmark_driver/metric'
 require 'tempfile'
 require 'shellwords'
 require 'open3'
@@ -11,7 +11,7 @@ class BenchmarkDriver::Runner::CommandStdout
     :name,              # @param [String] name - This is mandatory for all runner
     :command,           # @param [Array<String>]
     :working_directory, # @param [String,NilClass]
-    :metrics_type,      # @param [BenchmarkDriver::Metrics::Type]
+    :metrics,           # @param [Array<BenchmarkDriver::Metric>]
     :stdout_to_metrics, # @param [String]
   )
   # Dynamically fetched and used by `BenchmarkDriver::JobParser.parse`
@@ -26,24 +26,27 @@ class BenchmarkDriver::Runner::CommandStdout
         name: name,
         command: command.shellsplit,
         working_directory: working_directory,
-        metrics_type: parse_metrics_type(metrics_type),
+        metrics: parse_metrics(metrics_type),
         stdout_to_metrics: stdout_to_metrics,
       )
     end
 
     private
 
-    def parse_metrics_type(unit:, larger_better: nil, worse_word: nil)
-      BenchmarkDriver::Metrics::Type.new(
+    def parse_metrics(unit:, name: nil, larger_better: nil, worse_word: nil)
+      name ||= unit
+      metric = BenchmarkDriver::Metric.new(
+        name: name,
         unit: unit,
         larger_better: larger_better,
         worse_word: worse_word,
       )
+      [metric]
     end
   end
 
   # @param [BenchmarkDriver::Config::RunnerConfig] config
-  # @param [BenchmarkDriver::Output::*] output
+  # @param [BenchmarkDriver::Output] output
   def initialize(config:, output:)
     @config = config
     @output = output
@@ -52,14 +55,14 @@ class BenchmarkDriver::Runner::CommandStdout
   # This method is dynamically called by `BenchmarkDriver::JobRunner.run`
   # @param [Array<BenchmarkDriver::Default::Job>] jobs
   def run(jobs)
-    metrics_type = jobs.first.metrics_type
-    @output.metrics_type = metrics_type
+    metric = jobs.first.metrics.first
+    @output.metrics = [metric]
 
     @output.with_benchmark do
       jobs.each do |job|
-        @output.with_job(job) do
+        @output.with_job(name: job.name) do
           @config.executables.each do |exec|
-            best_value = with_repeat(metrics_type) do
+            best_value = with_repeat(metric) do
               stdout = with_chdir(job.working_directory) do
                 with_ruby_prefix(exec) { execute(*exec.command, *job.command) }
               end
@@ -69,12 +72,9 @@ class BenchmarkDriver::Runner::CommandStdout
               ).metrics_value
             end
 
-            @output.report(
-              BenchmarkDriver::Metrics.new(
-                value: best_value,
-                executable: exec,
-              )
-            )
+            @output.with_context(name: exec.name, executable: exec) do
+              @output.report(value: best_value, metric: metric)
+            end
           end
         end
       end
@@ -108,12 +108,12 @@ class BenchmarkDriver::Runner::CommandStdout
   end
 
   # Return multiple times and return the best metrics
-  def with_repeat(metrics_type, &block)
+  def with_repeat(metric, &block)
     values = @config.repeat_count.times.map do
       block.call
     end
     values.sort_by do |value|
-      if metrics_type.larger_better
+      if metric.larger_better
         value
       else
         -value

@@ -1,5 +1,5 @@
 require 'benchmark_driver/struct'
-require 'benchmark_driver/metrics'
+require 'benchmark_driver/metric'
 require 'tempfile'
 require 'shellwords'
 
@@ -8,51 +8,58 @@ class BenchmarkDriver::Runner::Recorded
   # JobParser returns this, `BenchmarkDriver::Runner.runner_for` searches "*::Job"
   Job = ::BenchmarkDriver::Struct.new(
     :name,              # @param [String] name - This is mandatory for all runner
-    :job,               # @param [BenchmarkDriver::Runner::*::Job]
-    :warmup_metrics,    # @param [Hash]
-    :benchmark_metrics, # @param [Hash]
-    :metrics_type,      # @param [BenchmarkDriver::Metrics::Type]
+    :warmup_results,    # @param [Hash{ BenchmarkDriver::Context => Array<BenchmarkDriver::Metric> } }]
+    :benchmark_results, # @param [Hash{ BenchmarkDriver::Context => Array<BenchmarkDriver::Metric> } }]
+    :metrics,           # @param [Array<BenchmarkDriver::Metric>]
   )
   # Dynamically fetched and used by `BenchmarkDriver::JobParser.parse`
   class << JobParser = Module.new
-    # @param [Hash] metrics_by_job
-    # @param [BenchmarkDriver::Metrics::Type] metrics_type
-    def parse(metrics_by_job:, metrics_type:)
-      metrics_by_job.map do |job, metrics_hash|
+    # @param [Hash{ String => Hash{ TrueClass,FalseClass => Hash{ BenchmarkDriver::Context => Hash{ BenchmarkDriver::Metric => Float } } } }] job_warmup_context_metric_value
+    # @param [BenchmarkDriver::Metrics::Type] metrics
+    def parse(job_warmup_context_metric_value:, metrics:)
+      job_warmup_context_metric_value.map do |job_name, warmup_context_values|
         Job.new(
-          name: job.name,
-          job: job,
-          warmup_metrics: metrics_hash.fetch(:warmup, []),
-          benchmark_metrics: metrics_hash.fetch(:benchmark),
-          metrics_type: metrics_type,
+          name: job_name,
+          warmup_results: warmup_context_values.fetch(true, {}),
+          benchmark_results: warmup_context_values.fetch(false, {}),
+          metrics: metrics,
         )
       end
     end
   end
 
   # @param [BenchmarkDriver::Config::RunnerConfig] config
-  # @param [BenchmarkDriver::Output::*] output
+  # @param [BenchmarkDriver::Output] output
   def initialize(config:, output:)
     @config = config
     @output = output
   end
 
   # This method is dynamically called by `BenchmarkDriver::JobRunner.run`
-  # @param [Array<BenchmarkDriver::Default::Job>] jobs
+  # @param [Array<BenchmarkDriver::Runner::Recorded::Job>] record
   def run(records)
-    @output.metrics_type = records.first.metrics_type
+    @output.metrics = records.first.metrics
 
     records.each do |record|
-      unless record.warmup_metrics.empty?
+      unless record.warmup_results.empty?
         # TODO:
       end
     end
 
     @output.with_benchmark do
       records.each do |record|
-        @output.with_job(record.job) do
-          record.benchmark_metrics.each do |metrics|
-            @output.report(metrics)
+        @output.with_job(name: record.name) do
+          record.benchmark_results.each do |context, metric_values|
+            @output.with_context(
+              name: context.name,
+              executable: context.executable,
+              duration: context.duration,
+              loop_count: context.loop_count,
+            ) do
+              metric_values.each do |metric, value|
+                @output.report(value: value, metric: metric)
+              end
+            end
           end
         end
       end

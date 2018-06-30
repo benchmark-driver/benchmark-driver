@@ -1,5 +1,5 @@
 require 'benchmark_driver/struct'
-require 'benchmark_driver/metrics'
+require 'benchmark_driver/metric'
 require 'benchmark_driver/default_job'
 require 'benchmark_driver/default_job_parser'
 require 'tempfile'
@@ -12,10 +12,12 @@ class BenchmarkDriver::Runner::Memory
   # Dynamically fetched and used by `BenchmarkDriver::JobParser.parse`
   JobParser = BenchmarkDriver::DefaultJobParser.for(Job)
 
-  METRICS_TYPE = BenchmarkDriver::Metrics::Type.new(unit: 'bytes', larger_better: false, worse_word: 'larger')
+  METRIC = BenchmarkDriver::Metric.new(
+    name: 'Max resident set size', unit: 'bytes', larger_better: false, worse_word: 'larger',
+  )
 
   # @param [BenchmarkDriver::Config::RunnerConfig] config
-  # @param [BenchmarkDriver::Output::*] output
+  # @param [BenchmarkDriver::Output] output
   def initialize(config:, output:)
     @config = config
     @output = output
@@ -29,7 +31,7 @@ class BenchmarkDriver::Runner::Memory
       raise "memory output is not supported for '#{Etc.uname[:sysname]}' for now"
     end
 
-    @output.metrics_type = METRICS_TYPE
+    @output.metrics = [METRIC]
 
     if jobs.any? { |job| job.loop_count.nil? }
       jobs = jobs.map do |job|
@@ -39,12 +41,14 @@ class BenchmarkDriver::Runner::Memory
 
     @output.with_benchmark do
       jobs.each do |job|
-        @output.with_job(job) do
+        @output.with_job(name: job.name) do
           job.runnable_execs(@config.executables).each do |exec|
-            best_metrics = with_repeat(@config.repeat_count) do
+            best_value = with_repeat(@config.repeat_count) do
               run_benchmark(job, exec: exec)
             end
-            @output.report(best_metrics)
+            @output.with_context(name: exec.name, executable: exec, loop_count: job.loop_count) do
+              @output.report(value: best_value, metric: METRIC)
+            end
           end
         end
       end
@@ -53,14 +57,12 @@ class BenchmarkDriver::Runner::Memory
 
   private
 
-  # Return multiple times and return the best metrics
+  # Return multiple times and return the *worst* metrics
   def with_repeat(repeat_times, &block)
     all_metrics = repeat_times.times.map do
       block.call
     end
-    all_metrics.sort_by do |metrics|
-      metrics.value
-    end.first
+    all_metrics.sort.last
   end
 
   # @param [BenchmarkDriver::Runner::Ips::Job] job - loop_count is not nil
@@ -81,10 +83,7 @@ class BenchmarkDriver::Runner::Memory
     match_data = /^(?<user>\d+.\d+)user\s+(?<system>\d+.\d+)system\s+(?<elapsed1>\d+):(?<elapsed2>\d+.\d+)elapsed.+\([^\s]+\s+(?<maxresident>\d+)maxresident\)k$/.match(output)
     raise "Unexpected format given from /usr/bin/time:\n#{out}" unless match_data[:maxresident]
 
-    BenchmarkDriver::Metrics.new(
-      value: Integer(match_data[:maxresident]) * 1000.0, # kilobytes -> bytes
-      executable: exec,
-    )
+    Integer(match_data[:maxresident]) * 1000.0 # kilobytes -> bytes
   end
 
   def with_script(script)

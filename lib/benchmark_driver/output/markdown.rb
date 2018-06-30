@@ -1,15 +1,14 @@
 class BenchmarkDriver::Output::Markdown
   NAME_LENGTH = 8
 
-  # @param [BenchmarkDriver::Metrics::Type] metrics_type
-  attr_writer :metrics_type
+  # @param [Array<BenchmarkDriver::Metric>] metrics
+  attr_writer :metrics
 
-  # @param [Array<BenchmarkDriver::*::Job>] jobs
-  # @param [Array<BenchmarkDriver::Config::Executable>] executables
-  def initialize(jobs:, executables:)
-    @jobs = jobs
-    @executables = executables
-    @name_length = jobs.map { |j| j.name.size }.max
+  # @param [Array<String>] job_names
+  # @param [Array<String>] context_names
+  def initialize(job_names:, context_names:)
+    @context_names = context_names
+    @name_length = job_names.map(&:size).max
   end
 
   def with_warmup(&block)
@@ -25,18 +24,18 @@ class BenchmarkDriver::Output::Markdown
     @with_benchmark = true
     without_stdout_buffering do
       # Show header
-      $stdout.puts "# benchmark results (#{@metrics_type.unit})\n\n"
+      $stdout.puts "# #{@metrics.first.name} (#{@metrics.first.unit})\n\n"
 
       # Show executable names
       $stdout.print("|#{' ' * @name_length}  ")
-      @executables.each do |executable|
-        $stdout.print("|%#{NAME_LENGTH}s" % executable.name) # same size as humanize
+      @context_names.each do |context_name|
+        $stdout.print("|%#{NAME_LENGTH}s" % context_name) # same size as humanize
       end
       $stdout.puts('|')
 
       # Show header separator
       $stdout.print("|:#{'-' * (@name_length - 1)}--")
-      @executables.each do |executable|
+      @context_names.each do |context_name|
         $stdout.print("|:#{'-' * (NAME_LENGTH - 1)}") # same size as humanize
       end
       $stdout.puts('|')
@@ -47,7 +46,7 @@ class BenchmarkDriver::Output::Markdown
     @with_benchmark = false
   end
 
-  # @param [BenchmarkDriver::*::Job] job
+  # @param [BenchmarkDriver::Job] job
   def with_job(job, &block)
     if @with_benchmark
       $stdout.print("|%-#{@name_length}s  " % job.name)
@@ -59,10 +58,16 @@ class BenchmarkDriver::Output::Markdown
     end
   end
 
-  # @param [BenchmarkDriver::Metrics] metrics
-  def report(metrics)
+  # @param [BenchmarkDriver::Context] context
+  def with_context(context, &block)
+    block.call
+  end
+
+  # @param [Floa] value
+  # @param [BenchmarkDriver::Metric] metic
+  def report(value:, metric:)
     if @with_benchmark
-      $stdout.print("|%#{NAME_LENGTH}s" % humanize(metrics.value))
+      $stdout.print("|%#{NAME_LENGTH}s" % humanize(value))
     else
       $stdout.print '.'
     end

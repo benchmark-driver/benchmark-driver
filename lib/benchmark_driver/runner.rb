@@ -28,9 +28,10 @@ module BenchmarkDriver
 
       jobs.group_by(&:class).each do |klass, jobs_group|
         runner = runner_for(klass)
-        output = Output.find(config.output_type).new(
-          jobs: jobs,
-          executables: config.executables,
+        output = Output.new(
+          type: config.output_type,
+          job_names: jobs.map(&:name),
+          context_names: config.executables.map(&:name),
         )
         with_clean_env do
           runner.new(config: runner_config, output: output).run(jobs)

@@ -2,14 +2,14 @@
 class BenchmarkDriver::Output::Compare
   NAME_LENGTH = 20
 
-  # @param [BenchmarkDriver::Metrics::Type] metrics_type
-  attr_writer :metrics_type
+  # @param [Array<BenchmarkDriver::Metric>] metrics
+  attr_writer :metrics
 
-  # @param [Array<BenchmarkDriver::*::Job>] jobs
-  # @param [Array<BenchmarkDriver::Config::Executable>] executables
-  def initialize(jobs:, executables:)
-    @jobs = jobs
-    @executables = executables
+  # @param [Array<String>] job_names
+  # @param [Array<String>] context_names
+  def initialize(job_names:, context_names:)
+    @job_names = job_names
+    @context_names = context_names
   end
 
   def with_warmup(&block)
@@ -21,14 +21,16 @@ class BenchmarkDriver::Output::Compare
   end
 
   def with_benchmark(&block)
-    @metrics_by_job = Hash.new { |h, k| h[k] = [] }
+    @job_context_values = Hash.new do |h1, k1|
+      h1[k1] = Hash.new { |h2, k2| h2[k2] = [] }
+    end
 
     without_stdout_buffering do
       $stdout.puts 'Calculating -------------------------------------'
-      if @executables.size > 1
+      if @context_names.size > 1
         $stdout.print(' ' * NAME_LENGTH)
-        @executables.each do |executable|
-          $stdout.print(' %10s ' % executable.name)
+        @context_names.each do |context_name|
+          $stdout.print(' %10s ' % context_name)
         end
         $stdout.puts
       end
@@ -36,28 +38,30 @@ class BenchmarkDriver::Output::Compare
       block.call
     end
   ensure
-    if @executables.size > 1
+    if @context_names.size > 1
       compare_executables
-    elsif @jobs.size > 1
+    elsif @job_names.size > 1
       compare_jobs
     end
   end
 
-  # @param [BenchmarkDriver::*::Job] job
+  # @param [BenchmarkDriver::Job] job
   def with_job(job, &block)
-    if job.name.length > NAME_LENGTH
-      $stdout.puts(job.name)
+    name = job.name
+    if name.length > NAME_LENGTH
+      $stdout.puts(name)
     else
-      $stdout.print("%#{NAME_LENGTH}s" % job.name)
+      $stdout.print("%#{NAME_LENGTH}s" % name)
     end
-    @current_job = job
-    @job_metrics = []
+    @job = name
+    @job_contexts = []
     block.call
   ensure
-    $stdout.print(@metrics_type.unit)
-    if job.respond_to?(:loop_count) && job.loop_count
-      $stdout.print(" - #{humanize(job.loop_count)} times")
-      if @job_metrics.all? { |metrics| metrics.duration }
+    $stdout.print(@metrics.first.unit)
+    loop_count = @job_contexts.first.loop_count
+    if loop_count && @job_contexts.all? { |c| c.loop_count == loop_count }
+      $stdout.print(" - #{humanize(loop_count)} times")
+      if @job_contexts.all? { |context| !context.duration.nil? }
         $stdout.print(" in")
         show_durations
       end
@@ -65,28 +69,35 @@ class BenchmarkDriver::Output::Compare
     $stdout.puts
   end
 
-  # @param [BenchmarkDriver::Metrics] metrics
-  def report(metrics)
-    if defined?(@metrics_by_job)
-      @metrics_by_job[@current_job] << metrics
+  # @param [BenchmarkDriver::Context] context
+  def with_context(context, &block)
+    @context = context
+    @job_contexts << context
+    block.call
+  end
+
+  # @param [Float] value
+  # @param [BenchmarkDriver::Metric] metic
+  def report(value:, metric:)
+    if defined?(@job_context_values)
+      @job_context_values[@job][@context] << value
     end
 
-    @job_metrics << metrics
-    $stdout.print("#{humanize(metrics.value, [10, metrics.executable.name.length].max)} ")
+    $stdout.print("#{humanize(value, [10, @context.name.length].max)} ")
   end
 
   private
 
   def show_durations
-    @job_metrics.each do |metrics|
-      $stdout.print(' %3.6fs' % metrics.duration)
+    @job_contexts.each do |context|
+      $stdout.print(' %3.6fs' % context.duration)
     end
 
     # Show pretty seconds / clocks too. As it takes long width, it's shown only with a single executable.
-    if @job_metrics.size == 1
-      metrics = @job_metrics.first
-      sec = metrics.duration
-      iter = @current_job.loop_count
+    if @job_contexts.size == 1
+      context = @job_contexts.first
+      sec = context.duration
+      iter = context.loop_count
       if File.exist?('/proc/cpuinfo') && (clks = estimate_clock(sec, iter)) < 1_000
         $stdout.print(" (#{pretty_sec(sec, iter)}/i, #{clks}clocks/i)")
       else
@@ -148,16 +159,20 @@ class BenchmarkDriver::Output::Compare
 
   def compare_jobs
     $stdout.puts "\nComparison:"
-    results = @metrics_by_job.map { |job, metrics| Result.new(job: job, metrics: metrics.first) }
+    results = @job_context_values.flat_map do |job, context_values|
+      context_values.map { |context, values| Result.new(job: job, value: values.first, executable: context.executable) }
+    end
     show_results(results, show_executable: false)
   end
 
   def compare_executables
     $stdout.puts "\nComparison:"
 
-    @metrics_by_job.each do |job, metrics|
-      $stdout.puts("%#{NAME_LENGTH + 2 + 11}s" % job.name)
-      results = metrics.map { |metrics| Result.new(job: job, metrics: metrics) }
+    @job_context_values.each do |job, context_values|
+      $stdout.puts("%#{NAME_LENGTH + 2 + 11}s" % job)
+      results = context_values.flat_map do |context, values|
+        values.map { |value| Result.new(job: job, value: value, executable: context.executable) }
+      end
       show_results(results, show_executable: true)
     end
   end
@@ -166,32 +181,32 @@ class BenchmarkDriver::Output::Compare
   # @param [TrueClass,FalseClass] show_executable
   def show_results(results, show_executable:)
     results = results.sort_by do |result|
-      if @metrics_type.larger_better
-        -result.metrics.value
+      if @metrics.first.larger_better
+        -result.value
       else
-        result.metrics.value
+        result.value
       end
     end
 
     first = results.first
     results.each do |result|
       if result != first
-        if @metrics_type.larger_better
-          ratio = (first.metrics.value / result.metrics.value)
+        if @metrics.first.larger_better
+          ratio = (first.value / result.value)
         else
-          ratio = (result.metrics.value / first.metrics.value)
+          ratio = (result.value / first.value)
         end
-        slower = "- %.2fx  #{@metrics_type.worse_word}" % ratio
+        slower = "- %.2fx  #{@metrics.first.worse_word}" % ratio
       end
       if show_executable
-        name = result.metrics.executable.name
+        name = result.executable.name
       else
-        name = result.job.name
+        name = result.job
       end
-      $stdout.puts("%#{NAME_LENGTH}s: %11.1f %s #{slower}" % [name, result.metrics.value, @metrics_type.unit])
+      $stdout.puts("%#{NAME_LENGTH}s: %11.1f %s #{slower}" % [name, result.value, @metrics.first.unit])
     end
     $stdout.puts
   end
 
-  Result = ::BenchmarkDriver::Struct.new(:job, :metrics)
+  Result = ::BenchmarkDriver::Struct.new(:job, :value, :executable)
 end

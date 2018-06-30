@@ -1,14 +1,16 @@
 class BenchmarkDriver::Output::Record
-  # @param [BenchmarkDriver::Metrics::Type] metrics_type
-  attr_writer :metrics_type
+  # @param [Array<BenchmarkDriver::Metric>] metrics
+  attr_writer :metrics
 
-  # @param [Array<BenchmarkDriver::*::Job>] jobs
-  # @param [Array<BenchmarkDriver::Config::Executable>] executables
-  def initialize(jobs:, executables:)
-    @jobs = jobs
-    @executables = executables
-    @metrics_by_job = Hash.new do |h1, k1|
-      h1[k1] = Hash.new { |h2, k2| h2[k2] = [] }
+  # @param [Array<String>] job_names
+  # @param [Array<String>] context_names
+  def initialize(job_names:, context_names:)
+    @job_warmup_context_metric_value = Hash.new do |h1, k1|
+      h1[k1] = Hash.new do |h2, k2|
+        h2[k2] = Hash.new do |h3, k3|
+          h3[k3] = {}
+        end
+      end
     end
   end
 
@@ -29,20 +31,23 @@ class BenchmarkDriver::Output::Record
     save_record
   end
 
-  # @param [BenchmarkDriver::*::Job] job
+  # @param [BenchmarkDriver::Job] job
   def with_job(job, &block)
-    @current_job = job
+    @job = job.name
     block.call
   end
 
-  # @param [BenchmarkDriver::Metrics] metrics
-  def report(metrics)
+  # @param [BenchmarkDriver::Context] context
+  def with_context(context, &block)
+    @context = context
+    block.call
+  end
+
+  # @param [Float] value
+  # @param [BenchmarkDriver::Metric] metic
+  def report(value:, metric:)
     $stdout.print '.'
-    if @with_benchmark
-      @metrics_by_job[@current_job][:benchmark] << metrics
-    else
-      @metrics_by_job[@current_job][:warmup] << metrics
-    end
+    @job_warmup_context_metric_value[@job][!@with_benchmark][@context][metric] = value
   end
 
   private
@@ -51,8 +56,8 @@ class BenchmarkDriver::Output::Record
     jobs = @benchmark_metrics
     yaml = {
       'type' => 'recorded',
-      'metrics_by_job' => @metrics_by_job,
-      'metrics_type' => @metrics_type,
+      'job_warmup_context_metric_value' => @job_warmup_context_metric_value,
+      'metrics' => @metrics,
     }.to_yaml
     File.write('benchmark_driver.record.yml', yaml)
   end

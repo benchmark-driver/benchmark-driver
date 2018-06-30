@@ -6,18 +6,15 @@ class BenchmarkDriver::Runner::Time < BenchmarkDriver::Runner::Ips
   # Dynamically fetched and used by `BenchmarkDriver::JobParser.parse`
   JobParser = BenchmarkDriver::DefaultJobParser.for(Job)
 
-  METRICS_TYPE = BenchmarkDriver::Metrics::Type.new(unit: 's', larger_better: false)
+  METRIC = BenchmarkDriver::Metric.new(name: 'Execution time', unit: 's', larger_better: false)
 
-  # Overriding BenchmarkDriver::Runner::Ips#set_metrics_type
-  def set_metrics_type
-    @output.metrics_type = METRICS_TYPE
+  # Overriding BenchmarkDriver::Runner::Ips#metric
+  def metric
+    METRIC
   end
 
-  # Overriding BenchmarkDriver::Runner::Ips#build_metrics
-  def build_metrics(duration:, executable:, loop_count:)
-    BenchmarkDriver::Metrics.new(
-      value: duration,
-      executable: executable,
-    )
+  # Overriding BenchmarkDriver::Runner::Ips#value_duration
+  def value_duration(duration:, loop_count:)
+    [duration, duration]
   end
 end

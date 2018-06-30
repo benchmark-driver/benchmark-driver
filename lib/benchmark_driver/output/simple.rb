@@ -1,15 +1,14 @@
 class BenchmarkDriver::Output::Simple
   NAME_LENGTH = 8
 
-  # @param [BenchmarkDriver::Metrics::Type] metrics_type
-  attr_writer :metrics_type
+  # @param [Array<BenchmarkDriver::Metric>] metrics
+  attr_writer :metrics
 
-  # @param [Array<BenchmarkDriver::*::Job>] jobs
-  # @param [Array<BenchmarkDriver::Config::Executable>] executables
-  def initialize(jobs:, executables:)
-    @jobs = jobs
-    @executables = executables
-    @name_length = jobs.map { |j| j.name.size }.max
+  # @param [Array<String>] job_names
+  # @param [Array<String>] context_names
+  def initialize(job_names:, context_names:)
+    @context_names = context_names
+    @name_length = job_names.map(&:size).max
   end
 
   def with_warmup(&block)
@@ -25,13 +24,13 @@ class BenchmarkDriver::Output::Simple
     @with_benchmark = true
     without_stdout_buffering do
       # Show header
-      $stdout.puts "benchmark results (#{@metrics_type.unit}):"
+      $stdout.puts "#{@metrics.first.name} (#{@metrics.first.unit}):"
 
       # Show executable names
-      if @executables.size > 1
+      if @context_names.size > 1
         $stdout.print("#{' ' * @name_length}  ")
-        @executables.each do |executable|
-          $stdout.print("%#{NAME_LENGTH}s  " % executable.name)
+        @context_name.each do |context_name|
+          $stdout.print("%#{NAME_LENGTH}s  " % context_name)
         end
         $stdout.puts
       end
@@ -42,7 +41,7 @@ class BenchmarkDriver::Output::Simple
     @with_benchmark = false
   end
 
-  # @param [BenchmarkDriver::*::Job] job
+  # @param [BenchmarkDriver::Job] job
   def with_job(job, &block)
     if @with_benchmark
       $stdout.print("%-#{@name_length}s  " % job.name)
@@ -54,10 +53,16 @@ class BenchmarkDriver::Output::Simple
     end
   end
 
-  # @param [BenchmarkDriver::Metrics] metrics
-  def report(metrics)
+  # @param [BenchmarkDriver::Context] context
+  def with_context(context, &block)
+    block.call
+  end
+
+  # @param [Float] value
+  # @param [BenchmarkDriver::Metric] metic
+  def report(value:, metric:)
     if @with_benchmark
-      $stdout.print("%#{NAME_LENGTH}s  " % humanize(metrics.value))
+      $stdout.print("%#{NAME_LENGTH}s  " % humanize(value))
     else
       $stdout.print '.'
     end
