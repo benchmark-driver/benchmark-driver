@@ -62,7 +62,6 @@ module BenchmarkDriver
 
   Metrics = ::BenchmarkDriver::Struct.new(
     :value,      # @param [Float] - The main field of benchmark result
-    :executable, # @param [BenchmarkDriver::Config::Executable] - Measured Ruby executable
     :duration,   # @param [Float,nil] - Time taken to run the script (optional)
   )
 

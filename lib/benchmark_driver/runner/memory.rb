@@ -85,7 +85,6 @@ class BenchmarkDriver::Runner::Memory
 
     BenchmarkDriver::Metrics.new(
       value: Integer(match_data[:maxresident]) * 1000.0, # kilobytes -> bytes
-      executable: exec,
     )
   end
 

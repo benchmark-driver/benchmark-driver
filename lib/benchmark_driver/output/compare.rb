@@ -68,6 +68,7 @@ class BenchmarkDriver::Output::Compare
 
   # @param [BenchmarkDriver::Context] context
   def with_context(context, &block)
+    @context = context
     block.call
   end
 
@@ -78,7 +79,7 @@ class BenchmarkDriver::Output::Compare
     end
 
     @job_metrics << metrics
-    $stdout.print("#{humanize(metrics.value, [10, metrics.executable.name.length].max)} ")
+    $stdout.print("#{humanize(metrics.value, [10, @context.name.length].max)} ")
   end
 
   private

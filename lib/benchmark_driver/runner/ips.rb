@@ -77,14 +77,12 @@ class BenchmarkDriver::Runner::Ips
       second_warmup_duration: @config.run_duration / 3.0, # default: 1.0
     )
 
-    hash = Tempfile.open(['benchmark_driver-', '.rb']) do |f|
+    Tempfile.open(['benchmark_driver-', '.rb']) do |f|
       with_script(warmup.render(result: f.path)) do |path|
         execute(*exec.command, path)
       end
       eval(f.read)
     end
-
-    hash.merge(executable: exec)
   end
 
   # Return multiple times and return the best metrics
@@ -118,16 +116,14 @@ class BenchmarkDriver::Runner::Ips
     build_metrics(
       loop_count: job.loop_count,
       duration: duration,
-      executable: exec,
     )
   end
 
   # This method is overridden by BenchmarkDriver::Runner::Time
-  def build_metrics(duration:, executable:, loop_count:)
+  def build_metrics(duration:, loop_count:)
     BenchmarkDriver::Metrics.new(
       value: loop_count.to_f / duration,
       duration: duration,
-      executable: executable,
     )
   end
 

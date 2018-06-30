@@ -71,10 +71,7 @@ class BenchmarkDriver::Runner::CommandStdout
 
             @output.with_context(name: exec.name, executable: exec) do
               @output.report(
-                BenchmarkDriver::Metrics.new(
-                  value: best_value,
-                  executable: exec,
-                )
+                BenchmarkDriver::Metrics.new(value: best_value)
               )
             end
           end

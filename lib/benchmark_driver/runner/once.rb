@@ -67,7 +67,6 @@ class BenchmarkDriver::Runner::Once
     BenchmarkDriver::Metrics.new(
       value: 1.0 / duration,
       duration: duration,
-      executable: exec,
     )
   end
 
