@@ -46,16 +46,21 @@ class BenchmarkDriver::Output::Markdown
     @with_benchmark = false
   end
 
-  # @param [String] job_name
-  def with_job(job_name, &block)
+  # @param [String] name
+  def with_job(name:, &block)
     if @with_benchmark
-      $stdout.print("|%-#{@name_length}s  " % job_name)
+      $stdout.print("|%-#{@name_length}s  " % name)
     end
     block.call
   ensure
     if @with_benchmark
       $stdout.puts('|')
     end
+  end
+
+  # @param [BenchmarkDriver::Context] context
+  def with_context(context, &block)
+    block.call
   end
 
   # @param [BenchmarkDriver::Metrics] metrics

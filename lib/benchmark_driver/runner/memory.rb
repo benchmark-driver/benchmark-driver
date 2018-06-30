@@ -39,12 +39,14 @@ class BenchmarkDriver::Runner::Memory
 
     @output.with_benchmark do
       jobs.each do |job|
-        @output.with_job(job.name) do
+        @output.with_job(name: job.name) do
           job.runnable_execs(@config.executables).each do |exec|
             best_metrics = with_repeat(@config.repeat_count) do
               run_benchmark(job, exec: exec)
             end
-            @output.report(best_metrics)
+            @output.with_context(name: exec.name, executable: exec) do
+              @output.report(best_metrics)
+            end
           end
         end
       end

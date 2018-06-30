@@ -6,8 +6,12 @@ class BenchmarkDriver::Output::Record
   # @param [Array<BenchmarkDriver::Config::Executable>] executables
   def initialize(jobs:, executables:)
     @executables = executables
-    @metrics_by_job = Hash.new do |h1, k1|
-      h1[k1] = Hash.new { |h2, k2| h2[k2] = [] }
+    @job_warmup_context_metrics = Hash.new do |h1, k1|
+      h1[k1] = Hash.new do |h2, k2|
+        h2[k2] = Hash.new do |h3, k3|
+          h3[k3] = []
+        end
+      end
     end
   end
 
@@ -28,20 +32,22 @@ class BenchmarkDriver::Output::Record
     save_record
   end
 
-  # @param [String] job_name
-  def with_job(job_name, &block)
-    @current_job = job_name
+  # @param [String] name
+  def with_job(name:, &block)
+    @job = name
     block.call
   end
 
-  # @param [BenchmarkDriver::Metrics] metrics
-  def report(metrics)
+  # @param [BenchmarkDriver::Context] context
+  def with_context(context, &block)
+    @context = context
+    block.call
+  end
+
+  # @param [BenchmarkDriver::Metric] metric
+  def report(metric)
     $stdout.print '.'
-    if @with_benchmark
-      @metrics_by_job[@current_job][:benchmark] << metrics
-    else
-      @metrics_by_job[@current_job][:warmup] << metrics
-    end
+    @job_warmup_context_metrics[@job][!@with_benchmark][@context] << metric
   end
 
   private
@@ -50,7 +56,7 @@ class BenchmarkDriver::Output::Record
     jobs = @benchmark_metrics
     yaml = {
       'type' => 'recorded',
-      'metrics_by_job' => @metrics_by_job,
+      'job_warmup_context_metrics' => @job_warmup_context_metrics,
       'metrics_type' => @metrics_type,
     }.to_yaml
     File.write('benchmark_driver.record.yml', yaml)

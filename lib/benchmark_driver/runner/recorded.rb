@@ -8,20 +8,20 @@ class BenchmarkDriver::Runner::Recorded
   # JobParser returns this, `BenchmarkDriver::Runner.runner_for` searches "*::Job"
   Job = ::BenchmarkDriver::Struct.new(
     :name,              # @param [String] name - This is mandatory for all runner
-    :warmup_metrics,    # @param [Hash]
-    :benchmark_metrics, # @param [Hash]
+    :warmup_results,    # @param [Hash{ BenchmarkDriver::Context => Array<BenchmarkDriver::Metric> } }]
+    :benchmark_results, # @param [Hash{ BenchmarkDriver::Context => Array<BenchmarkDriver::Metric> } }]
     :metrics_type,      # @param [BenchmarkDriver::Metrics::Type]
   )
   # Dynamically fetched and used by `BenchmarkDriver::JobParser.parse`
   class << JobParser = Module.new
-    # @param [Hash] metrics_by_job
+    # @param [Hash{ String => Hash{ TrueClass,FalseClass => Hash{ BenchmarkDriver::Context => Array<BenchmarkDriver::Metrics> } } }] job_warmup_context_metrics
     # @param [BenchmarkDriver::Metrics::Type] metrics_type
-    def parse(metrics_by_job:, metrics_type:)
-      metrics_by_job.map do |job, metrics_hash|
+    def parse(job_warmup_context_metrics:, metrics_type:)
+      job_warmup_context_metrics.map do |job_name, warmup_context_metrics|
         Job.new(
-          name: job,
-          warmup_metrics: metrics_hash.fetch(:warmup, []),
-          benchmark_metrics: metrics_hash.fetch(:benchmark),
+          name: job_name,
+          warmup_results: warmup_context_metrics.fetch(true, {}),
+          benchmark_results: warmup_context_metrics.fetch(false, {}),
           metrics_type: metrics_type,
         )
       end
@@ -41,16 +41,21 @@ class BenchmarkDriver::Runner::Recorded
     @output.metrics_type = records.first.metrics_type
 
     records.each do |record|
-      unless record.warmup_metrics.empty?
+      unless record.warmup_results.empty?
         # TODO:
       end
     end
 
     @output.with_benchmark do
       records.each do |record|
-        @output.with_job(record.name) do
-          record.benchmark_metrics.each do |metrics|
-            @output.report(metrics)
+        @output.with_job(name: record.name) do
+          record.benchmark_results.each do |context, metrics|
+            @output.with_context(
+              name: context.name,
+              executable: context.executable,
+            ) do
+              metrics.each { |metric| @output.report(metric) }
+            end
           end
         end
       end

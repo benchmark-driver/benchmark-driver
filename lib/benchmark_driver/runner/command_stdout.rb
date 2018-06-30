@@ -57,7 +57,7 @@ class BenchmarkDriver::Runner::CommandStdout
 
     @output.with_benchmark do
       jobs.each do |job|
-        @output.with_job(job.name) do
+        @output.with_job(name: job.name) do
           @config.executables.each do |exec|
             best_value = with_repeat(metrics_type) do
               stdout = with_chdir(job.working_directory) do
@@ -69,12 +69,14 @@ class BenchmarkDriver::Runner::CommandStdout
               ).metrics_value
             end
 
-            @output.report(
-              BenchmarkDriver::Metrics.new(
-                value: best_value,
-                executable: exec,
+            @output.with_context(name: exec.name, executable: exec) do
+              @output.report(
+                BenchmarkDriver::Metrics.new(
+                  value: best_value,
+                  executable: exec,
+                )
               )
-            )
+            end
           end
         end
       end

@@ -25,8 +25,8 @@ module BenchmarkDriver
     :executable,  # @param [BenchmarkDriver::Config::Executable] - Measured Ruby executable
     :gems,        # @param [Hash{ String => String,nil }] - Gem -> version pairs used for the benchmark
     :prelude,     # @param [String,nil] - Context specific setup script (optional)
-    :duration,    # @param [Float,nil] - Time taken to run the benchmark job (optional)
-    :loop_count,  # @param [Float,nil] - Times to run the benchmark job (optional)
+    # :duration,    # @param [Float,nil] - Time taken to run the benchmark job (optional)
+    # :loop_count,  # @param [Float,nil] - Times to run the benchmark job (optional)
     :environment, # @param [Hash] - Any other key -> value pairs to express the benchmark context
     defaults: { gems: {}, environment: {} },
   )

@@ -1,10 +1,20 @@
 require 'forwardable'
 
 module BenchmarkDriver
-  # This is interface between runner plugin and output plugin, so that they can be loosely
-  # coupled and to simplify runner implementation by wrapping thins here instead.
-  #
   # BenchmarkDriver::Runner::* --> BenchmarkDriver::Output --> BenchmarkDriver::Output::*
+  #
+  # This is interface between runner plugin and output plugin, so that they can be loosely
+  # coupled and to simplify implementation of both runner and output.
+  #
+  # Runner should call its interface in the following manner:
+  #   with_warmup
+  #     with_job(name:)
+  #       with_context
+  #         report
+  #   with_benchmark
+  #     with_job(name:)
+  #       with_context
+  #         report
   class Output
     require 'benchmark_driver/output/compare'
     require 'benchmark_driver/output/markdown'
@@ -32,5 +42,12 @@ module BenchmarkDriver
     end
 
     def_delegators :@output, :metrics_type=, :with_warmup, :with_benchmark, :with_job, :report
+
+    def with_context(name:, executable:, &block)
+      context = BenchmarkDriver::Context.new(name: name, executable: executable)
+      @output.with_context(context) do
+        block.call
+      end
+    end
   end
 end

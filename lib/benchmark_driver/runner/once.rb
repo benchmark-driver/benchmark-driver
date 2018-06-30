@@ -32,10 +32,12 @@ class BenchmarkDriver::Runner::Once
 
     @output.with_benchmark do
       jobs.each do |job|
-        @output.with_job(job.name) do
+        @output.with_job(name: job.name) do
           job.runnable_execs(@config.executables).each do |exec|
             metrics = run_benchmark(job, exec: exec) # no repeat support
-            @output.report(metrics)
+            @output.with_context(name: exec.name, executable: exec) do
+              @output.report(metrics)
+            end
           end
         end
       end

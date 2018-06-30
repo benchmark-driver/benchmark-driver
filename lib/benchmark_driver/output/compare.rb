@@ -43,14 +43,14 @@ class BenchmarkDriver::Output::Compare
     end
   end
 
-  # @param [String] job_name
-  def with_job(job_name, &block)
-    if job_name.length > NAME_LENGTH
-      $stdout.puts(job_name)
+  # @param [String] name
+  def with_job(name:, &block)
+    if name
+      $stdout.puts(name)
     else
-      $stdout.print("%#{NAME_LENGTH}s" % job_name)
+      $stdout.print("%#{NAME_LENGTH}s" % name)
     end
-    @current_job = job_name
+    @current_job = name
     @job_metrics = []
     block.call
   ensure
@@ -63,6 +63,11 @@ class BenchmarkDriver::Output::Compare
     #   end
     # end
     $stdout.puts
+  end
+
+  # @param [BenchmarkDriver::Context] context
+  def with_context(context, &block)
+    block.call
   end
 
   # @param [BenchmarkDriver::Metrics] metrics
