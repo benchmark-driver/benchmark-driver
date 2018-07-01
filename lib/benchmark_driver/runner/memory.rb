@@ -31,8 +31,6 @@ class BenchmarkDriver::Runner::Memory
       raise "memory output is not supported for '#{Etc.uname[:sysname]}' for now"
     end
 
-    @output.metrics = [METRIC]
-
     if jobs.any? { |job| job.loop_count.nil? }
       jobs = jobs.map do |job|
         job.loop_count ? job : Job.new(job.to_h.merge(loop_count: 1))

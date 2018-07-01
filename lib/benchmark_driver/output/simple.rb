@@ -2,11 +2,10 @@ class BenchmarkDriver::Output::Simple
   NAME_LENGTH = 8
 
   # @param [Array<BenchmarkDriver::Metric>] metrics
-  attr_writer :metrics
-
   # @param [Array<String>] job_names
   # @param [Array<String>] context_names
-  def initialize(job_names:, context_names:)
+  def initialize(metrics:, job_names:, context_names:)
+    @metrics = metrics
     @context_names = context_names
     @name_length = job_names.map(&:size).max
   end

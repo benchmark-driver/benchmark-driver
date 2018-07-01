@@ -56,7 +56,6 @@ class BenchmarkDriver::Runner::CommandStdout
   # @param [Array<BenchmarkDriver::Default::Job>] jobs
   def run(jobs)
     metric = jobs.first.metrics.first
-    @output.metrics = [metric]
 
     @output.with_benchmark do
       jobs.each do |job|

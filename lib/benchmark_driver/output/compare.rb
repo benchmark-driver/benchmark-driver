@@ -3,11 +3,10 @@ class BenchmarkDriver::Output::Compare
   NAME_LENGTH = 20
 
   # @param [Array<BenchmarkDriver::Metric>] metrics
-  attr_writer :metrics
-
   # @param [Array<String>] job_names
   # @param [Array<String>] context_names
-  def initialize(job_names:, context_names:)
+  def initialize(metrics:, job_names:, context_names:)
+    @metrics = metrics
     @job_names = job_names
     @context_names = context_names
     @name_length = [job_names.map(&:length).max, NAME_LENGTH].max

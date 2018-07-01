@@ -24,8 +24,6 @@ class BenchmarkDriver::Runner::Once
   # This method is dynamically called by `BenchmarkDriver::JobRunner.run`
   # @param [Array<BenchmarkDriver::Default::Job>] jobs
   def run(jobs)
-    @output.metrics = [METRIC]
-
     jobs = jobs.map do |job|
       Job.new(job.to_h.merge(loop_count: 1)) # to show this on output
     end

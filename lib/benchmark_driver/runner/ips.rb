@@ -24,8 +24,6 @@ class BenchmarkDriver::Runner::Ips
   # This method is dynamically called by `BenchmarkDriver::JobRunner.run`
   # @param [Array<BenchmarkDriver::Default::Job>] jobs
   def run(jobs)
-    @output.metrics = [metric]
-
     if jobs.any? { |job| job.loop_count.nil? }
       @output.with_warmup do
         jobs = jobs.map do |job|

@@ -38,8 +38,6 @@ class BenchmarkDriver::Runner::Recorded
   # This method is dynamically called by `BenchmarkDriver::JobRunner.run`
   # @param [Array<BenchmarkDriver::Runner::Recorded::Job>] record
   def run(records)
-    @output.metrics = records.first.metrics
-
     records.each do |record|
       unless record.warmup_results.empty?
         # TODO:
