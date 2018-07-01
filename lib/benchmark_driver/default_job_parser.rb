@@ -1,14 +1,13 @@
 module BenchmarkDriver
   module DefaultJobParser
     # Build default JobParser for given job klass
-    def self.for(klass)
+    def self.for(klass:, metrics:)
       Module.new.tap do |parser|
         class << parser
           include DefaultJobParser
         end
-        parser.define_singleton_method(:job_class) do
-          klass
-        end
+        parser.define_singleton_method(:job_class) { klass }
+        parser.define_singleton_method(:job_metrics) { metrics }
       end
     end
 
@@ -21,6 +20,7 @@ module BenchmarkDriver
     # @return [Array<BenchmarkDriver::Default::Job>]
     def parse(prelude: nil, benchmark:, teardown: nil, loop_count: nil, required_ruby_version: nil)
       parse_benchmark(benchmark).each do |job|
+        job.metrics = job_metrics
         job.prelude.prepend("#{prelude}\n") if prelude
         job.teardown.prepend("#{teardown}\n") if teardown
         job.loop_count ||= loop_count

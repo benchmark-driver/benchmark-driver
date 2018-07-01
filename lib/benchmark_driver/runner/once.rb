@@ -7,12 +7,12 @@ require 'shellwords'
 
 # Run only once, for testing
 class BenchmarkDriver::Runner::Once
+  METRIC = BenchmarkDriver::Metric.new(name: 'Iteration per second', unit: 'i/s')
+
   # JobParser returns this, `BenchmarkDriver::Runner.runner_for` searches "*::Job"
   Job = Class.new(BenchmarkDriver::DefaultJob)
   # Dynamically fetched and used by `BenchmarkDriver::JobParser.parse`
-  JobParser = BenchmarkDriver::DefaultJobParser.for(Job)
-
-  METRIC = BenchmarkDriver::Metric.new(name: 'Iteration per second', unit: 'i/s')
+  JobParser = BenchmarkDriver::DefaultJobParser.for(klass: Job, metrics: [METRIC])
 
   # @param [BenchmarkDriver::Config::RunnerConfig] config
   # @param [BenchmarkDriver::Output] output
@@ -24,8 +24,6 @@ class BenchmarkDriver::Runner::Once
   # This method is dynamically called by `BenchmarkDriver::JobRunner.run`
   # @param [Array<BenchmarkDriver::Default::Job>] jobs
   def run(jobs)
-    @output.metrics = [METRIC]
-
     jobs = jobs.map do |job|
       Job.new(job.to_h.merge(loop_count: 1)) # to show this on output
     end
@@ -35,8 +33,8 @@ class BenchmarkDriver::Runner::Once
         @output.with_job(name: job.name) do
           job.runnable_execs(@config.executables).each do |exec|
             duration = run_benchmark(job, exec: exec) # no repeat support
-            @output.with_context(name: exec.name, executable: exec, duration: duration, loop_count: 1) do
-              @output.report(value: 1.0 / duration, metric: METRIC)
+            @output.with_context(name: exec.name, executable: exec) do
+              @output.report(values: { METRIC => 1.0 / duration }, duration: duration, loop_count: 1)
             end
           end
         end

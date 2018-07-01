@@ -7,14 +7,14 @@ require 'shellwords'
 
 # Max resident set size
 class BenchmarkDriver::Runner::Memory
-  # JobParser returns this, `BenchmarkDriver::Runner.runner_for` searches "*::Job"
-  Job = Class.new(BenchmarkDriver::DefaultJob)
-  # Dynamically fetched and used by `BenchmarkDriver::JobParser.parse`
-  JobParser = BenchmarkDriver::DefaultJobParser.for(Job)
-
   METRIC = BenchmarkDriver::Metric.new(
     name: 'Max resident set size', unit: 'bytes', larger_better: false, worse_word: 'larger',
   )
+
+  # JobParser returns this, `BenchmarkDriver::Runner.runner_for` searches "*::Job"
+  Job = Class.new(BenchmarkDriver::DefaultJob)
+  # Dynamically fetched and used by `BenchmarkDriver::JobParser.parse`
+  JobParser = BenchmarkDriver::DefaultJobParser.for(klass: Job, metrics: [METRIC])
 
   # @param [BenchmarkDriver::Config::RunnerConfig] config
   # @param [BenchmarkDriver::Output] output
@@ -31,8 +31,6 @@ class BenchmarkDriver::Runner::Memory
       raise "memory output is not supported for '#{Etc.uname[:sysname]}' for now"
     end
 
-    @output.metrics = [METRIC]
-
     if jobs.any? { |job| job.loop_count.nil? }
       jobs = jobs.map do |job|
         job.loop_count ? job : Job.new(job.to_h.merge(loop_count: 1))
@@ -46,8 +44,8 @@ class BenchmarkDriver::Runner::Memory
             value = BenchmarkDriver::Repeater.with_repeat(config: @config, larger_better: false) do
               run_benchmark(job, exec: exec)
             end
-            @output.with_context(name: exec.name, executable: exec, loop_count: job.loop_count) do
-              @output.report(value: value, metric: METRIC)
+            @output.with_context(name: exec.name, executable: exec) do
+              @output.report(values: { METRIC => value }, loop_count: job.loop_count)
             end
           end
         end

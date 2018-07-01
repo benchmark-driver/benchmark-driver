@@ -9,9 +9,9 @@ class BenchmarkDriver::Runner::CommandStdout
   # JobParser returns this, `BenchmarkDriver::Runner.runner_for` searches "*::Job"
   Job = ::BenchmarkDriver::Struct.new(
     :name,              # @param [String] name - This is mandatory for all runner
+    :metrics,           # @param [Array<BenchmarkDriver::Metric>]
     :command,           # @param [Array<String>]
     :working_directory, # @param [String,NilClass]
-    :metrics,           # @param [Array<BenchmarkDriver::Metric>]
     :stdout_to_metrics, # @param [String]
   )
   # Dynamically fetched and used by `BenchmarkDriver::JobParser.parse`
@@ -56,7 +56,6 @@ class BenchmarkDriver::Runner::CommandStdout
   # @param [Array<BenchmarkDriver::Default::Job>] jobs
   def run(jobs)
     metric = jobs.first.metrics.first
-    @output.metrics = [metric]
 
     @output.with_benchmark do
       jobs.each do |job|
@@ -73,7 +72,7 @@ class BenchmarkDriver::Runner::CommandStdout
             end
 
             @output.with_context(name: exec.name, executable: exec) do
-              @output.report(value: value, metric: metric)
+              @output.report(values: { metric => value })
             end
           end
         end

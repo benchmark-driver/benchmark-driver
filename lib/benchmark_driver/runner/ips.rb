@@ -7,12 +7,12 @@ require 'shellwords'
 
 # Show iteration per second.
 class BenchmarkDriver::Runner::Ips
+  METRIC = BenchmarkDriver::Metric.new(name: 'Iteration per second', unit: 'i/s')
+
   # JobParser returns this, `BenchmarkDriver::Runner.runner_for` searches "*::Job"
   Job = Class.new(BenchmarkDriver::DefaultJob)
   # Dynamically fetched and used by `BenchmarkDriver::JobParser.parse`
-  JobParser = BenchmarkDriver::DefaultJobParser.for(Job)
-
-  METRIC = BenchmarkDriver::Metric.new(name: 'Iteration per second', unit: 'i/s')
+  JobParser = BenchmarkDriver::DefaultJobParser.for(klass: Job, metrics: [METRIC])
 
   # @param [BenchmarkDriver::Config::RunnerConfig] config
   # @param [BenchmarkDriver::Output] output
@@ -24,8 +24,6 @@ class BenchmarkDriver::Runner::Ips
   # This method is dynamically called by `BenchmarkDriver::JobRunner.run`
   # @param [Array<BenchmarkDriver::Default::Job>] jobs
   def run(jobs)
-    @output.metrics = [metric]
-
     if jobs.any? { |job| job.loop_count.nil? }
       @output.with_warmup do
         jobs = jobs.map do |job|
@@ -36,8 +34,8 @@ class BenchmarkDriver::Runner::Ips
             duration, loop_count = run_warmup(job, exec: executable)
             value, duration = value_duration(duration: duration, loop_count: loop_count)
 
-            @output.with_context(name: executable.name, executable: executable, duration: duration, loop_count: loop_count) do
-              @output.report(value: value, metric: metric)
+            @output.with_context(name: executable.name, executable: executable) do
+              @output.report(values: { metric => value }, duration: duration, loop_count: loop_count)
             end
 
             loop_count = (loop_count.to_f * @config.run_duration / duration).floor
@@ -55,8 +53,8 @@ class BenchmarkDriver::Runner::Ips
             value, duration = BenchmarkDriver::Repeater.with_repeat(repeat_params) do
               run_benchmark(job, exec: exec)
             end
-            @output.with_context(name: exec.name, executable: exec, duration: duration) do
-              @output.report(value: value, metric: metric)
+            @output.with_context(name: exec.name, executable: exec) do
+              @output.report(values: { metric => value }, duration: duration, loop_count: job.loop_count)
             end
           end
         end

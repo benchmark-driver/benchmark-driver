@@ -8,12 +8,12 @@ module BenchmarkDriver
   #   metrics=
   #   with_warmup
   #     with_job(name:)
-  #       with_context(name:, executable:, duration: nil, loop_count: nil)
-  #         report(value:, metric:)
+  #       with_context(name:, executable:)
+  #         report(values:, duration: nil, loop_count: nil, environment: {})
   #   with_benchmark
   #     with_job(name:)
-  #       with_context(name:, executable:, duration: nil, loop_count: nil)
-  #         report(value:, metric:)
+  #       with_context(name:, executable:)
+  #         report(values:, duration: nil, loop_count: nil, environment: {})
   class Output
     require 'benchmark_driver/output/compare'
     require 'benchmark_driver/output/markdown'
@@ -24,9 +24,10 @@ module BenchmarkDriver
     # Create `BenchmarkDriver::Output::Foo` as benchmark_dirver-output-foo.gem and specify `-o foo`.
     #
     # @param [String] type
-    # @param [Array<String>] job_names
-    # @param [Array<String>] context_names
-    def initialize(type:, job_names:, context_names:)
+    # @param [Array<BenchmarkDriver::Metric>] metrics
+    # @param [Array<BenchmarkDriver::Job>] jobs
+    # @param [Array<BenchmarkDriver::Context>] contexts
+    def initialize(type:, metrics:, jobs:, contexts:)
       if type.include?(':')
         raise ArgumentError.new("Output type '#{type}' cannot contain ':'")
       end
@@ -35,8 +36,9 @@ module BenchmarkDriver
       camelized = type.split('_').map(&:capitalize).join
 
       @output = ::BenchmarkDriver::Output.const_get(camelized, false).new(
-        job_names: job_names,
-        context_names: context_names,
+        metrics: metrics,
+        jobs: jobs,
+        contexts: contexts,
       )
     end
 
@@ -65,10 +67,8 @@ module BenchmarkDriver
     # @param [BenchmarkDriver::Config::Executable] executable
     # @param [Float] duration
     # @param [Integer] loop_count
-    def with_context(name:, executable:, duration: nil, loop_count: nil, environment: {}, &block)
-      context = BenchmarkDriver::Context.new(
-        name: name, executable: executable, duration: duration, loop_count: loop_count, environment: environment,
-      )
+    def with_context(name:, executable:, &block)
+      context = BenchmarkDriver::Context.new(name: name, executable: executable)
       @output.with_context(context) do
         block.call
       end
@@ -76,8 +76,14 @@ module BenchmarkDriver
 
     # @param [Float] value
     # @param [BenchmarkDriver::Metric] metic
-    def report(value:, metric:)
-      @output.report(value: value, metric: metric)
+    def report(values:, duration: nil, loop_count: nil, environment: {})
+      result = BenchmarkDriver::Result.new(
+        values: values,
+        duration: duration,
+        loop_count: loop_count,
+        environment: environment,
+      )
+      @output.report(result)
     end
   end
 end

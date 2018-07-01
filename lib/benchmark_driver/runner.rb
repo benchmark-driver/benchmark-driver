@@ -28,15 +28,20 @@ module BenchmarkDriver
         verbose: config.verbose,
       )
 
-      jobs.group_by(&:class).each do |klass, jobs_group|
-        runner = runner_for(klass)
-        output = Output.new(
-          type: config.output_type,
-          job_names: jobs.map(&:name),
-          context_names: config.executables.map(&:name),
-        )
-        with_clean_env do
-          runner.new(config: runner_config, output: output).run(jobs)
+      jobs.group_by(&:class).each do |klass, klass_jobs|
+        klass_jobs.group_by(&:metrics).each do |metrics, metrics_jobs|
+          runner = runner_for(klass)
+          output = Output.new(
+            type: config.output_type,
+            metrics: metrics,
+            jobs: jobs.map { |job| BenchmarkDriver::Job.new(name: job.name) },
+            contexts: config.executables.map { |exec|
+              BenchmarkDriver::Context.new(name: exec.name, executable: exec)
+            },
+          )
+          with_clean_env do
+            runner.new(config: runner_config, output: output).run(metrics_jobs)
+          end
         end
       end
     end

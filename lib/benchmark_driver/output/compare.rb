@@ -3,14 +3,13 @@ class BenchmarkDriver::Output::Compare
   NAME_LENGTH = 20
 
   # @param [Array<BenchmarkDriver::Metric>] metrics
-  attr_writer :metrics
-
-  # @param [Array<String>] job_names
-  # @param [Array<String>] context_names
-  def initialize(job_names:, context_names:)
-    @job_names = job_names
-    @context_names = context_names
-    @name_length = [job_names.map(&:length).max, NAME_LENGTH].max
+  # @param [Array<BenchmarkDriver::Job>] jobs
+  # @param [Array<BenchmarkDriver::Context>] contexts
+  def initialize(metrics:, jobs:, contexts:)
+    @metrics = metrics
+    @job_names = jobs.map(&:name)
+    @context_names = contexts.map(&:name)
+    @name_length = [@job_names.map(&:length).max, NAME_LENGTH].max
   end
 
   def with_warmup(&block)
@@ -22,8 +21,8 @@ class BenchmarkDriver::Output::Compare
   end
 
   def with_benchmark(&block)
-    @job_context_values = Hash.new do |h1, k1|
-      h1[k1] = Hash.new { |h2, k2| h2[k2] = [] }
+    @job_context_result = Hash.new do |hash, job|
+      hash[job] = {}
     end
 
     without_stdout_buffering do
@@ -55,14 +54,15 @@ class BenchmarkDriver::Output::Compare
       $stdout.print("%#{@name_length}s" % name)
     end
     @job = name
+    @job_results = []
     @job_contexts = []
     block.call
   ensure
     $stdout.print(@metrics.first.unit)
-    loop_count = @job_contexts.first.loop_count
-    if loop_count && @job_contexts.all? { |c| c.loop_count == loop_count }
+    loop_count = @job_results.first.loop_count
+    if loop_count && @job_results.all? { |r| r.loop_count == loop_count }
       $stdout.print(" - #{humanize(loop_count)} times")
-      if @job_contexts.all? { |context| !context.duration.nil? }
+      if @job_results.all? { |result| !result.duration.nil? }
         $stdout.print(" in")
         show_durations
       end
@@ -77,28 +77,28 @@ class BenchmarkDriver::Output::Compare
     block.call
   end
 
-  # @param [Float] value
-  # @param [BenchmarkDriver::Metric] metic
-  def report(value:, metric:)
-    if defined?(@job_context_values)
-      @job_context_values[@job][@context] << value
+  # @param [BenchmarkDriver::Result] result
+  def report(result)
+    @job_results << result
+    if defined?(@job_context_result)
+      @job_context_result[@job][@context] = result
     end
 
-    $stdout.print("#{humanize(value, [10, @context.name.length].max)} ")
+    $stdout.print("#{humanize(result.values.values.first, [10, @context.name.length].max)} ")
   end
 
   private
 
   def show_durations
-    @job_contexts.each do |context|
-      $stdout.print(' %3.6fs' % context.duration)
+    @job_results.each do |result|
+      $stdout.print(' %3.6fs' % result.duration)
     end
 
     # Show pretty seconds / clocks too. As it takes long width, it's shown only with a single executable.
-    if @job_contexts.size == 1
-      context = @job_contexts.first
-      sec = context.duration
-      iter = context.loop_count
+    if @job_results.size == 1
+      result = @job_results.first
+      sec = result.duration
+      iter = result.loop_count
       if File.exist?('/proc/cpuinfo') && (clks = estimate_clock(sec, iter)) < 1_000
         $stdout.print(" (#{pretty_sec(sec, iter)}/i, #{clks}clocks/i)")
       else
@@ -160,8 +160,8 @@ class BenchmarkDriver::Output::Compare
 
   def compare_jobs
     $stdout.puts "\nComparison:"
-    results = @job_context_values.flat_map do |job, context_values|
-      context_values.map { |context, values| Result.new(job: job, value: values.first, executable: context.executable) }
+    results = @job_context_result.flat_map do |job, context_result|
+      context_result.map { |context, result| Result.new(job: job, value: result.values.values.first, executable: context.executable) }
     end
     show_results(results, show_executable: false)
   end
@@ -169,10 +169,10 @@ class BenchmarkDriver::Output::Compare
   def compare_executables
     $stdout.puts "\nComparison:"
 
-    @job_context_values.each do |job, context_values|
+    @job_context_result.each do |job, context_result|
       $stdout.puts("%#{@name_length + 2 + 11}s" % job)
-      results = context_values.flat_map do |context, values|
-        values.map { |value| Result.new(job: job, value: value, executable: context.executable) }
+      results = context_result.flat_map do |context, result|
+        result.values.values.map { |value| Result.new(job: job, value: value, executable: context.executable) }
       end
       show_results(results, show_executable: true)
     end

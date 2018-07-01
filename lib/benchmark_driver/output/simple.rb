@@ -2,13 +2,12 @@ class BenchmarkDriver::Output::Simple
   NAME_LENGTH = 8
 
   # @param [Array<BenchmarkDriver::Metric>] metrics
-  attr_writer :metrics
-
-  # @param [Array<String>] job_names
-  # @param [Array<String>] context_names
-  def initialize(job_names:, context_names:)
-    @context_names = context_names
-    @name_length = job_names.map(&:size).max
+  # @param [Array<BenchmarkDriver::Job>] jobs
+  # @param [Array<BenchmarkDriver::Context>] contexts
+  def initialize(metrics:, jobs:, contexts:)
+    @metrics = metrics
+    @context_names = contexts.map(&:name)
+    @name_length = jobs.map(&:name).map(&:size).max
   end
 
   def with_warmup(&block)
@@ -58,11 +57,10 @@ class BenchmarkDriver::Output::Simple
     block.call
   end
 
-  # @param [Float] value
-  # @param [BenchmarkDriver::Metric] metic
-  def report(value:, metric:)
+  # @param [BenchmarkDriver::Result] result
+  def report(result)
     if @with_benchmark
-      $stdout.print("%#{NAME_LENGTH}s  " % humanize(value))
+      $stdout.print("%#{NAME_LENGTH}s  " % humanize(result.values.fetch(@metrics.first)))
     else
       $stdout.print '.'
     end
