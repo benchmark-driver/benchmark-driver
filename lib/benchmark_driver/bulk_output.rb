@@ -22,7 +22,7 @@ module BenchmarkDriver
     # The main API you need to override if you make a class inherit `BenchmarkDriver::BulkOutput`.
     # @param [Hash{ BenchmarkDriver::Job => Hash{ BenchmarkDriver::Context => { BenchmarkDriver::Metric => Float } } }] result
     # @param [Array<BenchmarkDriver::Metric>] metrics
-    def bulk_output(result:, metrics:)
+    def bulk_output(job_context_result:, metrics:)
       raise NotImplementedError.new("#{self.class} must override #bulk_output")
     end
 
@@ -31,13 +31,11 @@ module BenchmarkDriver
     end
 
     def with_benchmark(&block)
-      @result = Hash.new do |h1, job|
-        h1[job] = Hash.new do |h2, context|
-          h2[context] = {}
-        end
+      @job_context_result = Hash.new do |hash, job|
+        hash[job] = {}
       end
       result = block.call
-      bulk_output(result: @result, metrics: @metrics)
+      bulk_output(job_context_result: @job_context_result, metrics: @metrics)
       result
     end
 
@@ -53,10 +51,9 @@ module BenchmarkDriver
       block.call
     end
 
-    # @param [Float] value
-    # @param [BenchmarkDriver::Metric] metic
-    def report(value:, metric:)
-      @result[@job][@context][metric] = value
+    # @param [BenchmarkDriver::Result] result
+    def report(result)
+      @job_context_result[@job][@context] = result
     end
   end
 end

@@ -14,14 +14,14 @@ class BenchmarkDriver::Runner::Recorded
   )
   # Dynamically fetched and used by `BenchmarkDriver::JobParser.parse`
   class << JobParser = Module.new
-    # @param [Hash{ String => Hash{ TrueClass,FalseClass => Hash{ BenchmarkDriver::Context => Hash{ BenchmarkDriver::Metric => Float } } } }] job_warmup_context_metric_value
+    # @param [Hash{ BenchmarkDriver::Job => Hash{ TrueClass,FalseClass => Hash{ BenchmarkDriver::Context => BenchmarkDriver::Result } } }] job_warmup_context_result
     # @param [BenchmarkDriver::Metrics::Type] metrics
-    def parse(job_warmup_context_metric_value:, metrics:)
-      job_warmup_context_metric_value.map do |job_name, warmup_context_values|
+    def parse(job_warmup_context_result:, metrics:)
+      job_warmup_context_result.map do |job, warmup_context_result|
         Job.new(
-          name: job_name,
-          warmup_results: warmup_context_values.fetch(true, {}),
-          benchmark_results: warmup_context_values.fetch(false, {}),
+          name: job.name,
+          warmup_results: warmup_context_result.fetch(true, {}),
+          benchmark_results: warmup_context_result.fetch(false, {}),
           metrics: metrics,
         )
       end
@@ -49,16 +49,14 @@ class BenchmarkDriver::Runner::Recorded
     @output.with_benchmark do
       records.each do |record|
         @output.with_job(name: record.name) do
-          record.benchmark_results.each do |context, metric_values|
-            @output.with_context(
-              name: context.name,
-              executable: context.executable,
-              duration: context.duration,
-              loop_count: context.loop_count,
-            ) do
-              metric_values.each do |metric, value|
-                @output.report(value: value, metric: metric)
-              end
+          record.benchmark_results.each do |context, result|
+            @output.with_context(name: context.name, executable: context.executable) do
+              @output.report(
+                values: result.values,
+                duration: result.duration,
+                loop_count: result.loop_count,
+                environment: result.environment,
+              )
             end
           end
         end

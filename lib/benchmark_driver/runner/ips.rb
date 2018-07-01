@@ -36,8 +36,8 @@ class BenchmarkDriver::Runner::Ips
             duration, loop_count = run_warmup(job, exec: executable)
             value, duration = value_duration(duration: duration, loop_count: loop_count)
 
-            @output.with_context(name: executable.name, executable: executable, duration: duration, loop_count: loop_count) do
-              @output.report(value: value, metric: metric)
+            @output.with_context(name: executable.name, executable: executable) do
+              @output.report(values: { metric => value }, duration: duration, loop_count: loop_count)
             end
 
             loop_count = (loop_count.to_f * @config.run_duration / duration).floor
@@ -55,8 +55,8 @@ class BenchmarkDriver::Runner::Ips
             value, duration = BenchmarkDriver::Repeater.with_repeat(repeat_params) do
               run_benchmark(job, exec: exec)
             end
-            @output.with_context(name: exec.name, executable: exec, duration: duration) do
-              @output.report(value: value, metric: metric)
+            @output.with_context(name: exec.name, executable: exec) do
+              @output.report(values: { metric => value }, duration: duration, loop_count: job.loop_count)
             end
           end
         end
