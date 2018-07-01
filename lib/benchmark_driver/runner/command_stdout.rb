@@ -9,9 +9,9 @@ class BenchmarkDriver::Runner::CommandStdout
   # JobParser returns this, `BenchmarkDriver::Runner.runner_for` searches "*::Job"
   Job = ::BenchmarkDriver::Struct.new(
     :name,              # @param [String] name - This is mandatory for all runner
+    :metrics,           # @param [Array<BenchmarkDriver::Metric>]
     :command,           # @param [Array<String>]
     :working_directory, # @param [String,NilClass]
-    :metrics,           # @param [Array<BenchmarkDriver::Metric>]
     :stdout_to_metrics, # @param [String]
   )
   # Dynamically fetched and used by `BenchmarkDriver::JobParser.parse`

@@ -7,14 +7,14 @@ require 'shellwords'
 
 # Max resident set size
 class BenchmarkDriver::Runner::Memory
-  # JobParser returns this, `BenchmarkDriver::Runner.runner_for` searches "*::Job"
-  Job = Class.new(BenchmarkDriver::DefaultJob)
-  # Dynamically fetched and used by `BenchmarkDriver::JobParser.parse`
-  JobParser = BenchmarkDriver::DefaultJobParser.for(Job)
-
   METRIC = BenchmarkDriver::Metric.new(
     name: 'Max resident set size', unit: 'bytes', larger_better: false, worse_word: 'larger',
   )
+
+  # JobParser returns this, `BenchmarkDriver::Runner.runner_for` searches "*::Job"
+  Job = Class.new(BenchmarkDriver::DefaultJob)
+  # Dynamically fetched and used by `BenchmarkDriver::JobParser.parse`
+  JobParser = BenchmarkDriver::DefaultJobParser.for(klass: Job, metrics: [METRIC])
 
   # @param [BenchmarkDriver::Config::RunnerConfig] config
   # @param [BenchmarkDriver::Output] output

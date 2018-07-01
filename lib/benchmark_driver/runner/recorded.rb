@@ -8,9 +8,9 @@ class BenchmarkDriver::Runner::Recorded
   # JobParser returns this, `BenchmarkDriver::Runner.runner_for` searches "*::Job"
   Job = ::BenchmarkDriver::Struct.new(
     :name,              # @param [String] name - This is mandatory for all runner
+    :metrics,           # @param [Array<BenchmarkDriver::Metric>]
     :warmup_results,    # @param [Hash{ BenchmarkDriver::Context => Array<BenchmarkDriver::Metric> } }]
     :benchmark_results, # @param [Hash{ BenchmarkDriver::Context => Array<BenchmarkDriver::Metric> } }]
-    :metrics,           # @param [Array<BenchmarkDriver::Metric>]
   )
   # Dynamically fetched and used by `BenchmarkDriver::JobParser.parse`
   class << JobParser = Module.new
