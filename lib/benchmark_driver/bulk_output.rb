@@ -18,7 +18,7 @@ module BenchmarkDriver
     end
 
     # The main API you need to override if you make a class inherit `BenchmarkDriver::BulkOutput`.
-    # @param [Hash{ BenchmarkDriver::Job => Hash{ BenchmarkDriver::Context => { BenchmarkDriver::Metric => Float } } }] result
+    # @param [Hash{ BenchmarkDriver::Job => Hash{ BenchmarkDriver::Context => BenchmarkDriver::Result } }] job_context_result
     # @param [Array<BenchmarkDriver::Metric>] metrics
     def bulk_output(job_context_result:, metrics:)
       raise NotImplementedError.new("#{self.class} must override #bulk_output")
