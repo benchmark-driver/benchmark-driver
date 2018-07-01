@@ -1,3 +1,9 @@
+# v0.12.0
+
+- [breaking change] Plugin interface is changed again
+- Fix bugs in a case that multiple YAMLs with different types are specified
+- Output plugin is now ensured to yield the same metrics
+
 # v0.11.1
 
 - Add `--repeat-result` option to return the best, the worst or an average result with `--repeat-count`
