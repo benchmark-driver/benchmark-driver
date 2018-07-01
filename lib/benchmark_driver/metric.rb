@@ -15,8 +15,7 @@ module BenchmarkDriver
 
   # Holding identifier of measured workload
   Job = ::BenchmarkDriver::Struct.new(
-    :name,    # @param [String] - Name of the benchmark task
-    :metrics, # @param [Array<BenchmarkDriver::Metric>] - Metrics which should be measured in this job
+    :name, # @param [String] - Name of the benchmark task
   )
 
   # Benchmark conditions that can be known before running benchmark

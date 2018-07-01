@@ -34,8 +34,10 @@ module BenchmarkDriver
           output = Output.new(
             type: config.output_type,
             metrics: metrics,
-            job_names: jobs.map(&:name),
-            context_names: config.executables.map(&:name),
+            jobs: jobs.map { |job| BenchmarkDriver::Job.new(name: job.name) },
+            contexts: config.executables.map { |exec|
+              BenchmarkDriver::Context.new(name: exec.name, executable: exec)
+            },
           )
           with_clean_env do
             runner.new(config: runner_config, output: output).run(metrics_jobs)

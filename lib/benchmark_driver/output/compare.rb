@@ -3,13 +3,13 @@ class BenchmarkDriver::Output::Compare
   NAME_LENGTH = 20
 
   # @param [Array<BenchmarkDriver::Metric>] metrics
-  # @param [Array<String>] job_names
-  # @param [Array<String>] context_names
-  def initialize(metrics:, job_names:, context_names:)
+  # @param [Array<BenchmarkDriver::Job>] jobs
+  # @param [Array<BenchmarkDriver::Context>] contexts
+  def initialize(metrics:, jobs:, contexts:)
     @metrics = metrics
-    @job_names = job_names
-    @context_names = context_names
-    @name_length = [job_names.map(&:length).max, NAME_LENGTH].max
+    @job_names = jobs.map(&:name)
+    @context_names = contexts.map(&:name)
+    @name_length = [@job_names.map(&:length).max, NAME_LENGTH].max
   end
 
   def with_warmup(&block)

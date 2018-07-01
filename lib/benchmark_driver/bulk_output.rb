@@ -10,9 +10,10 @@ module BenchmarkDriver
   # plugin class that inherits `BenchmarkDriver::BulkOutput`, which requires to override
   # only `#bulk_output` that takes all inputs at once.
   class BulkOutput
-    # @param [Array<String>] job_names
-    # @param [Array<String>] context_names
-    def initialize(metrics:, job_names:, context_names:)
+    # @param [Array<BenchmarkDriver::Metric>] metrics
+    # @param [Array<BenchmarkDriver::Job>] jobs
+    # @param [Array<BenchmarkDriver::Context>] contexts
+    def initialize(metrics:, jobs:, contexts:)
       @metrics = metrics
     end
 

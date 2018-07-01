@@ -25,9 +25,9 @@ module BenchmarkDriver
     #
     # @param [String] type
     # @param [Array<BenchmarkDriver::Metric>] metrics
-    # @param [Array<String>] job_names
-    # @param [Array<String>] context_names
-    def initialize(type:, metrics:, job_names:, context_names:)
+    # @param [Array<BenchmarkDriver::Job>] jobs
+    # @param [Array<BenchmarkDriver::Context>] contexts
+    def initialize(type:, metrics:, jobs:, contexts:)
       if type.include?(':')
         raise ArgumentError.new("Output type '#{type}' cannot contain ':'")
       end
@@ -37,8 +37,8 @@ module BenchmarkDriver
 
       @output = ::BenchmarkDriver::Output.const_get(camelized, false).new(
         metrics: metrics,
-        job_names: job_names,
-        context_names: context_names,
+        jobs: jobs,
+        contexts: contexts,
       )
     end
 

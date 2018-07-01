@@ -2,12 +2,12 @@ class BenchmarkDriver::Output::Simple
   NAME_LENGTH = 8
 
   # @param [Array<BenchmarkDriver::Metric>] metrics
-  # @param [Array<String>] job_names
-  # @param [Array<String>] context_names
-  def initialize(metrics:, job_names:, context_names:)
+  # @param [Array<BenchmarkDriver::Job>] jobs
+  # @param [Array<BenchmarkDriver::Context>] contexts
+  def initialize(metrics:, jobs:, contexts:)
     @metrics = metrics
-    @context_names = context_names
-    @name_length = job_names.map(&:size).max
+    @context_names = contexts.map(&:name)
+    @name_length = jobs.map(&:name).map(&:size).max
   end
 
   def with_warmup(&block)

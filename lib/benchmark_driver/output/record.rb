@@ -1,8 +1,8 @@
 class BenchmarkDriver::Output::Record
   # @param [Array<BenchmarkDriver::Metric>] metrics
-  # @param [Array<String>] job_names
-  # @param [Array<String>] context_names
-  def initialize(metrics:, job_names:, context_names:)
+  # @param [Array<BenchmarkDriver::Job>] jobs
+  # @param [Array<BenchmarkDriver::Context>] contexts
+  def initialize(metrics:, jobs:, contexts:)
     @metrics = metrics
     @job_warmup_context_result = Hash.new do |h1, job|
       h1[job] = Hash.new do |h2, warmup|
