@@ -4,12 +4,41 @@ require 'benchmark_driver/struct'
 module BenchmarkDriver
   # BenchmarkDriver returns benchmark results with the following nested Hash structure:
   # {
-  #   BenchmarkDriver::Job => {
-  #     BenchmarkDriver::Context => {
-  #       BenchmarkDriver::Metric => Float
-  #     }
+  #   #<BenchmarkDriver::Job> => {
+  #     #<BenchmarkDriver::Context> => #<BenchmarkDriver::Result
+  #       metrics: {
+  #         #<BenchmarkDriver::Metric> => Float
+  #       }
+  #     >
   #   }
   # }
+
+  # Holding identifier of measured workload
+  Job = ::BenchmarkDriver::Struct.new(
+    :name,    # @param [String] - Name of the benchmark task
+    :metrics, # @param [Array<BenchmarkDriver::Metric>] - Metrics which should be measured in this job
+  )
+
+  # Benchmark conditions that can be known before running benchmark
+  Context = ::BenchmarkDriver::Struct.new(
+    :name,        # @param [String] - Name of the context
+    :executable,  # @param [BenchmarkDriver::Config::Executable] - Measured Ruby executable
+    :gems,        # @param [Hash{ String => String,nil }] - Gem -> version pairs used for the benchmark
+    :prelude,     # @param [String,nil] - Context specific setup script (optional)
+    :duration,    # @param [Float,nil] - Time taken to run the benchmark job (optional) (DEPRECATED)
+    :loop_count,  # @param [Integer,nil] - Times to run the benchmark job (optional) (DEPRECATED)
+    :environment, # @param [Hash] - Any other key -> value pairs to express the benchmark context (DEPRECATED)
+    defaults: { gems: {}, environment: {} },
+  )
+
+  # Everything that can be known after running benchmark
+  Result = ::BenchmarkDriver::Struct.new(
+    :values,      # @param [Hash{ BenchmarkDriver::Metric => Float }] - Main benchmark results
+    :duration,    # @param [Float,nil] - Time taken to run the benchmark job (optional)
+    :loop_count,  # @param [Integer,nil] - Times to run the benchmark job (optional)
+    :environment, # @param [Hash] - Any other key -> value pairs to express the benchmark context
+    defaults: { environment: {} },
+  )
 
   # A kind of thing to be measured
   Metric = ::BenchmarkDriver::Struct.new(
@@ -20,41 +49,24 @@ module BenchmarkDriver
     defaults: { larger_better: true, worse_word: 'slower' },
   )
 
-  # Benchmark conditions used to measure a metric
-  Context = ::BenchmarkDriver::Struct.new(
-    :name,        # @param [String] - Name of the context
-    :executable,  # @param [BenchmarkDriver::Config::Executable] - Measured Ruby executable
-    :gems,        # @param [Hash{ String => String,nil }] - Gem -> version pairs used for the benchmark
-    :prelude,     # @param [String,nil] - Context specific setup script (optional)
-    :duration,    # @param [Float,nil] - Time taken to run the benchmark job (optional)
-    :loop_count,  # @param [Integer,nil] - Times to run the benchmark job (optional)
-    :environment, # @param [Hash] - Any other key -> value pairs to express the benchmark context
-    defaults: { gems: {}, environment: {} },
-  )
-
-  # Holding identifier of measured workload
-  Job = ::BenchmarkDriver::Struct.new(
-    :name, # @param [String] - Name of the benchmark task
-  )
-
-  #=[RubyBench mapping]=================================|
+  #=[RubyBench mapping]=======================================|
   #
   # BenchmarkRun:
-  #   result              -> { context.name => value }  | { "default"=>"44.666666666666664", "default_jit"=>"59.333333333333336" }
-  #   environment         -> context                    | "---\nRuby version: 'ruby 2.6.0dev (2018-05-14 trunk 63417) [x86_64-linux]\n\n'\nChecksum: '59662'\n"
-  #   initiator           -> (not supported)            | #<Commit sha1: "6f0de6ed9...", message: "error.c: check redefined ...", url: "https://github.com/tgxworld/ruby/commit/6f0de6ed98...", repo_id: 6>
+  #   result              -> { context.name => result.value } | { "default"=>"44.666666666666664", "default_jit"=>"59.333333333333336" }
+  #   environment         -> result.environment               | "---\nRuby version: 'ruby 2.6.0dev (2018-05-14 trunk 63417) [x86_64-linux]\n\n'\nChecksum: '59662'\n"
+  #   initiator           -> (not supported)                  | #<Commit sha1: "6f0de6ed9...", message: "error.c: check redefined ...", url: "https://github.com/tgxworld/ruby/commit/6f0de6ed98...", repo_id: 6>
   #
   #   BenchmarkType:
-  #     category          -> job.name                   | "app_erb", "Optcarrot Lan_Master.nes"
-  #     script_url        -> (not supported)            | "https://raw.githubusercontent.com/mame/optcarrot/master/lib/optcarrot/nes.rb"
-  #     repo              -> (not supported)            | #<Repo name: "ruby", url: "https://github.com/tgxworld/ruby">
-  #     repo.organization -> (not supported)            | #<Organization name: "ruby", url: "https://github.com/tgxworld/">
+  #     category          -> job.name                         | "app_erb", "Optcarrot Lan_Master.nes"
+  #     script_url        -> (not supported)                  | "https://raw.githubusercontent.com/mame/optcarrot/master/lib/optcarrot/nes.rb"
+  #     repo              -> (not supported)                  | #<Repo name: "ruby", url: "https://github.com/tgxworld/ruby">
+  #     repo.organization -> (not supported)                  | #<Organization name: "ruby", url: "https://github.com/tgxworld/">
   #
   #   BenchmarkResultType:
-  #     name              -> metric.name                | "Number of frames"
-  #     unit              -> metric.unit                | "fps"
+  #     name              -> metric.name                      | "Number of frames"
+  #     unit              -> metric.unit                      | "fps"
   #
-  #=====================================================|
+  #===========================================================|
 
   #----
   # legacy
