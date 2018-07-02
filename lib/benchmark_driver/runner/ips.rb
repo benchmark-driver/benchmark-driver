@@ -16,9 +16,11 @@ class BenchmarkDriver::Runner::Ips
 
   # @param [BenchmarkDriver::Config::RunnerConfig] config
   # @param [BenchmarkDriver::Output] output
-  def initialize(config:, output:)
+  # @param [BenchmarkDriver::Context] contexts
+  def initialize(config:, output:, contexts:)
     @config = config
     @output = output
+    @contexts = contexts
   end
 
   # This method is dynamically called by `BenchmarkDriver::JobRunner.run`
@@ -30,11 +32,11 @@ class BenchmarkDriver::Runner::Ips
           next job if job.loop_count # skip warmup if loop_count is set
 
           @output.with_job(name: job.name) do
-            executable = job.runnable_execs(@config.executables).first
-            duration, loop_count = run_warmup(job, exec: executable)
+            context = job.runnable_contexts(@contexts).first
+            duration, loop_count = run_warmup(job, context: context)
             value, duration = value_duration(duration: duration, loop_count: loop_count)
 
-            @output.with_context(name: executable.name, executable: executable) do
+            @output.with_context(name: context.name, executable: context.executable, gems: context.gems) do
               @output.report(values: { metric => value }, duration: duration, loop_count: loop_count)
             end
 
@@ -48,12 +50,12 @@ class BenchmarkDriver::Runner::Ips
     @output.with_benchmark do
       jobs.each do |job|
         @output.with_job(name: job.name) do
-          job.runnable_execs(@config.executables).each do |exec|
+          job.runnable_contexts(@contexts).each do |context|
             repeat_params = { config: @config, larger_better: true, rest_on_average: :average }
             value, duration = BenchmarkDriver::Repeater.with_repeat(repeat_params) do
-              run_benchmark(job, exec: exec)
+              run_benchmark(job, context: context)
             end
-            @output.with_context(name: exec.name, executable: exec) do
+            @output.with_context(name: context.name, executable: context.executable, gems: context.gems) do
               @output.report(values: { metric => value }, duration: duration, loop_count: job.loop_count)
             end
           end
@@ -65,10 +67,10 @@ class BenchmarkDriver::Runner::Ips
   private
 
   # @param [BenchmarkDriver::Runner::Ips::Job] job - loop_count is nil
-  # @param [BenchmarkDriver::Config::Executable] exec
-  def run_warmup(job, exec:)
+  # @param [BenchmarkDriver::Context] context
+  def run_warmup(job, context:)
     warmup = WarmupScript.new(
-      prelude:    job.prelude,
+      prelude:    "#{context.prelude}\n#{job.prelude}",
       script:     job.script,
       teardown:   job.teardown,
       loop_count: job.loop_count,
@@ -78,7 +80,7 @@ class BenchmarkDriver::Runner::Ips
 
     duration, loop_count = Tempfile.open(['benchmark_driver-', '.rb']) do |f|
       with_script(warmup.render(result: f.path)) do |path|
-        execute(*exec.command, path)
+        execute(*context.executable.command, path)
       end
       eval(f.read)
     end
@@ -87,11 +89,11 @@ class BenchmarkDriver::Runner::Ips
   end
 
   # @param [BenchmarkDriver::Runner::Ips::Job] job - loop_count is not nil
-  # @param [BenchmarkDriver::Config::Executable] exec
+  # @param [BenchmarkDriver::Context] context
   # @return [BenchmarkDriver::Metrics]
-  def run_benchmark(job, exec:)
+  def run_benchmark(job, context:)
     benchmark = BenchmarkScript.new(
-      prelude:    job.prelude,
+      prelude:    "#{context.prelude}\n#{job.prelude}",
       script:     job.script,
       teardown:   job.teardown,
       loop_count: job.loop_count,
@@ -99,7 +101,7 @@ class BenchmarkDriver::Runner::Ips
 
     duration = Tempfile.open(['benchmark_driver-', '.rb']) do |f|
       with_script(benchmark.render(result: f.path)) do |path|
-        execute(*exec.command, path)
+        execute(*context.executable.command, path)
       end
       Float(f.read)
     end

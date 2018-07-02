@@ -30,9 +30,11 @@ class BenchmarkDriver::Runner::Recorded
 
   # @param [BenchmarkDriver::Config::RunnerConfig] config
   # @param [BenchmarkDriver::Output] output
-  def initialize(config:, output:)
+  # @param [BenchmarkDriver::Context] contexts
+  def initialize(config:, output:, contexts:)
     @config = config
     @output = output
+    @contexts = contexts
   end
 
   # This method is dynamically called by `BenchmarkDriver::JobRunner.run`
@@ -48,7 +50,7 @@ class BenchmarkDriver::Runner::Recorded
       records.each do |record|
         @output.with_job(name: record.name) do
           record.benchmark_results.each do |context, result|
-            @output.with_context(name: context.name, executable: context.executable) do
+            @output.with_context(name: context.name, executable: context.executable, gems: context.gems) do
               @output.report(
                 values: result.values,
                 duration: result.duration,

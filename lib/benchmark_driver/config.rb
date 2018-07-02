@@ -25,7 +25,6 @@ module BenchmarkDriver
 
   # Subset of FullConfig passed to JobRunner
   Config::RunnerConfig = ::BenchmarkDriver::Struct.new(
-    :executables,   # @param [Array<BenchmarkDriver::Config::Executable>]
     :repeat_count,  # @param [Integer]
     :repeat_result, # @param [String]
     :run_duration,  # @param [Float]

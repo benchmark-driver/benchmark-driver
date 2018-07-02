@@ -47,9 +47,11 @@ class BenchmarkDriver::Runner::CommandStdout
 
   # @param [BenchmarkDriver::Config::RunnerConfig] config
   # @param [BenchmarkDriver::Output] output
-  def initialize(config:, output:)
+  # @param [BenchmarkDriver::Context] contexts
+  def initialize(config:, output:, contexts:)
     @config = config
     @output = output
+    @contexts = contexts
   end
 
   # This method is dynamically called by `BenchmarkDriver::JobRunner.run`
@@ -60,7 +62,8 @@ class BenchmarkDriver::Runner::CommandStdout
     @output.with_benchmark do
       jobs.each do |job|
         @output.with_job(name: job.name) do
-          @config.executables.each do |exec|
+          @contexts.each do |context|
+            exec = context.executable
             value = BenchmarkDriver::Repeater.with_repeat(config: @config, larger_better: metric.larger_better) do
               stdout = with_chdir(job.working_directory) do
                 with_ruby_prefix(exec) { execute(*exec.command, *job.command) }

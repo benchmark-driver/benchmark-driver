@@ -24,7 +24,7 @@ module BenchmarkDriver
     :executable,  # @param [BenchmarkDriver::Config::Executable] - Measured Ruby executable
     :gems,        # @param [Hash{ String => String,nil }] - Gem -> version pairs used for the benchmark
     :prelude,     # @param [String,nil] - Context specific setup script (optional)
-    defaults: { gems: {} },
+    defaults: { prelude: '', gems: {} },
   )
 
   # Everything that can be known after running benchmark

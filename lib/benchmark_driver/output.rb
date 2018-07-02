@@ -8,11 +8,11 @@ module BenchmarkDriver
   #   metrics=
   #   with_warmup
   #     with_job(name:)
-  #       with_context(name:, executable:)
+  #       with_context(name:, executable:, gems:)
   #         report(values:, duration: nil, loop_count: nil, environment: {})
   #   with_benchmark
   #     with_job(name:)
-  #       with_context(name:, executable:)
+  #       with_context(name:, executable:, gems:)
   #         report(values:, duration: nil, loop_count: nil, environment: {})
   class Output
     require 'benchmark_driver/output/compare'
@@ -65,10 +65,9 @@ module BenchmarkDriver
 
     # @param [String] name
     # @param [BenchmarkDriver::Config::Executable] executable
-    # @param [Float] duration
-    # @param [Integer] loop_count
-    def with_context(name:, executable:, &block)
-      context = BenchmarkDriver::Context.new(name: name, executable: executable)
+    # @param [Hash{ String => String}] gems
+    def with_context(name:, executable:, gems: {}, &block)
+      context = BenchmarkDriver::Context.new(name: name, executable: executable, gems: gems)
       @output.with_context(context) do
         block.call
       end

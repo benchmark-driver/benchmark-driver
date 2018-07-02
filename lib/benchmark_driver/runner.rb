@@ -21,32 +21,62 @@ module BenchmarkDriver
       end
 
       runner_config = Config::RunnerConfig.new(
-        executables: config.executables,
         repeat_count: config.repeat_count,
         repeat_result: config.repeat_result,
         run_duration: config.run_duration,
         verbose: config.verbose,
       )
 
-      jobs.group_by(&:class).each do |klass, klass_jobs|
-        klass_jobs.group_by(&:metrics).each do |metrics, metrics_jobs|
-          runner = runner_for(klass)
-          output = Output.new(
-            type: config.output_type,
-            metrics: metrics,
-            jobs: jobs.map { |job| BenchmarkDriver::Job.new(name: job.name) },
-            contexts: config.executables.map { |exec|
-              BenchmarkDriver::Context.new(name: exec.name, executable: exec)
-            },
-          )
-          with_clean_env do
-            runner.new(config: runner_config, output: output).run(metrics_jobs)
+      jobs.group_by{ |j| j.respond_to?(:contexts) && j.contexts }.each do |contexts, contexts_jobs|
+        contexts_jobs.group_by(&:metrics).each do |metrics, metrics_jobs|
+          metrics_jobs.group_by(&:class).each do |klass, klass_jobs|
+            runner = runner_for(klass)
+            contexts = build_contexts(contexts, executables: config.executables)
+            output = Output.new(
+              type: config.output_type,
+              metrics: metrics,
+              jobs: klass_jobs.map { |job| BenchmarkDriver::Job.new(name: job.name) },
+              contexts: contexts,
+            )
+            with_clean_env do
+              runner.new(config: runner_config, output: output, contexts: contexts).run(klass_jobs)
+            end
           end
         end
       end
     end
 
     private
+
+    def build_contexts(contexts, executables:)
+      # If contexts are not specified, just use executables as contexts.
+      if !contexts.is_a?(Array) || contexts.empty?
+        return executables.map { |exec|
+          BenchmarkDriver::Context.new(name: exec.name, executable: exec)
+        }
+      end
+
+      # Create direct product of contexts
+      contexts.product(executables).map do |context, executable|
+        name = context.name
+        if name.nil?
+          # Use the first gem name and version by default
+          name = context.gems.first.join(' ')
+
+          # Append Ruby executable name if it's matrix
+          if executables.size > 1
+            name = "#{name} (#{executable.name})"
+          end
+        end
+
+        BenchmarkDriver::Context.new(
+          name: name,
+          executable: executable,
+          gems: context.gems,
+          prelude: context.prelude,
+        )
+      end
+    end
 
     # Dynamically find class (BenchmarkDriver::*::JobRunner) for plugin support
     # @param [Class] klass - BenchmarkDriver::*::Job

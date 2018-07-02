@@ -1,0 +1,20 @@
+contexts:
+  - gems: { haml: 4.0.7 }
+    prelude: |
+      options = { escape_html: true, format: :html5, ugly: true }
+  - gems: { haml: 5.0.4 }
+    prelude: |
+      options = { escape_html: true, format: :html5 }
+      Haml::Options.buffer_defaults.merge!(escape_html: true)
+prelude: |
+  view = Struct.new(:header, :item).new
+  view.header = 'Colors'
+  view.item = [
+    { name: 'red',   current: true,  url: '#red'   },
+    { name: 'green', current: false, url: '#green' },
+    { name: 'blue',  current: false, url: '#blue'  },
+  ]
+  haml = File.read('spec/fixtures/haml/template.haml')
+  Haml::Engine.new(haml, options).def_method(view, :render)
+benchmark: view.render
+loop_count: 1000

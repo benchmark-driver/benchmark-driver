@@ -8,6 +8,9 @@ cache: bundler
 branches:
   only:
     - master
-before_install: gem install bundler -v 1.15.4
+before_install:
+  - gem install bundler -v 1.15.4
+  - gem install haml -v 4.0.7
+  - gem install haml -v 5.0.4
 script:
   - RSPEC_RETRIES=3 VERBOSE=1 bundle exec rake
