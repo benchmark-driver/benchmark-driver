@@ -25,7 +25,7 @@ class BenchmarkDriver::Output::Compare
       hash[job] = {}
     end
 
-    without_stdout_buffering do
+    result = without_stdout_buffering do
       $stdout.puts 'Calculating -------------------------------------'
       if @context_names.size > 1
         $stdout.print(' ' * @name_length)
@@ -37,12 +37,12 @@ class BenchmarkDriver::Output::Compare
 
       block.call
     end
-  ensure
     if @context_names.size > 1
       compare_executables
     elsif @job_names.size > 1
       compare_jobs
     end
+    result
   end
 
   # @param [BenchmarkDriver::Job] job
@@ -56,8 +56,7 @@ class BenchmarkDriver::Output::Compare
     @job = name
     @job_results = []
     @job_contexts = []
-    block.call
-  ensure
+    result = block.call
     $stdout.print(@metrics.first.unit)
     loop_count = @job_results.first.loop_count
     if loop_count && @job_results.all? { |r| r.loop_count == loop_count }
@@ -68,6 +67,7 @@ class BenchmarkDriver::Output::Compare
       end
     end
     $stdout.puts
+    result
   end
 
   # @param [BenchmarkDriver::Context] context
@@ -161,9 +161,9 @@ class BenchmarkDriver::Output::Compare
   def compare_jobs
     $stdout.puts "\nComparison:"
     results = @job_context_result.flat_map do |job, context_result|
-      context_result.map { |context, result| Result.new(job: job, value: result.values.values.first, executable: context.executable) }
+      context_result.map { |context, result| Result.new(job: job, value: result.values.values.first, context: context) }
     end
-    show_results(results, show_executable: false)
+    show_results(results, show_context: false)
   end
 
   def compare_executables
@@ -172,15 +172,15 @@ class BenchmarkDriver::Output::Compare
     @job_context_result.each do |job, context_result|
       $stdout.puts("%#{@name_length + 2 + 11}s" % job)
       results = context_result.flat_map do |context, result|
-        result.values.values.map { |value| Result.new(job: job, value: value, executable: context.executable) }
+        result.values.values.map { |value| Result.new(job: job, value: value, context: context) }
       end
-      show_results(results, show_executable: true)
+      show_results(results, show_context: true)
     end
   end
 
   # @param [Array<BenchmarkDriver::Output::Compare::Result>] results
-  # @param [TrueClass,FalseClass] show_executable
-  def show_results(results, show_executable:)
+  # @param [TrueClass,FalseClass] show_context
+  def show_results(results, show_context:)
     results = results.sort_by do |result|
       if @metrics.first.larger_better
         -result.value
@@ -199,8 +199,8 @@ class BenchmarkDriver::Output::Compare
         end
         slower = "- %.2fx  #{@metrics.first.worse_word}" % ratio
       end
-      if show_executable
-        name = result.executable.name
+      if show_context
+        name = result.context.name
       else
         name = result.job
       end
@@ -209,5 +209,5 @@ class BenchmarkDriver::Output::Compare
     $stdout.puts
   end
 
-  Result = ::BenchmarkDriver::Struct.new(:job, :value, :executable)
+  Result = ::BenchmarkDriver::Struct.new(:job, :value, :context)
 end

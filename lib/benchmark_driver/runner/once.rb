@@ -16,9 +16,11 @@ class BenchmarkDriver::Runner::Once
 
   # @param [BenchmarkDriver::Config::RunnerConfig] config
   # @param [BenchmarkDriver::Output] output
-  def initialize(config:, output:)
+  # @param [BenchmarkDriver::Context] contexts
+  def initialize(config:, output:, contexts:)
     @config = config
     @output = output
+    @contexts = contexts
   end
 
   # This method is dynamically called by `BenchmarkDriver::JobRunner.run`
@@ -31,9 +33,9 @@ class BenchmarkDriver::Runner::Once
     @output.with_benchmark do
       jobs.each do |job|
         @output.with_job(name: job.name) do
-          job.runnable_execs(@config.executables).each do |exec|
-            duration = run_benchmark(job, exec: exec) # no repeat support
-            @output.with_context(name: exec.name, executable: exec) do
+          job.runnable_contexts(@contexts).each do |context|
+            duration = run_benchmark(job, context: context) # no repeat support
+            @output.with_context(name: context.name, executable: context.executable, gems: context.gems) do
               @output.report(values: { METRIC => 1.0 / duration }, duration: duration, loop_count: 1)
             end
           end
@@ -45,11 +47,11 @@ class BenchmarkDriver::Runner::Once
   private
 
   # @param [BenchmarkDriver::Runner::Ips::Job] job - loop_count is not nil
-  # @param [BenchmarkDriver::Config::Executable] exec
+  # @param [BenchmarkDriver::Context] context
   # @return [Float] duration
-  def run_benchmark(job, exec:)
+  def run_benchmark(job, context:)
     benchmark = BenchmarkScript.new(
-      prelude:    job.prelude,
+      prelude:    "#{context.prelude}\n#{job.prelude}",
       script:     job.script,
       teardown:   job.teardown,
       loop_count: job.loop_count,
@@ -57,7 +59,7 @@ class BenchmarkDriver::Runner::Once
 
     Tempfile.open(['benchmark_driver-', '.rb']) do |f|
       with_script(benchmark.render(result: f.path)) do |path|
-        execute(*exec.command, path)
+        execute(*context.executable.command, path)
       end
       Float(f.read)
     end

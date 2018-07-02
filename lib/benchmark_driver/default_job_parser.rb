@@ -18,8 +18,9 @@ module BenchmarkDriver
     # @param [Integer] loop_count
     # @param [String] required_ruby_version
     # @return [Array<BenchmarkDriver::Default::Job>]
-    def parse(prelude: nil, benchmark:, teardown: nil, loop_count: nil, required_ruby_version: nil)
+    def parse(contexts: [], prelude: nil, benchmark:, teardown: nil, loop_count: nil, required_ruby_version: nil)
       parse_benchmark(benchmark).each do |job|
+        job.contexts = parse_contexts(contexts)
         job.metrics = job_metrics
         job.prelude.prepend("#{prelude}\n") if prelude
         job.teardown.prepend("#{teardown}\n") if teardown
@@ -65,6 +66,27 @@ module BenchmarkDriver
 
     def job_class
       raise NotImplementedError # override this
+    end
+
+    def parse_contexts(contexts)
+      if contexts.is_a?(Array)
+        contexts.map { |context| parse_context(context) }
+      else
+        raise ArgumentError.new("contexts must be Array, but got: #{contexts.inspect}")
+      end
+    end
+
+    def parse_context(name: nil, prelude: '', gems: {})
+      # Version lock with `Bundler.require`-like behavior (no `require: xxx` support yet)
+      gems.each do |gem, version|
+        prelude = "gem '#{gem}', '#{version}'\nrequire '#{gem}'\n#{prelude}"
+      end
+
+      BenchmarkDriver::Context.new(
+        name: name,
+        gems: gems,
+        prelude: prelude,
+      )
     end
   end
 end

@@ -1,5 +1,5 @@
 class BenchmarkDriver::Output::Simple
-  NAME_LENGTH = 8
+  NAME_LENGTH = 10
 
   # @param [Array<BenchmarkDriver::Metric>] metrics
   # @param [Array<BenchmarkDriver::Job>] jobs
@@ -28,7 +28,7 @@ class BenchmarkDriver::Output::Simple
       # Show executable names
       if @context_names.size > 1
         $stdout.print("#{' ' * @name_length}  ")
-        @context_name.each do |context_name|
+        @context_names.each do |context_name|
           $stdout.print("%#{NAME_LENGTH}s  " % context_name)
         end
         $stdout.puts
@@ -36,7 +36,7 @@ class BenchmarkDriver::Output::Simple
 
       block.call
     end
-  rescue
+  ensure
     @with_benchmark = false
   end
 

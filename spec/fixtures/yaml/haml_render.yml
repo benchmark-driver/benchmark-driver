@@ -15,5 +15,6 @@ prelude: |
     { name: 'blue',  current: false, url: '#blue'  },
   ]
   haml = File.read('spec/fixtures/haml/template.haml')
-  Haml::Engine.new(haml, options).def_method(view, :run_haml)
+  Haml::Engine.new(haml, options).def_method(view, :render)
 benchmark: view.render
+loop_count: 1000
