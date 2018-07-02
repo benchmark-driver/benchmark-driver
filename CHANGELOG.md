@@ -1,3 +1,8 @@
+# v0.13.0
+
+- Add support for benchmark with different versions of gems and preludes
+- [breaking change] Runner plugin interface is sightly changed
+
 # v0.12.0
 
 - [breaking change] Plugin interface is changed again
