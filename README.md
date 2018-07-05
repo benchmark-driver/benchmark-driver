@@ -170,7 +170,7 @@ end
 
 With following `blank_loop.yml`,
 
-```
+```yml
 loop_count: 20000000
 prelude: |
   class Array
