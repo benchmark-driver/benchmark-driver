@@ -196,7 +196,10 @@ File.write(#{result.dump}, [__bmdv_duration, __bmdv_loops].inspect)
       <<-RUBY
 #{prelude}
 
-if Process.respond_to?(:clock_gettime) # Ruby 2.1+
+if #{loop_count} == 1
+  __bmdv_empty_before = 0
+  __bmdv_empty_after = 0
+elsif Process.respond_to?(:clock_gettime) # Ruby 2.1+
   __bmdv_empty_before = Process.clock_gettime(Process::CLOCK_MONOTONIC)
   #{while_loop('', loop_count)}
   __bmdv_empty_after = Process.clock_gettime(Process::CLOCK_MONOTONIC)
@@ -230,6 +233,8 @@ File.write(
     def while_loop(content, times)
       if !times.is_a?(Integer) || times <= 0
         raise ArgumentError.new("Unexpected times: #{times.inspect}")
+      elsif times == 1
+        return content
       end
 
       # TODO: execute in batch
