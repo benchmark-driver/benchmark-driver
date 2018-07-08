@@ -1,3 +1,7 @@
+# v0.13.1
+
+- Respect a magic comment in `prelude`
+
 # v0.13.0
 
 - Add support for benchmark with different versions of gems and preludes
