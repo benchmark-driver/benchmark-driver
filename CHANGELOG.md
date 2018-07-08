@@ -1,3 +1,7 @@
+# v0.13.3
+
+- Support `require: false` in contexts to skip automatic requirement with a gem name
+
 # v0.13.2
 
 - Stop generating loop code with `loop_count: 1` on ips runner
