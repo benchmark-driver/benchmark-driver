@@ -1,3 +1,7 @@
+# v0.13.2
+
+- Stop generating loop code with `loop_count: 1` on ips runner
+
 # v0.13.1
 
 - Respect a magic comment in `prelude`
