@@ -70,7 +70,7 @@ class BenchmarkDriver::Runner::Ips
   # @param [BenchmarkDriver::Context] context
   def run_warmup(job, context:)
     warmup = WarmupScript.new(
-      prelude:    "#{context.prelude}\n#{job.prelude}",
+      preludes:   [context.prelude, job.prelude],
       script:     job.script,
       teardown:   job.teardown,
       loop_count: job.loop_count,
@@ -93,7 +93,7 @@ class BenchmarkDriver::Runner::Ips
   # @return [BenchmarkDriver::Metrics]
   def run_benchmark(job, context:)
     benchmark = BenchmarkScript.new(
-      prelude:    "#{context.prelude}\n#{job.prelude}",
+      preludes:   [context.prelude, job.prelude],
       script:     job.script,
       teardown:   job.teardown,
       loop_count: job.loop_count,
@@ -136,15 +136,16 @@ class BenchmarkDriver::Runner::Ips
   end
 
   def execute(*args)
-    IO.popen(args, &:read) # handle stdout?
+    stdout = IO.popen(args, &:read) # handle stdout?
     unless $?.success?
       raise "Failed to execute: #{args.shelljoin} (status: #{$?.exitstatus})"
     end
   end
 
-  WarmupScript = ::BenchmarkDriver::Struct.new(:prelude, :script, :teardown, :loop_count, :first_warmup_duration, :second_warmup_duration) do
+  WarmupScript = ::BenchmarkDriver::Struct.new(:preludes, :script, :teardown, :loop_count, :first_warmup_duration, :second_warmup_duration) do
     # @param [String] result - A file to write result
     def render(result:)
+      prelude = preludes.reject(&:nil?).reject(&:empty?).join("\n")
       <<-RUBY
 #{prelude}
 
@@ -188,9 +189,10 @@ File.write(#{result.dump}, [__bmdv_duration, __bmdv_loops].inspect)
   # @param [String] script
   # @param [String] teardown
   # @param [Integer] loop_count
-  BenchmarkScript = ::BenchmarkDriver::Struct.new(:prelude, :script, :teardown, :loop_count) do
+  BenchmarkScript = ::BenchmarkDriver::Struct.new(:preludes, :script, :teardown, :loop_count) do
     # @param [String] result - A file to write result
     def render(result:)
+      prelude = preludes.reject(&:nil?).reject(&:empty?).join("\n")
       <<-RUBY
 #{prelude}
 

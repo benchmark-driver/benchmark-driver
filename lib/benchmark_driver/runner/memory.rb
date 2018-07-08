@@ -62,7 +62,7 @@ class BenchmarkDriver::Runner::Memory
   # @return [BenchmarkDriver::Metrics]
   def run_benchmark(job, context:)
     benchmark = BenchmarkScript.new(
-      prelude:    "#{context.prelude}\n#{job.prelude}",
+      preludes:   [context.prelude, job.prelude],
       script:     job.script,
       teardown:   job.teardown,
       loop_count: job.loop_count,
@@ -103,8 +103,9 @@ class BenchmarkDriver::Runner::Memory
   # @param [String] script
   # @param [String] teardown
   # @param [Integer] loop_count
-  BenchmarkScript = ::BenchmarkDriver::Struct.new(:prelude, :script, :teardown, :loop_count) do
+  BenchmarkScript = ::BenchmarkDriver::Struct.new(:preludes, :script, :teardown, :loop_count) do
     def render
+      prelude = preludes.reject(&:nil?).reject(&:empty?).join("\n")
       <<-RUBY
 #{prelude}
 #{while_loop(script, loop_count)}
