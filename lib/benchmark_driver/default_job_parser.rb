@@ -76,10 +76,9 @@ module BenchmarkDriver
       end
     end
 
-    def parse_context(name: nil, prelude: '', gems: {})
-      # Version lock with `Bundler.require`-like behavior (no `require: xxx` support yet)
+    def parse_context(name: nil, prelude: '', gems: {}, require: true)
       gems.each do |gem, version|
-        prelude = "gem '#{gem}', '#{version}'\nrequire '#{gem}'\n#{prelude}"
+        prelude = "gem '#{gem}', '#{version}'\n#{("require '#{gem}'\n" if require)}#{prelude}"
       end
 
       BenchmarkDriver::Context.new(

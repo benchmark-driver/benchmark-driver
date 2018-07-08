@@ -1,6 +1,8 @@
 contexts:
   - gems: { haml: 4.0.7 }
+    require: false # not needed, but for testing
     prelude: |
+      require 'haml'
       options = { escape_html: true, format: :html5, ugly: true }
   - gems: { haml: 5.0.4 }
     prelude: |
