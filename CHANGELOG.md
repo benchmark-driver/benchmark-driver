@@ -2,6 +2,8 @@
 
 - [breaking change] Use ` `(space) to split Ruby arguments in `-e`/`--executables`/`--rbenv`
   - ex) `-e "/path/to/ruby --jit"` should be used instead of `-e "/path/to/ruby,--jit"`
+- [experimental] Return 0.0 as value when benchmark script fails on ips/time/memory/once runners
+  - Exit status is 0 for that case. `benchmark-driver` exits abnormaly only on its internal bug.
 
 # v0.13.3
 
