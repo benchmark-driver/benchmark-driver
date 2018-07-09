@@ -1,4 +1,4 @@
-# v0.14.0 (unreleased)
+# v0.14.0
 
 - `benchmark-driver` command also takes `*.rb` file to run single-execution benchmark
   - Non-`*.rb` filename is considered as YAML file as before
