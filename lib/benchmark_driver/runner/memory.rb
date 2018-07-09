@@ -68,14 +68,18 @@ class BenchmarkDriver::Runner::Memory
       loop_count: job.loop_count,
     )
 
-    output = with_script(benchmark.render) do |path|
-      execute('/usr/bin/time', *context.executable.command, path)
+    with_script(benchmark.render) do |path|
+      output = IO.popen(['/usr/bin/time', *context.executable.command, path], err: [:child, :out], &:read)
+      if $?.success?
+        match_data = /^(?<user>\d+.\d+)user\s+(?<system>\d+.\d+)system\s+(?<elapsed1>\d+):(?<elapsed2>\d+.\d+)elapsed.+\([^\s]+\s+(?<maxresident>\d+)maxresident\)k$/.match(output)
+        raise "Unexpected format given from /usr/bin/time:\n#{out}" unless match_data[:maxresident]
+
+        Integer(match_data[:maxresident]) * 1000.0 # kilobytes -> bytes
+      else
+        $stdout.print(output)
+        BenchmarkDriver::Result::ERROR
+      end
     end
-
-    match_data = /^(?<user>\d+.\d+)user\s+(?<system>\d+.\d+)system\s+(?<elapsed1>\d+):(?<elapsed2>\d+.\d+)elapsed.+\([^\s]+\s+(?<maxresident>\d+)maxresident\)k$/.match(output)
-    raise "Unexpected format given from /usr/bin/time:\n#{out}" unless match_data[:maxresident]
-
-    Integer(match_data[:maxresident]) * 1000.0 # kilobytes -> bytes
   end
 
   def with_script(script)
@@ -89,14 +93,6 @@ class BenchmarkDriver::Runner::Memory
       f.close
       return yield(f.path)
     end
-  end
-
-  def execute(*args)
-    output = IO.popen(args, err: [:child, :out], &:read) # handle stdout?
-    unless $?.success?
-      raise "Failed to execute: #{args.shelljoin} (status: #{$?.exitstatus})"
-    end
-    output
   end
 
   # @param [String] prelude

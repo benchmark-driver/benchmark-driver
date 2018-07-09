@@ -101,9 +101,13 @@ class BenchmarkDriver::Runner::Ips
 
     duration = Tempfile.open(['benchmark_driver-', '.rb']) do |f|
       with_script(benchmark.render(result: f.path)) do |path|
-        execute(*context.executable.command, path)
+        IO.popen([*context.executable.command, path], &:read) # TODO: print stdout if verbose=2
+        if $?.success?
+          Float(f.read)
+        else
+          BenchmarkDriver::Result::ERROR
+        end
       end
-      Float(f.read)
     end
 
     value_duration(
@@ -119,7 +123,11 @@ class BenchmarkDriver::Runner::Ips
 
   # Overridden by BenchmarkDriver::Runner::Time
   def value_duration(duration:, loop_count:)
-    [loop_count.to_f / duration, duration]
+    if duration == BenchmarkDriver::Result::ERROR
+      [BenchmarkDriver::Result::ERROR, BenchmarkDriver::Result::ERROR]
+    else
+      [loop_count.to_f / duration, duration]
+    end
   end
 
   def with_script(script)
@@ -136,7 +144,7 @@ class BenchmarkDriver::Runner::Ips
   end
 
   def execute(*args)
-    stdout = IO.popen(args, &:read) # handle stdout?
+    stdout = IO.popen(args, &:read) # TODO: print stdout if verbose=2
     unless $?.success?
       raise "Failed to execute: #{args.shelljoin} (status: #{$?.exitstatus})"
     end

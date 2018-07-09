@@ -35,8 +35,14 @@ class BenchmarkDriver::Runner::Once
         @output.with_job(name: job.name) do
           job.runnable_contexts(@contexts).each do |context|
             duration = run_benchmark(job, context: context) # no repeat support
+            if duration == BenchmarkDriver::Result::ERROR
+              value = BenchmarkDriver::Result::ERROR
+            else
+              value = 1.0 / duration
+            end
+
             @output.with_context(name: context.name, executable: context.executable, gems: context.gems) do
-              @output.report(values: { METRIC => 1.0 / duration }, duration: duration, loop_count: 1)
+              @output.report(values: { METRIC => value }, duration: duration, loop_count: 1)
             end
           end
         end
@@ -59,9 +65,13 @@ class BenchmarkDriver::Runner::Once
 
     Tempfile.open(['benchmark_driver-', '.rb']) do |f|
       with_script(benchmark.render(result: f.path)) do |path|
-        execute(*context.executable.command, path)
+        IO.popen([*context.executable.command, path], &:read) # TODO: print stdout if verbose=2
+        if $?.success?
+          Float(f.read)
+        else
+          BenchmarkDriver::Result::ERROR
+        end
       end
-      Float(f.read)
     end
   end
 

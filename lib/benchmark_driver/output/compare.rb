@@ -116,7 +116,9 @@ class BenchmarkDriver::Output::Compare
   end
 
   def humanize(value, width = 10)
-    if value <= 0
+    if value == BenchmarkDriver::Result::ERROR
+      return " %#{width}s" % 'ERROR'
+    elsif value < 0
       raise ArgumentError.new("Non positive value: #{value.inspect}")
     end
 
