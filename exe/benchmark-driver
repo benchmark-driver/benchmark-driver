@@ -11,7 +11,7 @@ config = BenchmarkDriver::Config.new.tap do |c|
   executables = []
   bundler = false
   parser = OptionParser.new do |o|
-    o.banner = "Usage: #{File.basename($0, '.*')} [options] [YAML]"
+    o.banner = "Usage: #{File.basename($0, '.*')} [options] [YAML|RUBY]"
     o.on('-r', '--runner [TYPE]', 'Specify runner type: ips, time, memory, once (default: ips)') do |d|
       abort '-r, --runner must take argument but not given' if d.nil?
       c.runner_type = d
@@ -86,8 +86,17 @@ end
 
 # Parse benchmark job definitions
 jobs = config.paths.flat_map do |path|
-  job = YAML.load(File.read(path))
-  job = { 'type' => config.runner_type }.merge!(job)
+  job = { 'type' => config.runner_type }
+
+  # Treat *.rb as a single-execution benchmark, others are considered as YAML definition
+  if path.end_with?('.rb')
+    name = File.basename(path).sub(/\.rb\z/, '')
+    script = File.read(path)
+    prelude = script.slice!(/\A(^#[^\n]+\n)+/m) || '' # preserve magic comment
+    job.merge!('prelude' => prelude, 'benchmark' => { name => script }, 'loop_count' => 1)
+  else
+    job.merge!(YAML.load_file(path))
+  end
 
   begin
     # `working_directory` is YAML-specific special parameter, mainly for "command_stdout"

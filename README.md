@@ -70,16 +70,17 @@ With `benchmark-driver` command, you can describe benchmark with YAML input.
 
 ```
 $ benchmark-driver -h
-Usage: benchmark-driver [options] [YAML]
+Usage: benchmark-driver [options] [YAML|RUBY]
     -r, --runner [TYPE]              Specify runner type: ips, time, memory, once (default: ips)
     -o, --output [TYPE]              Specify output type: compare, simple, markdown, record (default: compare)
     -e, --executables [EXECS]        Ruby executables (e1::path1,arg1,...; e2::path2,arg2;...)
         --rbenv [VERSIONS]           Ruby executables in rbenv (x.x.x,arg1,...;y.y.y,arg2,...;...)
-        --repeat-count [NUM]         Try benchmark NUM times and use the fastest result (TODO)
+        --repeat-count [NUM]         Try benchmark NUM times and use the fastest result or the worst memory usage
+        --repeat-result [TYPE]       Yield "best", "average" or "worst" result with --repeat-count (default: best)
         --bundler                    Install and use gems specified in Gemfile
         --filter [REGEXP]            Filter out benchmarks with given regexp
-        --verbose [LEVEL]            Show some verbose outputs: 0, 1, 2 (default: 0)
         --run-duration [SECONDS]     Warmup estimates loop_count to run for this duration (default: 3)
+    -v, --verbose                    Verbose mode. Multiple -v options increase visilibity (max: 2)
 ```
 
 #### Running single script

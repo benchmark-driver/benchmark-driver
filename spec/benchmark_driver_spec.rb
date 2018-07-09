@@ -47,4 +47,13 @@ describe 'benchmark-driver command' do
     benchmark_driver fixture_yaml('blank_hash.yml'), '-r', 'ips', '-o', 'compare', '--run-duration', '0.1',
       '--repeat-count', '2', '--repeat-result', 'average'
   end
+
+  it 'runs a Ruby script as single-execution benchmark' do
+    Tempfile.open(['benchmark_driver-spec', '.rb']) do |f|
+      f.puts "# hello"
+      f.puts "100000.times { 3 * 3 }"
+      f.close
+      benchmark_driver f.path, '-v'
+    end
+  end
 end

@@ -1,5 +1,7 @@
-# unreleased
+# v0.14.0 (unreleased)
 
+- `benchmark-driver` command also takes `*.rb` file to run single-execution benchmark
+  - Non-`*.rb` filename is considered as YAML file as before
 - [breaking change] `--verbose` no longer takes LEVEL argument
   - Added `-v` for `-v`/`-vv` instead of `--verbose 1` and `--verbose 2`.
   - `--verbose --verbose` can also be used instead of `--verbose 2` if you want.
