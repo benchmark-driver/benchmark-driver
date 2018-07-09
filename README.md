@@ -363,16 +363,16 @@ If you benchmark can run with `ruby foo bar`, specify `foo bar` to `command:`.
 Then write `stdout_to_metrics:` to convert stdout to metrics. This runner can be used only with YAML interface for now.
 
 ```
-$ benchmark-driver benchmark.yml --verbose 1 --rbenv '2.6.0-dev;2.6.0-dev,--jit'
+$ benchmark-driver benchmark.yml --verbose 1 --rbenv '2.6.0-dev;2.6.0-dev --jit'
 2.6.0-dev: ruby 2.6.0dev (2018-03-21 trunk 62870) [x86_64-linux]
-2.6.0-dev,--jit: ruby 2.6.0dev (2018-03-21 trunk 62870) +JIT [x86_64-linux]
+2.6.0-dev --jit: ruby 2.6.0dev (2018-03-21 trunk 62870) +JIT [x86_64-linux]
 Calculating -------------------------------------
-                      2.6.0-dev  2.6.0-dev,--jit
+                      2.6.0-dev  2.6.0-dev --jit
            optcarrot     51.866           67.445 fps
 
 Comparison:
                         optcarrot
-     2.6.0-dev,--jit:        67.4 fps
+     2.6.0-dev --jit:        67.4 fps
            2.6.0-dev:        51.9 fps - 1.30x  slower
 ```
 

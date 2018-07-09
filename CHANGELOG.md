@@ -1,3 +1,8 @@
+# unreleased
+
+- [breaking change] Use ` `(space) to split Ruby arguments in `-e`/`--executables`/`--rbenv`
+  - ex) `-e "/path/to/ruby --jit"` should be used instead of `-e "/path/to/ruby,--jit"`
+
 # v0.13.3
 
 - Support `require: false` in contexts to skip automatic requirement with a gem name

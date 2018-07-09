@@ -1,3 +1,5 @@
+require 'shellwords'
+
 module BenchmarkDriver
   module Rbenv
     # @param [String] version
@@ -13,7 +15,7 @@ module BenchmarkDriver
     def self.parse_spec(full_spec)
       name, spec = full_spec.split('::', 2)
       spec ||= name # if `::` is not given, regard whole string as spec
-      version, *args = spec.split(',')
+      version, *args = spec.shellsplit
       BenchmarkDriver::Config::Executable.new(
         name: name,
         command: [BenchmarkDriver::Rbenv.ruby_path(version), *args],

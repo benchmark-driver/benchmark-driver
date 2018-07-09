@@ -3,6 +3,7 @@ $:.unshift File.expand_path('../lib', __dir__)
 
 require 'benchmark_driver'
 require 'optparse'
+require 'shellwords'
 require 'yaml'
 
 # Parse command line options
@@ -24,7 +25,7 @@ config = BenchmarkDriver::Config.new.tap do |c|
       e.split(';').each do |name_path|
         name, path = name_path.split('::', 2)
         path ||= name # if `::` is not given, regard whole string as path
-        command = path.split(',')
+        command = path.shellsplit
         command[0] = File.expand_path(command[0])
         executables << BenchmarkDriver::Config::Executable.new(name: name, command: command)
       end
