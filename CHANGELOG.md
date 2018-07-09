@@ -1,5 +1,8 @@
 # unreleased
 
+- [breaking change] `--verbose` no longer takes LEVEL argument
+  - Added `-v` for `-v`/`-vv` instead of `--verbose 1` and `--verbose 2`.
+  - `--verbose --verbose` can also be used instead of `--verbose 2` if you want.
 - [breaking change] Use ` `(space) to split Ruby arguments in `-e`/`--executables`/`--rbenv`
   - ex) `-e "/path/to/ruby --jit"` should be used instead of `-e "/path/to/ruby,--jit"`
 - [experimental] Return 0.0 as value when benchmark script fails on ips/time/memory/once runners
