@@ -77,7 +77,9 @@ class BenchmarkDriver::Output::Simple
   end
 
   def humanize(value)
-    if value < 0
+    if value == BenchmarkDriver::Result::ERROR
+      return 'ERROR'
+    elsif value < 0
       raise ArgumentError.new("Negative value: #{value.inspect}")
     end
 
