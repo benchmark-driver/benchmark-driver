@@ -53,7 +53,13 @@ describe 'benchmark-driver command' do
       f.puts "# hello"
       f.puts "100000.times { 3 * 3 }"
       f.close
-      benchmark_driver f.path, '-v'
+      begin
+        orig = $stderr
+        $stderr = StringIO.new
+        benchmark_driver f.path, '-v'
+      ensure
+        $stderr = orig
+      end
     end
   end
 end
