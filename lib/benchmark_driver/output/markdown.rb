@@ -91,7 +91,7 @@ class BenchmarkDriver::Output::Markdown
     end
 
     scale = (Math.log10(value) / 3).to_i
-    prefix = "%6.3f" % (value.to_f / (1000 ** scale))
+    prefix = "%#{NAME_LENGTH}.3f" % (value.to_f / (1000 ** scale))
     suffix =
       case scale
       when 1; 'k'
@@ -100,7 +100,6 @@ class BenchmarkDriver::Output::Markdown
       when 4; 'T'
       when 5; 'Q'
       else # < 1000 or > 10^15, no scale or suffix
-        scale = 0
         return " #{prefix}"
       end
     "#{prefix}#{suffix}"

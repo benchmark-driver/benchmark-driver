@@ -136,7 +136,6 @@ class BenchmarkDriver::Output::Compare
       when 4; 'T'
       when 5; 'Q'
       else # < 1000 or > 10^15, no scale or suffix
-        scale = 0
         return " #{prefix}"
       end
     "#{prefix}#{suffix}"
