@@ -11,17 +11,14 @@ config = BenchmarkDriver::Config.new.tap do |c|
   executables = []
   bundler = false
   parser = OptionParser.new do |o|
-    o.banner = "Usage: #{File.basename($0, '.*')} [options] [YAML|RUBY]"
-    o.on('-r', '--runner [TYPE]', 'Specify runner type: ips, time, memory, once (default: ips)') do |d|
-      abort '-r, --runner must take argument but not given' if d.nil?
+    o.banner = "Usage: #{File.basename($0, '.*')} [options] RUBY|YAML..."
+    o.on('-r', '--runner TYPE', String, 'Specify runner type: ips, time, memory, once (default: ips)') do |d|
       c.runner_type = d
     end
-    o.on('-o', '--output [TYPE]', 'Specify output type: compare, simple, markdown, record (default: compare)') do |out|
-      abort '-o, --output must take argument but not given' if out.nil?
+    o.on('-o', '--output TYPE', String, 'Specify output type: compare, simple, markdown, record (default: compare)') do |out|
       c.output_type = out
     end
-    o.on('-e', '--executables [EXECS]', 'Ruby executables (e1::path1,arg1,...; e2::path2,arg2;...)') do |e|
-      abort '--executable must take argument but not given' if e.nil?
+    o.on('-e', '--executables EXECS', String, 'Ruby executables (e1::path1,arg1,...; e2::path2,arg2;...)') do |e|
       e.split(';').each do |name_path|
         name, path = name_path.split('::', 2)
         path ||= name # if `::` is not given, regard whole string as path
@@ -30,20 +27,15 @@ config = BenchmarkDriver::Config.new.tap do |c|
         executables << BenchmarkDriver::Config::Executable.new(name: name, command: command)
       end
     end
-    o.on('--rbenv [VERSIONS]', 'Ruby executables in rbenv (x.x.x,arg1,...;y.y.y,arg2,...;...)') do |r|
-      abort '--rbenv must take argument but not given' if r.nil?
+    o.on('--rbenv VERSIONS', String, 'Ruby executables in rbenv (x.x.x,arg1,...;y.y.y,arg2,...;...)') do |r|
       r.split(';').each do |version|
         executables << BenchmarkDriver::Rbenv.parse_spec(version)
       end
     end
-    o.on('--repeat-count [NUM]', 'Try benchmark NUM times and use the fastest result or the worst memory usage') do |v|
-      begin
-        c.repeat_count = Integer(v)
-      rescue ArgumentError
-        abort "-r, --repeat-count must take Integer, but got #{v.inspect}"
-      end
+    o.on('--repeat-count NUM', Integer, 'Try benchmark NUM times and use the fastest result or the worst memory usage') do |v|
+      c.repeat_count = v
     end
-    o.on('--repeat-result [TYPE]', 'Yield "best", "average" or "worst" result with --repeat-count (default: best)') do |v|
+    o.on('--repeat-result TYPE', String, 'Yield "best", "average" or "worst" result with --repeat-count (default: best)') do |v|
       unless BenchmarkDriver::Repeater::VALID_TYPES.include?(v)
         raise ArgumentError.new("--repeat-result must be #{BenchmarkDriver::Repeater::VALID_TYPES.join(', ')} but got #{v.inspect}")
       end
@@ -52,21 +44,21 @@ config = BenchmarkDriver::Config.new.tap do |c|
     o.on('--bundler', 'Install and use gems specified in Gemfile') do |v|
       bundler = v
     end
-    o.on('--filter [REGEXP]', 'Filter out benchmarks with given regexp') do |v|
+    o.on('--filter REGEXP', String, 'Filter out benchmarks with given regexp') do |v|
       c.filters << Regexp.compile(v)
     end
-    o.on('--run-duration [SECONDS]', 'Warmup estimates loop_count to run for this duration (default: 3)') do |v|
-      begin
-        c.run_duration = Float(v)
-      rescue ArgumentError
-        abort "--run-duration must take Float, but got #{v.inspect}"
-      end
+    o.on('--run-duration SECONDS', Float, 'Warmup estimates loop_count to run for this duration (default: 3)') do |v|
+      c.run_duration = v
     end
     o.on('-v', '--verbose', 'Verbose mode. Multiple -v options increase visilibity (max: 2)') do |v|
       c.verbose += 1
     end
   end
-  c.paths = parser.parse!(ARGV)
+  begin
+    c.paths = parser.parse!(ARGV)
+  rescue OptionParser::InvalidArgument => e
+    abort e.message
+  end
   if c.paths.empty?
     abort "No YAML file is specified!\n\n#{parser.help}"
   end
