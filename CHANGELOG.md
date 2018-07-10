@@ -1,3 +1,7 @@
+# v0.14.5
+
+- Fix wrong spacing format in simple / markdown output
+
 # v0.14.4
 
 - Fix runners and outputs to distinguish 0.0 and ERROR value
