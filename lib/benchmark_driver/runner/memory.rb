@@ -46,7 +46,7 @@ class BenchmarkDriver::Runner::Memory
             value = BenchmarkDriver::Repeater.with_repeat(config: @config, larger_better: false) do
               run_benchmark(job, context: context)
             end
-            @output.with_context(name: context.name, executable: context.executable, gems: context.gems) do
+            @output.with_context(name: context.name, executable: context.executable, gems: context.gems, prelude: context.prelude) do
               @output.report(values: { METRIC => value }, loop_count: job.loop_count)
             end
           end

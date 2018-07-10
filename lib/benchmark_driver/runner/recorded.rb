@@ -50,7 +50,12 @@ class BenchmarkDriver::Runner::Recorded
       records.each do |record|
         @output.with_job(name: record.name) do
           record.benchmark_results.each do |context, result|
-            @output.with_context(name: context.name, executable: context.executable, gems: context.gems) do
+            @output.with_context(
+              name: context.name,
+              executable: context.executable,
+              gems: context.gems,
+              prelude: context.prelude,
+            ) do
               @output.report(
                 values: result.values,
                 duration: result.duration,

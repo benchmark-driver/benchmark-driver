@@ -66,8 +66,9 @@ module BenchmarkDriver
     # @param [String] name
     # @param [BenchmarkDriver::Config::Executable] executable
     # @param [Hash{ String => String}] gems
-    def with_context(name:, executable:, gems: {}, &block)
-      context = BenchmarkDriver::Context.new(name: name, executable: executable, gems: gems)
+    def with_context(name:, executable:, gems: {}, prelude: '', &block)
+      context = BenchmarkDriver::Context.new(name: name, executable: executable, gems: gems, prelude: prelude)
+      require "pry";binding.pry
       @output.with_context(context) do
         block.call
       end

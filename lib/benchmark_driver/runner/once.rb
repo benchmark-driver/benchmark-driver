@@ -41,7 +41,7 @@ class BenchmarkDriver::Runner::Once
               value = 1.0 / duration
             end
 
-            @output.with_context(name: context.name, executable: context.executable, gems: context.gems) do
+            @output.with_context(name: context.name, executable: context.executable, gems: context.gems, prelude: context.prelude) do
               @output.report(values: { METRIC => value }, duration: duration, loop_count: 1)
             end
           end
