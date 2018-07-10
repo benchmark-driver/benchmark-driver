@@ -1,4 +1,8 @@
-# v0.14.1
+# v0.14.2
+
+- Fix definitive error in v0.14.1...
+
+# v0.14.1 (yanked)
 
 - Fix `BenchmarkDriver::BulkOutput` error on contexts with prelude [#38](https://github.com/benchmark-driver/benchmark-driver/issues/38)
 
