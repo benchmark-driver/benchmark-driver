@@ -1,5 +1,3 @@
-require 'tempfile'
-
 describe 'benchmark-driver command' do
   {
     'ips' => 'compare',
@@ -49,11 +47,12 @@ describe 'benchmark-driver command' do
   end
 
   it 'runs a Ruby script as single-execution benchmark' do
-    Tempfile.open(['benchmark_driver-spec', '.rb']) do |f|
-      f.puts "# hello"
-      f.puts "100000.times { 3 * 3 }"
-      f.close
-      benchmark_driver f.path, '-v'
+    benchmark_driver fixture_extra('single.rb'), '-v'
+  end
+
+  if RbConfig::CONFIG['host_os'].match(/linux/)
+    it 'timeouts command execution' do
+      benchmark_driver fixture_extra('sleep.rb'), '--timeout', '0.1'
     end
   end
 end

@@ -6,25 +6,12 @@ describe 'YAML interface' do
   end
 
   it 'exits normally with script error' do
-    yaml = <<-YAML
-prelude: |
-  array = []
-benchmark:
-  empty: array.empty?
-  blank: raise 'error'
-loop_count: 1000000
-    YAML
-
-    Tempfile.open(['half_fail', '.yml']) do |f|
-      f.puts yaml
-      f.close
-      begin
-        orig = $stderr
-        $stderr = StringIO.new
-        benchmark_driver f.path, '-v'
-      ensure
-        $stderr = orig
-      end
+    begin
+      orig = $stderr
+      $stderr = StringIO.new
+      benchmark_driver fixture_extra('half_fail.yml'), '-v'
+    ensure
+      $stderr = orig
     end
   end
 end

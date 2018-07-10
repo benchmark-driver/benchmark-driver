@@ -10,6 +10,8 @@ require 'yaml'
 config = BenchmarkDriver::Config.new.tap do |c|
   executables = []
   bundler = false
+  timeout = false
+
   parser = OptionParser.new do |o|
     o.banner = "Usage: #{File.basename($0, '.*')} [options] RUBY|YAML..."
     o.on('-r', '--runner TYPE', String, 'Specify runner type: ips, time, memory, once (default: ips)') do |d|
@@ -50,6 +52,9 @@ config = BenchmarkDriver::Config.new.tap do |c|
     o.on('--run-duration SECONDS', Float, 'Warmup estimates loop_count to run for this duration (default: 3)') do |v|
       c.run_duration = v
     end
+    o.on('--timeout SECONDS', Float, 'Timeout ruby command execution with timeout(1)') do |v|
+      timeout = v
+    end if (os = RbConfig::CONFIG['host_os']) && os.match(/linux/) && system('which timeout > /dev/null') # depending on coreutils for now...
     o.on('-v', '--verbose', 'Verbose mode. Multiple -v options increase visilibity (max: 2)') do |v|
       c.verbose += 1
     end
@@ -67,9 +72,12 @@ config = BenchmarkDriver::Config.new.tap do |c|
   unless executables.empty?
     c.executables = executables
   end
-  if bundler
-    c.executables.each do |exec|
+  c.executables.each do |exec|
+    if bundler
       exec.command << '-rbundler/setup'
+    end
+    if timeout
+      exec.command.prepend('timeout', timeout.to_s)
     end
   end
 

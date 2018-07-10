@@ -32,6 +32,10 @@ module BenchmarkDriverSpecHelper
   def fixture_yaml(name)
     File.expand_path("./fixtures/yaml/#{name}", __dir__)
   end
+
+  def fixture_extra(name)
+    File.expand_path("./fixtures/extra/#{name}", __dir__)
+  end
 end
 
 RSpec.configure do |config|

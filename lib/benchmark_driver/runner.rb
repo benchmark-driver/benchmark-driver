@@ -20,12 +20,10 @@ module BenchmarkDriver
         end
       end
 
-      runner_config = Config::RunnerConfig.new(
-        repeat_count: config.repeat_count,
-        repeat_result: config.repeat_result,
-        run_duration: config.run_duration,
-        verbose: config.verbose,
-      )
+      runner_config = Config::RunnerConfig.new
+      runner_config.members.each do |member|
+        runner_config[member] = config[member]
+      end
 
       jobs.group_by{ |j| j.respond_to?(:contexts) && j.contexts }.each do |contexts, contexts_jobs|
         contexts_jobs.group_by(&:metrics).each do |metrics, metrics_jobs|

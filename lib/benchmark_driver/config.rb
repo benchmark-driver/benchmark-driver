@@ -11,6 +11,7 @@ module BenchmarkDriver
     :repeat_count,  # @param [Integer]
     :repeat_result, # @param [String]
     :run_duration,  # @param [Float]
+    :timeout,       # @param [Float,nil]
     :verbose,       # @param [Integer]
     defaults: {
       runner_type: 'ips',
@@ -28,6 +29,7 @@ module BenchmarkDriver
     :repeat_count,  # @param [Integer]
     :repeat_result, # @param [String]
     :run_duration,  # @param [Float]
+    :timeout,       # @param [Float,nil]
     :verbose,       # @param [Integer]
   )
 

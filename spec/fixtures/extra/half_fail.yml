@@ -1,0 +1,6 @@
+prelude: |
+  array = []
+benchmark:
+  empty: array.empty?
+  blank: raise 'error'
+loop_count: 1000000
