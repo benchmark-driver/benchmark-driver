@@ -123,7 +123,7 @@ class BenchmarkDriver::Runner::Ips
 
   # Overridden by BenchmarkDriver::Runner::Time
   def value_duration(duration:, loop_count:)
-    if duration == BenchmarkDriver::Result::ERROR
+    if BenchmarkDriver::Result::ERROR.equal?(duration)
       [BenchmarkDriver::Result::ERROR, BenchmarkDriver::Result::ERROR]
     else
       [loop_count.to_f / duration, duration]

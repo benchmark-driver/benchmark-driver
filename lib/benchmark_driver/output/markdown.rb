@@ -82,7 +82,11 @@ class BenchmarkDriver::Output::Markdown
   end
 
   def humanize(value)
-    if value < 0
+    if BenchmarkDriver::Result::ERROR.equal?(value)
+      return " %#{NAME_LENGTH}s" % 'ERROR'
+    elsif value == 0.0
+      return " %#{NAME_LENGTH}.3f" % 0.0
+    elsif value < 0
       raise ArgumentError.new("Negative value: #{value.inspect}")
     end
 

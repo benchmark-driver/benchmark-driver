@@ -35,7 +35,7 @@ module BenchmarkDriver
     :environment, # @param [Hash] - Any other key -> value pairs to express the benchmark context
     defaults: { environment: {} },
   )
-  Result::ERROR = 0.0
+  Result::ERROR = 0
 
   # A kind of thing to be measured
   Metric = ::BenchmarkDriver::Struct.new(

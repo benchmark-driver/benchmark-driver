@@ -116,10 +116,12 @@ class BenchmarkDriver::Output::Compare
   end
 
   def humanize(value, width = 10)
-    if value == BenchmarkDriver::Result::ERROR
+    if BenchmarkDriver::Result::ERROR.equal?(value)
       return " %#{width}s" % 'ERROR'
+    elsif value == 0.0
+      return " %#{width}.3f" % 0.0
     elsif value < 0
-      raise ArgumentError.new("Non positive value: #{value.inspect}")
+      raise ArgumentError.new("Negative value: #{value.inspect}")
     end
 
     scale = (Math.log10(value) / 3).to_i

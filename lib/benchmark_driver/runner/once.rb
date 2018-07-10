@@ -35,7 +35,7 @@ class BenchmarkDriver::Runner::Once
         @output.with_job(name: job.name) do
           job.runnable_contexts(@contexts).each do |context|
             duration = run_benchmark(job, context: context) # no repeat support
-            if duration == BenchmarkDriver::Result::ERROR
+            if BenchmarkDriver::Result::ERROR.equal?(duration)
               value = BenchmarkDriver::Result::ERROR
             else
               value = 1.0 / duration
