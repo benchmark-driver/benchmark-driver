@@ -1,3 +1,7 @@
+# v0.14.1
+
+- Fix `BenchmarkDriver::BulkOutput` error on contexts with prelude [#38](https://github.com/benchmark-driver/benchmark-driver/issues/38)
+
 # v0.14.0
 
 - `benchmark-driver` command also takes `*.rb` file to run single-execution benchmark
