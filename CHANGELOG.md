@@ -1,3 +1,7 @@
+# v0.14.3
+
+- Support loading runner plugin
+
 # v0.14.2
 
 - Fix definitive error in v0.14.1...
