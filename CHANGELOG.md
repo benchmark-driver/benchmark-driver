@@ -1,3 +1,10 @@
+# unreleased
+
+- Improve option parser validation
+- Add `--timeout` option only for Linux having timeout(1)
+- Support `--version` option
+- Fix help output for `-e`/`--rbenv` in benchmark-driver command
+
 # v0.14.5
 
 - Fix wrong spacing format in simple / markdown output

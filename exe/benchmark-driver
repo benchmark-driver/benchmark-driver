@@ -13,6 +13,7 @@ config = BenchmarkDriver::Config.new.tap do |c|
   timeout = false
 
   parser = OptionParser.new do |o|
+    o.version = BenchmarkDriver::VERSION
     o.banner = "Usage: #{File.basename($0, '.*')} [options] RUBY|YAML..."
     o.on('-r', '--runner TYPE', String, 'Specify runner type: ips, time, memory, once (default: ips)') do |d|
       c.runner_type = d
