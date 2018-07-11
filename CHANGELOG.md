@@ -1,4 +1,4 @@
-# unreleased
+# v0.14.6
 
 - Improve option parser validation
 - Add `--timeout` option only for Linux having timeout(1)
