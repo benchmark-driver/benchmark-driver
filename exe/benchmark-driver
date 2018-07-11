@@ -77,7 +77,7 @@ config = BenchmarkDriver::Config.new.tap do |c|
       exec.command << '-rbundler/setup'
     end
     if timeout
-      exec.command.prepend('timeout', timeout.to_s)
+      exec.command = ['timeout', timeout.to_s, *exec.command]
     end
   end
 
