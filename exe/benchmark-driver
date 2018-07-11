@@ -20,7 +20,7 @@ config = BenchmarkDriver::Config.new.tap do |c|
     o.on('-o', '--output TYPE', String, 'Specify output type: compare, simple, markdown, record (default: compare)') do |out|
       c.output_type = out
     end
-    o.on('-e', '--executables EXECS', String, 'Ruby executables (e1::path1,arg1,...; e2::path2,arg2;...)') do |e|
+    o.on('-e', '--executables EXECS', String, 'Ruby executables (e1::path1 arg1; e2::path2 arg2;...)') do |e|
       e.split(';').each do |name_path|
         name, path = name_path.split('::', 2)
         path ||= name # if `::` is not given, regard whole string as path
@@ -29,7 +29,7 @@ config = BenchmarkDriver::Config.new.tap do |c|
         executables << BenchmarkDriver::Config::Executable.new(name: name, command: command)
       end
     end
-    o.on('--rbenv VERSIONS', String, 'Ruby executables in rbenv (x.x.x,arg1,...;y.y.y,arg2,...;...)') do |r|
+    o.on('--rbenv VERSIONS', String, 'Ruby executables in rbenv (x.x.x arg1;y.y.y arg2;...)') do |r|
       r.split(';').each do |version|
         executables << BenchmarkDriver::Rbenv.parse_spec(version)
       end
