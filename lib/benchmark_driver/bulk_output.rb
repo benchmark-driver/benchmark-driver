@@ -51,7 +51,9 @@ module BenchmarkDriver
 
     # @param [BenchmarkDriver::Result] result
     def report(result)
-      @job_context_result[@job][@context] = result
+      if defined?(@job_context_result)
+        @job_context_result[@job][@context] = result
+      end
     end
   end
 end
