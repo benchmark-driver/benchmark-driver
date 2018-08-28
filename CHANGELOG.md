@@ -1,3 +1,8 @@
+# v0.14.7
+
+- Fix bug on warmup with `BenchmarkDriver::BulkOutput` [#40](https://github.com/benchmark-driver/benchmark-driver/issues/40)
+  - This is currently used by benchmark\_driver-output-gruff
+
 # v0.14.6
 
 - Improve option parser validation
