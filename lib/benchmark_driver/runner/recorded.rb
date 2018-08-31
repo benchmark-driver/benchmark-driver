@@ -11,6 +11,7 @@ class BenchmarkDriver::Runner::Recorded
     :metrics,           # @param [Array<BenchmarkDriver::Metric>]
     :warmup_results,    # @param [Hash{ BenchmarkDriver::Context => Array<BenchmarkDriver::Metric> } }]
     :benchmark_results, # @param [Hash{ BenchmarkDriver::Context => Array<BenchmarkDriver::Metric> } }]
+    :contexts,          # @param [Array<BenchmarkDriver::Context>]
   )
   # Dynamically fetched and used by `BenchmarkDriver::JobParser.parse`
   class << JobParser = Module.new
@@ -23,6 +24,7 @@ class BenchmarkDriver::Runner::Recorded
           warmup_results: warmup_context_result.fetch(true, {}),
           benchmark_results: warmup_context_result.fetch(false, {}),
           metrics: metrics,
+          contexts: warmup_context_result.values.map(&:keys).flatten!.tap(&:uniq!),
         )
       end
     end
