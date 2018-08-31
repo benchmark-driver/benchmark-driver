@@ -1,3 +1,8 @@
+# v0.14.8
+
+- Fix bug that "benchmark\_driver.record.yml" created with `-e`/`--rbenv` option
+  has required to specify the same `-e`/`--rbenv` option [#42](https://github.com/benchmark-driver/benchmark-driver/issues/42)
+
 # v0.14.7
 
 - Fix bug on warmup with `BenchmarkDriver::BulkOutput` [#40](https://github.com/benchmark-driver/benchmark-driver/issues/40)
