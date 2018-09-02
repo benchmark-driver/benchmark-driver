@@ -1,3 +1,8 @@
+# v0.14.9
+
+- Allow recorded runner to run without the recorded Ruby executables
+  [#43](https://github.com/benchmark-driver/benchmark-driver/issues/43) [#44](https://github.com/benchmark-driver/benchmark-driver/issues/44)
+
 # v0.14.8
 
 - Fix bug that "benchmark\_driver.record.yml" created with `-e`/`--rbenv` option
