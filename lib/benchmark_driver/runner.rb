@@ -54,6 +54,11 @@ module BenchmarkDriver
         }
       end
 
+      with_executables, without_executables = contexts.partition { |context| context.name && context.executable }
+      with_executables + build_contexts_with_executables(without_executables, executables)
+    end
+
+    def build_contexts_with_executables(contexts, executables)
       # Create direct product of contexts
       contexts.product(executables).map do |context, executable|
         name = context.name
