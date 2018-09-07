@@ -3,4 +3,4 @@ prelude: |
   b = 'b' * 100
 benchmark:
   join: '[a, b].join'
-  str-interp: '"#{a}#{b}"'
+  str-interp: '_ = "#{a}#{b}"'

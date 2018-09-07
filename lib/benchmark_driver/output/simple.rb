@@ -11,6 +11,7 @@ class BenchmarkDriver::Output::Simple
   end
 
   def with_warmup(&block)
+    @with_benchmark = false
     without_stdout_buffering do
       $stdout.print 'warming up'
       block.call
