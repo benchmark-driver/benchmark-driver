@@ -1,3 +1,7 @@
+# v0.14.10
+
+- Resolve internal Ruby warnings
+
 # v0.14.9
 
 - Allow recorded runner to run without the recorded Ruby executables
