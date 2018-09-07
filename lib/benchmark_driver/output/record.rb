@@ -51,7 +51,6 @@ class BenchmarkDriver::Output::Record
   private
 
   def save_record
-    # jobs = @benchmark_metrics
     yaml = {
       'type' => 'recorded',
       'job_warmup_context_result' => @job_warmup_context_result,
