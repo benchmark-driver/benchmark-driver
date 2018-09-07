@@ -144,7 +144,7 @@ class BenchmarkDriver::Runner::Ips
   end
 
   def execute(*args)
-    stdout = IO.popen(args, &:read) # TODO: print stdout if verbose=2
+    IO.popen(args, &:read) # TODO: print stdout if verbose=2
     unless $?.success?
       raise "Failed to execute: #{args.shelljoin} (status: #{$?.exitstatus})"
     end

@@ -61,7 +61,7 @@ class BenchmarkDriver::Output::Compare
     loop_count = @job_results.first.loop_count
     if loop_count && @job_results.all? { |r| r.loop_count == loop_count }
       $stdout.print(" - #{humanize(loop_count)} times")
-      if @job_results.all? { |result| !result.duration.nil? }
+      if @job_results.all? { |job_result| !job_result.duration.nil? }
         $stdout.print(" in")
         show_durations
       end

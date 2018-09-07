@@ -131,7 +131,7 @@ class BenchmarkDriver::Runner::RubyStdout
 
   StdoutToMetrics = ::BenchmarkDriver::Struct.new(:stdout, :value_from_stdout, :environment_from_stdout) do
     def value
-      value = eval(value_from_stdout, binding)
+      eval(value_from_stdout, binding)
     end
 
     def environment
