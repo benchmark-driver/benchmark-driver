@@ -379,7 +379,7 @@ Comparison:
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/k0kubun/benchmark_driver.
+Bug reports and pull requests are welcome on GitHub at https://github.com/benchmark-driver/benchmark_driver.
 
 ## License
 
