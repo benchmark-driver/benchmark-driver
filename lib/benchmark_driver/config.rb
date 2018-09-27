@@ -54,6 +54,11 @@ module BenchmarkDriver
     end
   end
   Config.defaults[:executables] = [
-    BenchmarkDriver::Config::Executable.new(name: RUBY_VERSION, command: [RbConfig.ruby]),
+  BenchmarkDriver::Config::Executable.new(name: RUBY_VERSION, command: 
+    if File.exist? '/proc/self/exe'
+      '/proc/self/exe'
+    else
+      RbConfig.ruby
+    end)
   ]
 end

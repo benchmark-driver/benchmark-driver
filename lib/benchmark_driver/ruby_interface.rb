@@ -6,10 +6,6 @@ module BenchmarkDriver
 
     # Build jobs and run. This is NOT interface for users.
     def run
-      unless @executables.empty?
-        @config.executables = @executables
-      end
-
       jobs = @jobs.flat_map do |job|
         BenchmarkDriver::JobParser.parse({
           type: @config.runner_type,
@@ -34,7 +30,6 @@ module BenchmarkDriver
       @config.output_type = output.to_s if output
       @config.runner_type = runner.to_s if runner
       @config.repeat_count = Integer(repeat_count)
-      @executables = []
     end
 
     # @param [String] script
@@ -66,9 +61,17 @@ module BenchmarkDriver
     end
 
     def rbenv(*versions)
-      versions.each do |version|
-        @executables << BenchmarkDriver::Rbenv.parse_spec(version)
+      @config.executables.replace versions.map do |version|
+        BenchmarkDriver::Rbenv.parse_spec(version)
       end
+    end
+
+    def reset_executables
+      @config.executables.clear
+    end
+
+    def add_executable(name:, command:)
+      @config.executables << BenchmarkDriver::Config::Executable.new(name: name, command: command)
     end
 
     def verbose(level = 1)
