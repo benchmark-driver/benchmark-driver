@@ -1,3 +1,8 @@
+# v0.14.11
+
+- Add `x.executable` method to Ruby interface for specifying Ruby executable which is not managed by rbenv
+  [#50](https://github.com/benchmark-driver/benchmark-driver/pull/50)
+
 # v0.14.10
 
 - Resolve internal Ruby warnings
