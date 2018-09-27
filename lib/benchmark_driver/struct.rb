@@ -3,12 +3,21 @@
 #   * Default value configuration
 #   * Deeply freezing members
 module BenchmarkDriver
+  class ::Struct
+    SUPPORT_KEYWORD_P = begin
+                          ::Struct.new(:a, keyword_init: true)
+                          true
+                        rescue TypeError
+                          false
+                        end
+  end
+
   class << Struct = Module.new
     # @param [Array<Symbol>] args
     # @param [Hash{ Symbol => Object }] defaults
     def new(*args, defaults: {}, &block)
       # Polyfill `keyword_init: true`
-      if Gem::Version.new(RUBY_VERSION) >= Gem::Version.new('2.5.0')
+      if ::Struct::SUPPORT_KEYWORD_P
         klass = ::Struct.new(*args, keyword_init: true, &block)
       else
         klass = keyword_init_struct(*args, &block)

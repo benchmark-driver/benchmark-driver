@@ -1,4 +1,5 @@
 require 'benchmark_driver/struct'
+require 'rbconfig'
 
 module BenchmarkDriver
   # All CLI options
