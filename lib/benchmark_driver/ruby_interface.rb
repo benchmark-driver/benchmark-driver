@@ -71,6 +71,11 @@ module BenchmarkDriver
       end
     end
 
+    def executable(name:, command:)
+      raise ArgumentError, "`command' should be an Array" unless command.kind_of? Array
+      @executables << BenchmarkDriver::Config::Executable.new(name: name, command: command)
+    end
+
     def verbose(level = 1)
       @config.verbose = level
     end
