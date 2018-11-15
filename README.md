@@ -73,8 +73,8 @@ $ benchmark-driver -h
 Usage: benchmark-driver [options] [YAML|RUBY]
     -r, --runner [TYPE]              Specify runner type: ips, time, memory, once (default: ips)
     -o, --output [TYPE]              Specify output type: compare, simple, markdown, record (default: compare)
-    -e, --executables [EXECS]        Ruby executables (e1::path1,arg1,...; e2::path2,arg2;...)
-        --rbenv [VERSIONS]           Ruby executables in rbenv (x.x.x,arg1,...;y.y.y,arg2,...;...)
+    -e, --executables [EXECS]        Ruby executables (e1::path1 arg1; e2::path2 arg2;...)
+        --rbenv [VERSIONS]           Ruby executables in rbenv (x.x.x arg1;y.y.y arg2;...)
         --repeat-count [NUM]         Try benchmark NUM times and use the fastest result or the worst memory usage
         --repeat-result [TYPE]       Yield "best", "average" or "worst" result with --repeat-count (default: best)
         --bundler                    Install and use gems specified in Gemfile
