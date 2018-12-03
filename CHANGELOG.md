@@ -1,3 +1,8 @@
+# v0.14.12
+
+- Reduce the risk of random ZeroDivisionError on warmup
+  [#52](https://github.com/benchmark-driver/benchmark-driver/pull/52)
+
 # v0.14.11
 
 - Add `x.executable` method to Ruby interface for specifying Ruby executable which is not managed by rbenv
