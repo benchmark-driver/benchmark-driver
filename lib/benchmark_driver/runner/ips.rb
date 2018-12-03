@@ -168,7 +168,7 @@ end
 __bmdv_after = Time.now
 
 # second warmup
-__bmdv_ip100ms = (__bmdv_i.to_f / (__bmdv_after - __bmdv_before) / 10.0).floor
+__bmdv_ip100ms = (__bmdv_i.to_f / (__bmdv_after - __bmdv_before) / 10.0).ceil
 __bmdv_loops = 0
 __bmdv_duration = 0.0
 __bmdv_target = Time.now + #{second_warmup_duration}
