@@ -29,7 +29,12 @@ class BenchmarkDriver::Runner::Memory
   # @param [Array<BenchmarkDriver::Default::Job>] jobs
   def run(jobs)
     # Currently Linux's time(1) support only...
-    if Etc.uname.fetch(:sysname) != 'Linux'
+    case Etc.uname.fetch(:sysname)
+    when 'Linux'
+      @time_command = ['/usr/bin/time']
+    when 'Darwin'
+      @time_command = ['/usr/bin/time', '-l']
+    else
       raise "memory output is not supported for '#{Etc.uname[:sysname]}' for now"
     end
 
@@ -69,17 +74,28 @@ class BenchmarkDriver::Runner::Memory
     )
 
     with_script(benchmark.render) do |path|
-      output = IO.popen(['/usr/bin/time', *context.executable.command, path], err: [:child, :out], &:read)
+      output = IO.popen([*@time_command, *context.executable.command, path], err: [:child, :out], &:read)
       if $?.success?
-        match_data = /^(?<user>\d+.\d+)user\s+(?<system>\d+.\d+)system\s+(?<elapsed1>\d+):(?<elapsed2>\d+.\d+)elapsed.+\([^\s]+\s+(?<maxresident>\d+)maxresident\)k$/.match(output)
-        raise "Unexpected format given from /usr/bin/time:\n#{out}" unless match_data[:maxresident]
-
-        Integer(match_data[:maxresident]) * 1000.0 # kilobytes -> bytes
+        extract_maxresident_from_time_output(output)
       else
         $stdout.print(output)
         BenchmarkDriver::Result::ERROR
       end
     end
+  end
+
+  def extract_maxresident_from_time_output(output)
+    case Etc.uname.fetch(:sysname)
+    when 'Linux'
+      pattern = /^(?<user>\d+.\d+)user\s+(?<system>\d+.\d+)system\s+(?<elapsed1>\d+):(?<elapsed2>\d+.\d+)elapsed.+\([^\s]+\s+(?<maxresident>\d+)maxresident\)k$/
+      scale = 1000.0 # kilobytes -> bytes
+    when 'Darwin'
+      pattern = /^\s+(?<real>\d+\.\d+)\s+real\s+(?<user>\d+\.\d+)\s+user\s+(?<system>\d+\.\d+)\s+sys$\s+(?<maxresident>\d+)\s+maximum resident set size$/
+      scale = 1.0
+    end
+    match_data = pattern.match(output)
+    raise "Unexpected format given from /usr/bin/time:\n#{out}" unless match_data[:maxresident]
+    Integer(match_data[:maxresident]) * scale
   end
 
   def with_script(script)
