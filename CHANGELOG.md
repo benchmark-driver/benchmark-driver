@@ -1,3 +1,8 @@
+# v0.14.13
+
+- Add macOS support to memory runner
+  [#53](https://github.com/benchmark-driver/benchmark-driver/pull/53)
+
 # v0.14.12
 
 - Reduce the risk of random ZeroDivisionError on warmup
