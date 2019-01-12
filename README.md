@@ -272,7 +272,7 @@ ips, time, memory, once
 |:-------|:------------|
 | ips | Iteration per second (default) |
 | time | Elapsed seconds |
-| memory | Max resident set. This is supported only on Linux for now. |
+| memory | Max resident set. This is supported only on Linux and macOS for now. |
 | once | Forces `loop_count` to 1 for testing |
 | ruby\_stdout | Special runner to integrate existing benchmarks |
 
