@@ -87,7 +87,7 @@
 
 - Add support for benchmark with different versions of gems and preludes
   - Only YAML is supported for now, Ruby interface will come later
-- [breaking change] Runner plugin interface is sightly changed
+- [breaking change] Runner plugin interface is slightly changed
 
 # v0.12.0
 
