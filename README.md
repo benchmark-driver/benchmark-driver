@@ -360,7 +360,7 @@ See following example:
 
 * https://github.com/benchmark-driver/optcarrot
 
-If you benchmark can run with `ruby foo bar`, specify `foo bar` to `command:`.
+If your benchmark can run with `ruby foo bar`, specify `foo bar` to `command:`.
 Then write `stdout_to_metrics:` to convert stdout to metrics. This runner can be used only with YAML interface for now.
 
 ```
