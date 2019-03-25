@@ -14,4 +14,8 @@ describe 'YAML interface' do
       $stderr = orig
     end
   end
+
+  it 'runs --output=all' do
+    benchmark_driver File.expand_path('./fixtures/yaml/example_multi.yml', __dir__), '--output=all', '--run-duration=0.2'
+  end
 end

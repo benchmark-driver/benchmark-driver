@@ -30,7 +30,7 @@ module BenchmarkDriver
   # Everything that can be known after running benchmark
   Result = ::BenchmarkDriver::Struct.new(
     :values,      # @param [Hash{ BenchmarkDriver::Metric => Float }] - Main benchmark results
-    :all_values,  # @param [Hash{ BenchmarkDriver::Metric => Float }] - All benchmark results (optional)
+    :all_values,  # @param [Hash{ BenchmarkDriver::Metric => Float }] - All benchmark results. Used by --output=all (optional)
     :duration,    # @param [Float,nil] - Time taken to run the benchmark job (optional)
     :loop_count,  # @param [Integer,nil] - Times to run the benchmark job (optional)
     :environment, # @param [Hash] - Any other key -> value pairs to express the benchmark context

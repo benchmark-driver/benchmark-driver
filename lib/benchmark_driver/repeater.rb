@@ -7,7 +7,7 @@ module BenchmarkDriver
 
     RepeatResult = ::BenchmarkDriver::Struct.new(
       :value, # the value desired by --repeat-result
-      :all_values, # all benchmark results
+      :all_values, # all benchmark results. Used by --output=all.
     )
 
     class << self
