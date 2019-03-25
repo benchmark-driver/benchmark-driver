@@ -48,11 +48,11 @@ class BenchmarkDriver::Runner::Memory
       jobs.each do |job|
         @output.with_job(name: job.name) do
           job.runnable_contexts(@contexts).each do |context|
-            value = BenchmarkDriver::Repeater.with_repeat(config: @config, larger_better: false) do
+            result = BenchmarkDriver::Repeater.with_repeat(config: @config, larger_better: false) do
               run_benchmark(job, context: context)
             end
             @output.with_context(name: context.name, executable: context.executable, gems: context.gems, prelude: context.prelude) do
-              @output.report(values: { METRIC => value }, loop_count: job.loop_count)
+              @output.report(values: { METRIC => result.value }, loop_count: job.loop_count)
             end
           end
         end

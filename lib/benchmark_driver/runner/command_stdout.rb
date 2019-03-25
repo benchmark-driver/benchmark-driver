@@ -64,7 +64,7 @@ class BenchmarkDriver::Runner::CommandStdout
         @output.with_job(name: job.name) do
           @contexts.each do |context|
             exec = context.executable
-            value = BenchmarkDriver::Repeater.with_repeat(config: @config, larger_better: metric.larger_better) do
+            result = BenchmarkDriver::Repeater.with_repeat(config: @config, larger_better: metric.larger_better) do
               stdout = with_chdir(job.working_directory) do
                 with_ruby_prefix(exec) { execute(*exec.command, *job.command) }
               end
@@ -75,7 +75,7 @@ class BenchmarkDriver::Runner::CommandStdout
             end
 
             @output.with_context(name: exec.name, executable: exec) do
-              @output.report(values: { metric => value })
+              @output.report(values: { metric => result.value })
             end
           end
         end

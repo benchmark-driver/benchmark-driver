@@ -82,7 +82,7 @@ class BenchmarkDriver::Runner::RubyStdout
           @contexts.each do |context|
             exec = context.executable
             repeat_params = { config: @config, larger_better: metric.larger_better }
-            value, environment = BenchmarkDriver::Repeater.with_repeat(repeat_params) do
+            result = BenchmarkDriver::Repeater.with_repeat(repeat_params) do
               stdout = with_chdir(job.working_directory) do
                 with_ruby_prefix(exec) { execute(*exec.command, *job.command) }
               end
@@ -93,6 +93,7 @@ class BenchmarkDriver::Runner::RubyStdout
               )
               [script.value, script.environment]
             end
+            value, environment = result.value
 
             @output.with_context(name: exec.name, executable: exec) do
               @output.report(values: { metric => value }, environment: environment)
