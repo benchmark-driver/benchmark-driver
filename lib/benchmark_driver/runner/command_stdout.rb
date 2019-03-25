@@ -75,7 +75,7 @@ class BenchmarkDriver::Runner::CommandStdout
             end
 
             @output.with_context(name: exec.name, executable: exec) do
-              @output.report(values: { metric => result.value })
+              @output.report(values: { metric => result.value }, all_values: { metric => result.all_values })
             end
           end
         end

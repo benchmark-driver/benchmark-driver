@@ -5,15 +5,17 @@ module BenchmarkDriver
   module Repeater
     VALID_TYPES = %w[best worst average]
 
-    Result = ::BenchmarkDriver::Struct.new(
+    RepeatResult = ::BenchmarkDriver::Struct.new(
       :value, # the value desired by --repeat-result
-      :sorted_values, # all benchmark results. better comes later.
+      :all_values, # all benchmark results
     )
 
     class << self
       # `block.call` can return multiple objects, but the first one is used for sort.
       # When `config.repeat_result == 'average'`, how to deal with rest objects is decided
       # by `:rest_on_average` option.
+      #
+      # @param [Proc] block - returns Float or [Float, ...]
       def with_repeat(config:, larger_better:, rest_on_average: :first, &block)
         values = config.repeat_count.times.map { block.call }
 
@@ -28,20 +30,15 @@ module BenchmarkDriver
           else
             raise "unexpected repeat_result #{config.repeat_result.inspect}"
           end
-        Result.new(value: desired_value, sorted_values: sort_result(values, larger_better))
+        RepeatResult.new(value: desired_value, all_values: extract_values(values))
       end
 
       private
 
-      def sort_result(values, larger_better)
+      def best_result(values, larger_better)
         values.sort_by do |value, *|
           larger_better ? value : -value
-        end
-      end
-
-      # Sort results. Better value comes later.
-      def best_result(values, larger_better)
-        sort_result(values, larger_better).last
+        end.last
       end
 
       def average_result(values, rest_on_average)
@@ -59,6 +56,12 @@ module BenchmarkDriver
           end
         else
           raise "unexpected rest_on_average #{rest_on_average.inspect}"
+        end
+      end
+
+      def extract_values(values)
+        values.map do |value|
+          value.is_a?(Array) ? value.first : value
         end
       end
     end

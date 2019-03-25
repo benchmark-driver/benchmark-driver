@@ -96,7 +96,11 @@ class BenchmarkDriver::Runner::RubyStdout
             value, environment = result.value
 
             @output.with_context(name: exec.name, executable: exec) do
-              @output.report(values: { metric => value }, environment: environment)
+              @output.report(
+                values: { metric => value },
+                all_values: { metric => result.all_values },
+                environment: environment,
+              )
             end
           end
         end

@@ -73,11 +73,13 @@ module BenchmarkDriver
       end
     end
 
-    # @param [Float] value
+    # @param [Hash{ BenchmarkDriver::Metric => Float }] values
+    # @param [Hash{ BenchmarkDriver::Metric => [Float] },nil] values
     # @param [BenchmarkDriver::Metric] metic
-    def report(values:, duration: nil, loop_count: nil, environment: {})
+    def report(values:, all_values: nil, duration: nil, loop_count: nil, environment: {})
       result = BenchmarkDriver::Result.new(
         values: values,
+        all_values: all_values,
         duration: duration,
         loop_count: loop_count,
         environment: environment,
