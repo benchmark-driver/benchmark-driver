@@ -1,3 +1,7 @@
+# v0.14.14
+
+- Add `all` output plugin to compare all sorted results
+
 # v0.14.13
 
 - Add macOS support to memory runner
