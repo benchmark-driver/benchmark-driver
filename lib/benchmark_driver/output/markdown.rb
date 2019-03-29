@@ -83,15 +83,15 @@ class BenchmarkDriver::Output::Markdown
 
   def humanize(value)
     if BenchmarkDriver::Result::ERROR.equal?(value)
-      return " %#{NAME_LENGTH}s" % 'ERROR'
+      return "%#{NAME_LENGTH}s" % 'ERROR'
     elsif value == 0.0
-      return " %#{NAME_LENGTH}.3f" % 0.0
+      return "%#{NAME_LENGTH}.3f" % 0.0
     elsif value < 0
       raise ArgumentError.new("Negative value: #{value.inspect}")
     end
 
     scale = (Math.log10(value) / 3).to_i
-    prefix = "%#{NAME_LENGTH}.3f" % (value.to_f / (1000 ** scale))
+    prefix = "%#{NAME_LENGTH - 1}.3f" % (value.to_f / (1000 ** scale))
     suffix =
       case scale
       when 1; 'k'
