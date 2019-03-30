@@ -1,3 +1,8 @@
+# v0.14.15
+
+- Remove an extra space from markdown output
+  [#55](https://github.com/benchmark-driver/benchmark-driver/pull/55)
+
 # v0.14.14
 
 - Add `all` output plugin to compare all sorted results
