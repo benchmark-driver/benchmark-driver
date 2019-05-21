@@ -1,3 +1,7 @@
+# v0.14.16
+
+- Output ERROR metrics for a command failure on ruby\_stdout runner instead of crashing it
+
 # v0.14.15
 
 - Remove an extra space from markdown output
