@@ -6,6 +6,8 @@ require 'open3'
 
 # Use stdout of ruby command
 class BenchmarkDriver::Runner::RubyStdout
+  CommandFailure = Class.new(StandardError)
+
   # JobParser returns this, `BenchmarkDriver::Runner.runner_for` searches "*::Job"
   Job = ::BenchmarkDriver::Struct.new(
     :name,                   # @param [String] name - This is mandatory for all runner
@@ -83,15 +85,20 @@ class BenchmarkDriver::Runner::RubyStdout
             exec = context.executable
             repeat_params = { config: @config, larger_better: metric.larger_better }
             result = BenchmarkDriver::Repeater.with_repeat(repeat_params) do
-              stdout = with_chdir(job.working_directory) do
-                with_ruby_prefix(exec) { execute(*exec.command, *job.command) }
+              begin
+                stdout = with_chdir(job.working_directory) do
+                  with_ruby_prefix(exec) { execute(*exec.command, *job.command) }
+                end
+                script = StdoutToMetrics.new(
+                  stdout: stdout,
+                  value_from_stdout: job.value_from_stdout,
+                  environment_from_stdout: job.environment_from_stdout,
+                )
+                [script.value, script.environment]
+              rescue CommandFailure => e
+                $stderr.puts("\n```\n#{e.message}```\n")
+                [BenchmarkDriver::Result::ERROR, {}]
               end
-              script = StdoutToMetrics.new(
-                stdout: stdout,
-                value_from_stdout: job.value_from_stdout,
-                environment_from_stdout: job.environment_from_stdout,
-              )
-              [script.value, script.environment]
             end
             value, environment = result.value
 
@@ -129,7 +136,7 @@ class BenchmarkDriver::Runner::RubyStdout
   def execute(*args)
     stdout, stderr, status = Open3.capture3(*args)
     unless status.success?
-      raise "Failed to execute: #{args.shelljoin} (status: #{$?.exitstatus}):\n[stdout]:\n#{stdout}\n[stderr]:\n#{stderr}"
+      raise CommandFailure.new("Failed to execute: #{args.shelljoin} (status: #{$?.exitstatus}):\n\n[stdout]:\n#{stdout}\n[stderr]:\n#{stderr}")
     end
     stdout
   end
