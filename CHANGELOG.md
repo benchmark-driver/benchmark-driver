@@ -1,3 +1,7 @@
+# v0.14.17
+
+- Fix deprecation warning: "`Bundler.with_clean_env` has been deprecated"
+
 # v0.14.16
 
 - Output ERROR metrics for a command failure on ruby\_stdout runner instead of crashing it
