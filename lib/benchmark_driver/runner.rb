@@ -93,8 +93,14 @@ module BenchmarkDriver
 
     def with_clean_env(&block)
       require 'bundler'
-      Bundler.with_clean_env do
-        block.call
+      if Bundler.respond_to?(:with_unbundled_env)
+        Bundler.with_unbundled_env do
+          block.call
+        end
+      else
+        Bundler.with_clean_env do
+          block.call
+        end
       end
     rescue LoadError
       block.call
