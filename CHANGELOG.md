@@ -1,3 +1,7 @@
+# v0.14.18
+
+- Support loading benchmark\_driver.rb with --disable-gems
+
 # v0.14.17
 
 - Fix deprecation warning: "`Bundler.with_clean_env` has been deprecated"
