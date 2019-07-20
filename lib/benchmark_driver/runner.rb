@@ -92,7 +92,7 @@ module BenchmarkDriver
     end
 
     def with_clean_env(&block)
-      unless defined?(Gem)
+      unless defined?(Gem::Version)
         # default-gem Bundler can be loaded and broken with --disable-gems
         return block.call
       end
