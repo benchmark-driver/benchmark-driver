@@ -1,3 +1,7 @@
+# v0.14.19
+
+- Improve v0.14.18's Bundler integration for ruby/ruby's `make run`
+
 # v0.14.18
 
 - Support loading benchmark\_driver.rb with --disable-gems
