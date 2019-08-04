@@ -1,3 +1,7 @@
+# v0.14.20
+
+- Add `block` runner to automatically wrap a Ruby block in script for benchmarking MJIT
+
 # v0.14.19
 
 - Improve v0.14.18's Bundler integration for ruby/ruby's `make run`
