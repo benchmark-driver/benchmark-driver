@@ -1,6 +1,7 @@
 describe 'benchmark-driver command' do
   {
     'ips' => 'compare',
+    'block' => 'all',
     'time' => 'simple',
     'memory' => 'simple',
     'once' => 'markdown',
