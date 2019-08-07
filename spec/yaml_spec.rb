@@ -15,6 +15,16 @@ describe 'YAML interface' do
     end
   end
 
+  it 'exits normally when benchmarks raise' do
+    begin
+      orig = $stderr
+      $stderr = StringIO.new
+      benchmark_driver fixture_extra('full_fail.yml'), '-v'
+    ensure
+      $stderr = orig
+    end
+  end
+
   it 'runs --output=all' do
     benchmark_driver File.expand_path('./fixtures/yaml/example_multi.yml', __dir__), '--output=all', '--run-duration=0.2'
   end
