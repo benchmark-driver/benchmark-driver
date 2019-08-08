@@ -1,3 +1,8 @@
+# v0.14.21
+
+- Avoid crashinig on a zero division error in `compare` output
+  [#56](https://github.com/benchmark-driver/benchmark-driver/pull/56)
+
 # v0.14.20
 
 - Add `block` runner to automatically wrap a Ruby block in script for benchmarking MJIT
