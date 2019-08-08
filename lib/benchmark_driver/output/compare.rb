@@ -181,6 +181,17 @@ class BenchmarkDriver::Output::Compare
     end
   end
 
+  def show_slower(better_result, worse_result)
+    top = worse_result.value
+    bottom = better_result.value
+    top, bottom = bottom, top if @metrics.first.larger_better
+
+    unless BenchmarkDriver::Result::ERROR.equal?(bottom)
+      ratio = top / bottom
+      "- %.2fx  #{@metrics.first.worse_word}" % ratio
+    end
+  end
+
   # @param [Array<BenchmarkDriver::Output::Compare::Result>] results
   # @param [TrueClass,FalseClass] show_context
   def show_results(results, show_context:)
@@ -194,14 +205,7 @@ class BenchmarkDriver::Output::Compare
 
     first = results.first
     results.each do |result|
-      if result != first
-        if @metrics.first.larger_better
-          ratio = (first.value / result.value)
-        else
-          ratio = (result.value / first.value)
-        end
-        slower = "- %.2fx  #{@metrics.first.worse_word}" % ratio
-      end
+      slower = show_slower(first, result) if result != first
       if show_context
         name = result.context.name
       else

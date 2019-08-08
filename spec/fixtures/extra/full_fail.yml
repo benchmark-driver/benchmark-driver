@@ -1,0 +1,4 @@
+benchmark:
+  one: raise
+  two: raise
+loop_count: 1
