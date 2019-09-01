@@ -70,7 +70,7 @@ module BenchmarkDriver
 
     def parse_contexts(contexts)
       if contexts.is_a?(Array)
-        contexts.map { |context| parse_context(context) }
+        contexts.map { |context| parse_context(**context) }
       else
         raise ArgumentError.new("contexts must be Array, but got: #{contexts.inspect}")
       end
