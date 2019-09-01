@@ -26,7 +26,7 @@ class BenchmarkDriver::Runner::CommandStdout
         name: name,
         command: command.shellsplit,
         working_directory: working_directory,
-        metrics: parse_metrics(metrics_type),
+        metrics: parse_metrics(**metrics_type),
         stdout_to_metrics: stdout_to_metrics,
       )
     end

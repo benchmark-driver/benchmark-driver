@@ -16,7 +16,7 @@ module BenchmarkDriver
 
       # Dynamic dispatch for plugin support
       require "benchmark_driver/runner/#{type}"
-      job = ::BenchmarkDriver.const_get("Runner::#{camelize(type)}::JobParser", false).parse(config)
+      job = ::BenchmarkDriver.const_get("Runner::#{camelize(type)}::JobParser", false).parse(**config)
       default_params.each do |key, value|
         if job.respond_to?(key) && job.respond_to?("#{key}=") && job.public_send(key).nil?
           job.public_send("#{key}=", value)

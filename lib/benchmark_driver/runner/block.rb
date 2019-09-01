@@ -9,7 +9,7 @@ class BenchmarkDriver::Runner::Block < BenchmarkDriver::Runner::Ips
 
   # Dynamically fetched and used by `BenchmarkDriver::JobParser.parse`
   JobParser = BenchmarkDriver::DefaultJobParser.for(klass: Job, metrics: [METRIC]).extend(Module.new{
-    def parse(*)
+    def parse(**)
       jobs = super
       jobs.map do |job|
         job = job.dup

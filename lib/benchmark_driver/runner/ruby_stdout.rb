@@ -34,8 +34,9 @@ class BenchmarkDriver::Runner::RubyStdout
         raise NotImplementedError.new('Having multiple metrics is not supported yet')
       end
 
-      metric, value_from_stdout = parse_metric(*metrics.first)
-      environment_from_stdout = Hash[environment.map { |k, v| [k, parse_environment(v)] }]
+      metric_name, metric_params = metrics.first
+      metric, value_from_stdout = parse_metric(metric_name, **metric_params)
+      environment_from_stdout = Hash[environment.map { |k, v| [k, parse_environment(**v)] }]
 
       Job.new(
         name: name,
@@ -84,7 +85,7 @@ class BenchmarkDriver::Runner::RubyStdout
           @contexts.each do |context|
             exec = context.executable
             repeat_params = { config: @config, larger_better: metric.larger_better }
-            result = BenchmarkDriver::Repeater.with_repeat(repeat_params) do
+            result = BenchmarkDriver::Repeater.with_repeat(**repeat_params) do
               begin
                 stdout = with_chdir(job.working_directory) do
                   with_ruby_prefix(exec) { execute(*exec.command, *job.command) }

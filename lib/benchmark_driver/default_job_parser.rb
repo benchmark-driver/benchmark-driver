@@ -53,7 +53,7 @@ module BenchmarkDriver
       when String
         job_class.new(name: benchmark, script: benchmark)
       when Hash
-        parse_job_hash(benchmark)
+        parse_job_hash(**benchmark)
       else
         raise ArgumentError.new("Expected String or Hash in element of benchmark, but got: #{benchmark.inspect}")
       end

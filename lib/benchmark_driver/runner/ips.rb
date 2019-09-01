@@ -52,7 +52,7 @@ class BenchmarkDriver::Runner::Ips
         @output.with_job(name: job.name) do
           job.runnable_contexts(@contexts).each do |context|
             repeat_params = { config: @config, larger_better: true, rest_on_average: :average }
-            result = BenchmarkDriver::Repeater.with_repeat(repeat_params) do
+            result = BenchmarkDriver::Repeater.with_repeat(**repeat_params) do
               run_benchmark(job, context: context)
             end
             value, duration = result.value
