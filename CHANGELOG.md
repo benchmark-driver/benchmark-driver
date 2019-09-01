@@ -1,3 +1,7 @@
+# v0.14.22
+
+- Fix warnings for keyword arguments in Ruby 2.7
+
 # v0.14.21
 
 - Avoid crashinig on a zero division error in `compare` output
