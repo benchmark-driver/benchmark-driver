@@ -71,6 +71,13 @@ module BenchmarkDriver
       end
     end
 
+    # ridk use command for RubyInstaller2 on Windows
+    def ridkuse(*versions)
+      versions.each do |version|
+        @executables << BenchmarkDriver::RidkUse.parse_spec(version)
+      end
+    end
+
     def executable(name:, command:)
       raise ArgumentError, "`command' should be an Array" unless command.kind_of? Array
       @executables << BenchmarkDriver::Config::Executable.new(name: name, command: command)
