@@ -47,12 +47,12 @@ config = BenchmarkDriver::Config.new.tap do |c|
       r.split(';').each do |version|
         executables << BenchmarkDriver::Rbenv.parse_spec(version)
       end
-    end if system('which rbenv > /dev/null')
+    end if system("which rbenv > #{File::NULL}")
     o.on('--ridkuse VERSIONS', String, 'Ruby executables in ridk use (x.x.x arg1;y.y.y arg2;...) for RubyInstaller2 on Windows') do |r|
       r.split(';').each do |version|
         executables << BenchmarkDriver::RidkUse.parse_spec(version)
       end
-    end if system("ridk version > nul 2>&1")
+    end if system("ridk version > #{File::NULL} 2>&1")
     o.on('--repeat-count NUM', Integer, 'Try benchmark NUM times and use the fastest result or the worst memory usage') do |v|
       c.repeat_count = v
     end
@@ -73,7 +73,7 @@ config = BenchmarkDriver::Config.new.tap do |c|
     end
     o.on('--timeout SECONDS', Float, 'Timeout ruby command execution with timeout(1)') do |v|
       timeout = v
-    end if (os = RbConfig::CONFIG['host_os']) && os.match(/linux/) && system('which timeout > /dev/null') # depending on coreutils for now...
+    end if (os = RbConfig::CONFIG['host_os']) && os.match(/linux/) && system("which timeout > #{File::NULL}") # depending on coreutils for now...
     o.on('-v', '--verbose', 'Verbose mode. Multiple -v options increase visilibity (max: 2)') do |v|
       c.verbose += 1
     end
