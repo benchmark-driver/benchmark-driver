@@ -60,6 +60,7 @@ class BenchmarkDriver::Runner::Recorded
             ) do
               @output.report(
                 values: result.values,
+                all_values: result.all_values,
                 duration: result.duration,
                 loop_count: result.loop_count,
                 environment: result.environment,
