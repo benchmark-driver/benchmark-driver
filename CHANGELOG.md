@@ -1,3 +1,7 @@
+# v0.15.3
+
+- Add `--ridkuse` to select Ruby by `ridk use` if `ridk` command is available
+
 # v0.15.2
 
 - `recorded` runner propagates `all_values` to output
