@@ -20,6 +20,17 @@ module BenchmarkDriver
     require 'benchmark_driver/output/record'
     require 'benchmark_driver/output/simple'
 
+    # @param [String] type
+    def self.get(type)
+      if type.include?(':')
+        raise ArgumentError.new("Output type '#{type}' cannot contain ':'")
+      end
+
+      require "benchmark_driver/output/#{type}" # for plugin
+      camelized = type.split('_').map(&:capitalize).join
+      ::BenchmarkDriver::Output.const_get(camelized, false)
+    end
+
     # BenchmarkDriver::Output is pluggable.
     # Create `BenchmarkDriver::Output::Foo` as benchmark_dirver-output-foo.gem and specify `-o foo`.
     #
@@ -27,18 +38,24 @@ module BenchmarkDriver
     # @param [Array<BenchmarkDriver::Metric>] metrics
     # @param [Array<BenchmarkDriver::Job>] jobs
     # @param [Array<BenchmarkDriver::Context>] contexts
-    def initialize(type:, metrics:, jobs:, contexts:)
-      if type.include?(':')
-        raise ArgumentError.new("Output type '#{type}' cannot contain ':'")
+    # @param [Hash{ Symbol => Object }] options
+    def initialize(type:, metrics:, jobs:, contexts:, options:)
+      output = ::BenchmarkDriver::Output.get(type)
+      output_params = output.instance_method(:initialize).parameters.select do |type, _name|
+        type == :keyreq || type == :key
+      end.map(&:last)
+
+      # Optionally pass `options` to #initialize
+      kwargs = {}
+      if output_params.include?(:options)
+        kwargs[:options] = options
       end
 
-      require "benchmark_driver/output/#{type}" # for plugin
-      camelized = type.split('_').map(&:capitalize).join
-
-      @output = ::BenchmarkDriver::Output.const_get(camelized, false).new(
+      @output = output.new(
         metrics: metrics,
         jobs: jobs,
         contexts: contexts,
+        **kwargs,
       )
     end
 
