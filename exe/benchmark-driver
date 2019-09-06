@@ -20,6 +20,19 @@ config = BenchmarkDriver::Config.new.tap do |c|
     end
     o.on('-o', '--output TYPE', String, 'Specify output type: compare, simple, markdown, record (default: compare)') do |out|
       c.output_type = out
+      begin
+        plugin_options = BenchmarkDriver::Output.get(out).const_get('OPTIONS', false)
+      rescue ArgumentError, LoadError, NameError
+      else
+        plugin_options.each do |name, args|
+          unless args.first.start_with?('--output-')
+            raise ArgumentError.new("#{args.first.dump} must start with '--output-'")
+          end
+          o.on(*args) do |opt|
+            c.output_opts[name] = opt
+          end
+        end
+      end
     end
     o.on('-e', '--executables EXECS', String, 'Ruby executables (e1::path1 arg1; e2::path2 arg2;...)') do |e|
       e.split(';').each do |name_path|

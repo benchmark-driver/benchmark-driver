@@ -6,6 +6,7 @@ module BenchmarkDriver
   Config = ::BenchmarkDriver::Struct.new(
     :runner_type,   # @param [String]
     :output_type,   # @param [String]
+    :output_opts,   # @param [Hash{ Symbol => Object }]
     :paths,         # @param [Array<String>]
     :executables,   # @param [Array<BenchmarkDriver::Config::Executable>]
     :filters,       # @param [Array<Regexp>]
@@ -17,6 +18,7 @@ module BenchmarkDriver
     defaults: {
       runner_type: 'ips',
       output_type: 'compare',
+      output_opts: {},
       filters: [],
       repeat_count: 1,
       repeat_result: 'best',

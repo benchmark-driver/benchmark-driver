@@ -2,14 +2,19 @@ class BenchmarkDriver::Output::All
   NAME_LENGTH = 20
   CONTEXT_LENGTH = 20
 
+  OPTIONS = {
+    sort: ['--output-sort true|false', TrueClass, 'Sort all output or not (default: true)'],
+  }
+
   # @param [Array<BenchmarkDriver::Metric>] metrics
   # @param [Array<BenchmarkDriver::Job>] jobs
   # @param [Array<BenchmarkDriver::Context>] contexts
-  def initialize(metrics:, jobs:, contexts:)
+  def initialize(metrics:, jobs:, contexts:, options:)
     @metrics = metrics
     @job_names = jobs.map(&:name)
     @context_names = contexts.map(&:name)
     @name_length = [@job_names.map(&:length).max, NAME_LENGTH].max
+    @sort = options.fetch(:sort, true)
   end
 
   def with_warmup(&block)
@@ -67,7 +72,10 @@ class BenchmarkDriver::Output::All
     else
       print("\e[#{num_values}F")
     end
-    @context_values[@context] = result.all_values.values.first.sort
+    @context_values[@context] = result.all_values.values.first
+    if @sort
+      @context_values[@context] = @context_values[@context].sort
+    end
 
     precision = result.values.values.first.to_s.sub(/\A\d+\./, '').length
     num_values.times do |i|

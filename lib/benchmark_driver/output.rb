@@ -38,11 +38,24 @@ module BenchmarkDriver
     # @param [Array<BenchmarkDriver::Metric>] metrics
     # @param [Array<BenchmarkDriver::Job>] jobs
     # @param [Array<BenchmarkDriver::Context>] contexts
-    def initialize(type:, metrics:, jobs:, contexts:)
-      @output = ::BenchmarkDriver::Output.get(type).new(
+    # @param [Hash{ Symbol => Object }] options
+    def initialize(type:, metrics:, jobs:, contexts:, options:)
+      output = ::BenchmarkDriver::Output.get(type)
+      output_params = output.instance_method(:initialize).parameters.select do |type, _name|
+        type == :keyreq || type == :key
+      end.map(&:last)
+
+      # Optionally pass `options` to #initialize
+      kwargs = {}
+      if output_params.include?(:options)
+        kwargs[:options] = options
+      end
+
+      @output = output.new(
         metrics: metrics,
         jobs: jobs,
         contexts: contexts,
+        **kwargs,
       )
     end
 
