@@ -20,6 +20,17 @@ module BenchmarkDriver
     require 'benchmark_driver/output/record'
     require 'benchmark_driver/output/simple'
 
+    # @param [String] type
+    def self.get(type)
+      if type.include?(':')
+        raise ArgumentError.new("Output type '#{type}' cannot contain ':'")
+      end
+
+      require "benchmark_driver/output/#{type}" # for plugin
+      camelized = type.split('_').map(&:capitalize).join
+      ::BenchmarkDriver::Output.const_get(camelized, false)
+    end
+
     # BenchmarkDriver::Output is pluggable.
     # Create `BenchmarkDriver::Output::Foo` as benchmark_dirver-output-foo.gem and specify `-o foo`.
     #
@@ -28,14 +39,7 @@ module BenchmarkDriver
     # @param [Array<BenchmarkDriver::Job>] jobs
     # @param [Array<BenchmarkDriver::Context>] contexts
     def initialize(type:, metrics:, jobs:, contexts:)
-      if type.include?(':')
-        raise ArgumentError.new("Output type '#{type}' cannot contain ':'")
-      end
-
-      require "benchmark_driver/output/#{type}" # for plugin
-      camelized = type.split('_').map(&:capitalize).join
-
-      @output = ::BenchmarkDriver::Output.const_get(camelized, false).new(
+      @output = ::BenchmarkDriver::Output.get(type).new(
         metrics: metrics,
         jobs: jobs,
         contexts: contexts,
