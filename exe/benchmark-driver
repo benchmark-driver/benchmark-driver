@@ -47,7 +47,7 @@ config = BenchmarkDriver::Config.new.tap do |c|
       r.split(';').each do |version|
         executables << BenchmarkDriver::Rbenv.parse_spec(version)
       end
-    end
+    end if system('which rbenv > /dev/null')
     o.on('--repeat-count NUM', Integer, 'Try benchmark NUM times and use the fastest result or the worst memory usage') do |v|
       c.repeat_count = v
     end
