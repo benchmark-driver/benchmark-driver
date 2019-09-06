@@ -1,3 +1,7 @@
+# v0.15.2
+
+- `recorded` runner propagates `all_values` to output
+
 # v0.15.1
 
 - `BenchmarkDriver::BulkOutput#initialize` takes `options` option for `super`
