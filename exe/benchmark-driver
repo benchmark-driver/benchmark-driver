@@ -39,7 +39,7 @@ config = BenchmarkDriver::Config.new.tap do |c|
       r.split(';').each do |version|
         executables << BenchmarkDriver::RidkUse.parse_spec(version)
       end
-    end
+    end if system("ridk version > nul 2>&1")
     o.on('--repeat-count NUM', Integer, 'Try benchmark NUM times and use the fastest result or the worst memory usage') do |v|
       c.repeat_count = v
     end
