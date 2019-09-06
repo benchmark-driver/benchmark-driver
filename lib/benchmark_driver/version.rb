@@ -1,3 +1,3 @@
 module BenchmarkDriver
-  VERSION = '0.14.22'
+  VERSION = '0.15.2'
 end

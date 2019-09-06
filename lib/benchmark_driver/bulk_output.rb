@@ -13,7 +13,8 @@ module BenchmarkDriver
     # @param [Array<BenchmarkDriver::Metric>] metrics
     # @param [Array<BenchmarkDriver::Job>] jobs
     # @param [Array<BenchmarkDriver::Context>] contexts
-    def initialize(metrics:, jobs:, contexts:)
+    # @param [Hash{ Symbol => Object }] options
+    def initialize(metrics:, jobs:, contexts:, options: {})
       @metrics = metrics
     end
 

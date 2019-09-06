@@ -1,3 +1,16 @@
+# v0.15.2
+
+- `recorded` runner propagates `all_values` to output
+
+# v0.15.1
+
+- `BenchmarkDriver::BulkOutput#initialize` takes `options` option for `super`
+
+# v0.15.0
+
+- Introduce output plugin interface to accept arbitrary `--output-xxx` option
+- Hide `--rbenv` option when `rbenv` command is not available
+
 # v0.14.22
 
 - Fix warnings for keyword arguments in Ruby 2.7
