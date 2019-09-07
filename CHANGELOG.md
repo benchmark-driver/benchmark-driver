@@ -1,3 +1,7 @@
+# v0.15.4
+
+- Avoid showing error messages by CLI's rbenv check introduced in v0.15.0
+
 # v0.15.3
 
 - Add `--ridkuse` to select Ruby by `ridk use` if `ridk` command is available
