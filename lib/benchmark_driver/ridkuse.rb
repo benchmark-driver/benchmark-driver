@@ -15,7 +15,7 @@ module BenchmarkDriver
       ruby_list = []
       regex = /(\d+)\s-\s([^\s]+)\s\truby\s([^\s]+)\s/
       cmd = "ridk use list"
-      stdout, status = Open3.capture2e(cmd)
+      stdout, _status = Open3.capture2e(cmd)
 
       stdout.each_line do |line|
         if matched = regex.match(line)
