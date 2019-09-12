@@ -4,7 +4,7 @@ require 'shellwords'
 module BenchmarkDriver
   module RidkUse
     # Execute "ridk use list" command to get a list of Ruby versions.
-    # 
+    #
     # * "ridk use list" is a sub-command of ridk. It returns a list of installed ruby ​​versions.
     # * "ridk" is a helper command tool of RubyInstaller2 for Windows, that to manage the runtime environment of RubyInstaller-2.4 and up.
     #
@@ -27,7 +27,7 @@ module BenchmarkDriver
       end
       Hash[*ruby_list]
     end
-    
+
     # @param [String] version
     def self.ruby_path(version)
       ruby_list = BenchmarkDriver::RidkUse.ridk_use_list
