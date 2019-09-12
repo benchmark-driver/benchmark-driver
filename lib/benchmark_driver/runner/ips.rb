@@ -41,7 +41,7 @@ class BenchmarkDriver::Runner::Ips
             end
 
             loop_count = (loop_count.to_f * @config.run_duration / duration).floor
-            Job.new(job.to_h.merge(loop_count: loop_count))
+            Job.new(**job.to_h.merge(loop_count: loop_count))
           end
         end
       end

@@ -27,7 +27,7 @@ class BenchmarkDriver::Runner::Once
   # @param [Array<BenchmarkDriver::Default::Job>] jobs
   def run(jobs)
     jobs = jobs.map do |job|
-      Job.new(job.to_h.merge(loop_count: 1)) # to show this on output
+      Job.new(**job.to_h.merge(loop_count: 1)) # to show this on output
     end
 
     @output.with_benchmark do
