@@ -18,11 +18,13 @@ describe 'YAML interface' do
   end
 
   it 'runs haml_render.yml with default options' do
-    haml_checker = proc { |ver| with_clean_env { !system(RbConfig.ruby, '-e', "gem 'haml', '#{ver}'", err: File::NULL) } }
-    if ENV['TRAVIS'] != 'true' && absent_ver = %w[4.0.7 5.0.4].find(&haml_checker)
-      skip "haml.gem '#{absent_ver}' is not installed"
+    with_clean_env do
+      haml_checker = proc { |ver| !system(RbConfig.ruby, '-e', "gem 'haml', '#{ver}'", err: File::NULL) }
+      if ENV['TRAVIS'] != 'true' && absent_ver = %w[4.0.7 5.0.4].find(&haml_checker)
+        skip "haml.gem '#{absent_ver}' is not installed"
+      end
+      benchmark_driver fixture_extra('haml_render.yml'), '--run-duration', '0.2'
     end
-    benchmark_driver fixture_extra('haml_render.yml'), '--run-duration', '0.2'
   end
 
   it 'exits normally with script error' do
