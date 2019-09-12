@@ -1,3 +1,10 @@
+# v0.15.5
+
+- Propagate `RUBYOPT` to a runner process when executables are not specified
+  - This effectively propagates `bundle exec` to child processes
+- Fix unused variable warning in `benchmark_driver/ridkuse.rb`
+- Fix keyword argument warnings for Struct in Ruby 2.7
+
 # v0.15.4
 
 - Avoid showing error messages by CLI's rbenv check introduced in v0.15.0
