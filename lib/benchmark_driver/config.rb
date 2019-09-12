@@ -1,5 +1,6 @@
 require 'benchmark_driver/struct'
 require 'rbconfig'
+require 'shellwords'
 
 module BenchmarkDriver
   # All CLI options
@@ -56,6 +57,6 @@ module BenchmarkDriver
     end
   end
   Config.defaults[:executables] = [
-    BenchmarkDriver::Config::Executable.new(name: RUBY_VERSION, command: [RbConfig.ruby]),
+    BenchmarkDriver::Config::Executable.new(name: RUBY_VERSION, command: [RbConfig.ruby, *ENV.fetch('RUBYOPT', '').shellsplit]),
   ]
 end
