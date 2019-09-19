@@ -61,7 +61,7 @@ module BenchmarkDriver
       klass.defaults = defaults
 
       klass.prepend(Module.new {
-        def initialize(**)
+        def initialize(*)
           super
           self.class.defaults.each do |key, value|
             if public_send(key).nil?
