@@ -1,3 +1,7 @@
+# v0.15.6
+
+- Fix new keyword argument warnings for the latest Ruby 2.7
+
 # v0.15.5
 
 - Propagate `RUBYOPT` to a runner process when executables are not specified
