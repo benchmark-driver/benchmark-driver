@@ -1,3 +1,7 @@
+# v0.15.7
+
+- Add `median` to --repeat-result options
+
 # v0.15.6
 
 - Fix new keyword argument warnings for the latest Ruby 2.7
