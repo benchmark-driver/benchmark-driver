@@ -3,7 +3,7 @@ require 'benchmark_driver/struct'
 module BenchmarkDriver
   # Repeat calling block and return desired result: "best", "worst" or "average".
   module Repeater
-    VALID_TYPES = %w[best worst average]
+    VALID_TYPES = %w[best worst average median]
 
     RepeatResult = ::BenchmarkDriver::Struct.new(
       :value, # the value desired by --repeat-result
@@ -27,6 +27,8 @@ module BenchmarkDriver
             best_result(values, !larger_better)
           when 'average'
             average_result(values, rest_on_average)
+          when 'median'
+            median_result(values, rest_on_average)
           else
             raise "unexpected repeat_result #{config.repeat_result.inspect}"
           end
@@ -56,6 +58,39 @@ module BenchmarkDriver
           end
         else
           raise "unexpected rest_on_average #{rest_on_average.inspect}"
+        end
+      end
+
+      def median_result_i(a)
+        b = a.dup
+        b.sort!
+        x = y = nil
+        until b.empty? do
+          x = b.pop
+          y = b.shift
+        end
+        x || y
+      end
+
+      def median_result(values, rest_on_average)
+        case values.first
+        when Numeric then
+          median_result values
+        when Array then
+          case rest_on_average
+          when :first
+            rest = values.first[1..-1]
+            median = median_result_i(values.map(&:first))
+            [median, *rest]
+          when :average
+            values.first.size.times.map do |i|
+              median_result_i(values.map {|j| j[i] })
+            end
+          else
+            raise "unexpected rest_on_average #{rest_on_average.inspect}"
+          end
+        else
+          raise "unexpected values #{values.class}"
         end
       end
 
