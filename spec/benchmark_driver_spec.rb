@@ -47,6 +47,11 @@ describe 'benchmark-driver command' do
       '--repeat-count', '2', '--repeat-result', 'average'
   end
 
+  it 'returns median result with repeats' do
+    benchmark_driver fixture_yaml('blank_hash.yml'), '-r', 'ips', '-o', 'compare', '--run-duration', '0.1',
+      '--repeat-count', '2', '--repeat-result', 'median'
+  end
+
   it 'runs a Ruby script as single-execution benchmark' do
     benchmark_driver fixture_extra('single.rb'), '-v'
   end
