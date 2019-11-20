@@ -62,14 +62,7 @@ module BenchmarkDriver
       end
 
       def median_result_i(a)
-        b = a.dup
-        b.sort!
-        x = y = nil
-        until b.empty? do
-          x = b.pop
-          y = b.shift
-        end
-        x || y
+        a.sort[a.size/2]
       end
 
       def median_result(values, rest_on_average)
