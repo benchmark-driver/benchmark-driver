@@ -32,7 +32,7 @@ describe 'Ruby interface' do
 
           Benchmark.driver do |x|
             x.report %q{
-              h = {a: 1, b: 2, c: 3, d: 4}
+              _h = {a: 1, b: 2, c: 3, d: 4}
             }
             x.loop_count 6000
           end
