@@ -1,3 +1,9 @@
+# v0.15.9
+
+- Prefer an exact match in RVM version selection
+- Fix a negative duration crash in `ips`, `time` and `once` runners
+- Fix bugs in old TruffleRuby not supporting `keyword_init` of Struct
+
 # v0.15.8
 
 - Add `--rvm` option and `.rvm` Ruby interface to use RVM
