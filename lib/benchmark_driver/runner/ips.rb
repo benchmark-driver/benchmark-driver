@@ -108,8 +108,8 @@ class BenchmarkDriver::Runner::Ips
     duration = Tempfile.open(['benchmark_driver-', '.rb']) do |f|
       with_script(benchmark.render(result: f.path)) do |path|
         IO.popen([*context.executable.command, path], &:read) # TODO: print stdout if verbose=2
-        if $?.success?
-          Float(f.read)
+        if $?.success? && ((value = Float(f.read)) > 0)
+          value
         else
           BenchmarkDriver::Result::ERROR
         end
