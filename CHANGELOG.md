@@ -1,3 +1,7 @@
+# v0.15.8
+
+- Add `--rvm` option and `.rvm` Ruby interface to use RVM
+
 # v0.15.7
 
 - Add `median` to --repeat-result options
