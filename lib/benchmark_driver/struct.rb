@@ -5,8 +5,8 @@
 module BenchmarkDriver
   class ::Struct
     SUPPORT_KEYWORD_P = begin
-                          ::Struct.new(:a, keyword_init: true)
-                          true
+                          s = ::Struct.new(:a, keyword_init: true)
+                          s.new(a: 1).a == 1
                         rescue TypeError
                           false
                         end
