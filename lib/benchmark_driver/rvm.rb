@@ -23,7 +23,8 @@ module BenchmarkDriver
       else
         rubies = Pathname.new("#{ENV['rvm_path']}/rubies")
         abort "Rubies path '#{rubies}' not found" unless rubies.exist?
-        ruby_root = rubies.children.detect { |path| path.directory? && path.basename.to_s.match(version) }
+        ruby_list = rubies.children.select { |path| path.directory? && path.basename.to_s.match(version) }
+        ruby_root = ruby_list.detect { |path| path.basename.to_s == version } || ruby_list[0]
         abort "Version '#{version}' not found" unless ruby_root
         "#{ruby_root}/bin/ruby"
       end
