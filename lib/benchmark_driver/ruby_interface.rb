@@ -71,6 +71,12 @@ module BenchmarkDriver
       end
     end
 
+    def rvm(*versions)
+      versions.each do |version|
+        @executables << BenchmarkDriver::Rvm.parse_spec(version)
+      end
+    end
+
     # ridk use command for RubyInstaller2 on Windows
     def ridkuse(*versions)
       versions.each do |version|

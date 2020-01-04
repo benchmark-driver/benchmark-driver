@@ -48,6 +48,11 @@ config = BenchmarkDriver::Config.new.tap do |c|
         executables << BenchmarkDriver::Rbenv.parse_spec(version)
       end
     end if system("which rbenv > #{File::NULL} 2>&1")
+    o.on('--rvm VERSIONS', String, 'Ruby executables in rvm (x.x.x arg1;y.y.y arg2;...)') do |r|
+      r.split(';').each do |version|
+        executables << BenchmarkDriver::Rvm.parse_spec(version)
+      end
+    end if system("which rvm > #{File::NULL} 2>&1")
     o.on('--ridkuse VERSIONS', String, 'Ruby executables in ridk use (x.x.x arg1;y.y.y arg2;...) for RubyInstaller2 on Windows') do |r|
       r.split(';').each do |version|
         executables << BenchmarkDriver::RidkUse.parse_spec(version)
