@@ -35,7 +35,7 @@ class BenchmarkDriver::Output::Markdown
       # Show header separator
       $stdout.print("|:#{'-' * (@name_length - 1)}--")
       @context_names.each do |context_name|
-        $stdout.print("|:#{'-' * (NAME_LENGTH - 1)}") # same size as humanize
+        $stdout.print("|#{'-' * (NAME_LENGTH - 1)}:") # same size as humanize
       end
       $stdout.puts('|')
 
