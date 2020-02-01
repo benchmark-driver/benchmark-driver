@@ -1,3 +1,7 @@
+# v0.15.10
+
+- Right-justify calculated results in `markdown` output
+
 # v0.15.9
 
 - Prefer an exact match in RVM version selection
