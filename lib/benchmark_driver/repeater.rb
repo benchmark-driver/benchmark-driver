@@ -54,7 +54,7 @@ module BenchmarkDriver
           [values.map { |v| v[0] }.inject(&:+) / values.size.to_f, *rest]
         when :average
           values.first.size.times.map do |index|
-            values.map { |v| v[index] }.inject(&:+) / values.first.size.to_f
+            values.map { |v| v[index] }.inject(&:+) / values.size.to_f
           end
         else
           raise "unexpected rest_on_average #{rest_on_average.inspect}"
