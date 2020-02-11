@@ -1,3 +1,7 @@
+# v0.15.11
+
+- Correctly calculate an average result on `--repeat-result=average`
+
 # v0.15.10
 
 - Right-justify calculated results in `markdown` output
