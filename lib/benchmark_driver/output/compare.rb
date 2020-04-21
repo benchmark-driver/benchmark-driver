@@ -117,17 +117,17 @@ class BenchmarkDriver::Output::Compare
 
   def humanize(value, width = 10)
     if BenchmarkDriver::Result::ERROR.equal?(value)
-      return " %#{width}s" % 'ERROR'
+      return sprintf(" %*s", width, 'ERROR')
     elsif value == 0.0
-      return " %#{width}.3f" % 0.0
+      return sprintf(" %*.3f", width, 0.0)
     elsif value < 0
       raise ArgumentError.new("Negative value: #{value.inspect}")
     end
 
     scale = (Math.log10(value) / 3).to_i
-    return "%#{width}s" % value.to_s if scale < 0 # like 1.23e-04
+    return sprintf("%*s", width, value.to_s) if scale < 0 # like 1.23e-04
 
-    prefix = "%#{width}.3f" % (value.to_f / (1000 ** scale))
+    prefix = sprintf("%*.3f", width, (value.to_f / (1000 ** scale)))
     suffix =
       case scale
       when 1; 'k'
@@ -173,7 +173,7 @@ class BenchmarkDriver::Output::Compare
     $stdout.puts "\nComparison:"
 
     @job_context_result.each do |job, context_result|
-      $stdout.puts("%#{@name_length + 2 + 11}s" % job)
+      $stdout.printf("%*s\n", @name_length + 2 + 11, job)
       results = context_result.flat_map do |context, result|
         result.values.values.map { |value| Result.new(job: job, value: value, context: context) }
       end
@@ -188,7 +188,7 @@ class BenchmarkDriver::Output::Compare
 
     unless BenchmarkDriver::Result::ERROR.equal?(bottom)
       ratio = top / bottom
-      "- %.2fx  #{@metrics.first.worse_word}" % ratio
+      sprintf("- %.2fx  %s", ratio, @metrics.first.worse_word)
     end
   end
 
@@ -211,7 +211,7 @@ class BenchmarkDriver::Output::Compare
       else
         name = result.job
       end
-      $stdout.puts("%#{@name_length}s: %11.1f %s #{slower}" % [name, result.value, @metrics.first.unit])
+      $stdout.printf("%*s: %11.1f %s %s\n", @name_length, name, result.value, @metrics.first.unit, slower)
     end
     $stdout.puts
   end

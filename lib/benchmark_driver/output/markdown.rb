@@ -28,14 +28,15 @@ class BenchmarkDriver::Output::Markdown
       # Show executable names
       $stdout.print("|#{' ' * @name_length}  ")
       @context_names.each do |context_name|
-        $stdout.print("|%#{NAME_LENGTH}s" % context_name) # same size as humanize
+        $stdout.printf("|%*s", NAME_LENGTH, context_name) # same size as humanize
       end
       $stdout.puts('|')
 
       # Show header separator
       $stdout.print("|:#{'-' * (@name_length - 1)}--")
       @context_names.each do |context_name|
-        $stdout.print("|#{'-' * (NAME_LENGTH - 1)}:") # same size as humanize
+        length = [context_name.length, NAME_LENGTH].max
+        $stdout.print("|#{'-' * (length - 1)}:") # same size as humanize
       end
       $stdout.puts('|')
 
@@ -48,7 +49,7 @@ class BenchmarkDriver::Output::Markdown
   # @param [BenchmarkDriver::Job] job
   def with_job(job, &block)
     if @with_benchmark
-      $stdout.print("|%-#{@name_length}s  " % job.name)
+      $stdout.printf("|%-*s  ", @name_length, job.name)
     end
     block.call
   ensure
@@ -59,13 +60,15 @@ class BenchmarkDriver::Output::Markdown
 
   # @param [BenchmarkDriver::Context] context
   def with_context(context, &block)
+    @context = context
     block.call
   end
 
   # @param [BenchmarkDriver::Result] result
   def report(result)
     if @with_benchmark
-      $stdout.print("|%#{NAME_LENGTH}s" % humanize(result.values.fetch(@metrics.first)))
+      length = [NAME_LENGTH, @context.name.length].max
+      $stdout.printf("|%*s", length, humanize(result.values.fetch(@metrics.first)))
     else
       $stdout.print '.'
     end
@@ -83,15 +86,15 @@ class BenchmarkDriver::Output::Markdown
 
   def humanize(value)
     if BenchmarkDriver::Result::ERROR.equal?(value)
-      return "%#{NAME_LENGTH}s" % 'ERROR'
+      return sprintf("%*s", NAME_LENGTH, 'ERROR')
     elsif value == 0.0
-      return "%#{NAME_LENGTH}.3f" % 0.0
+      return sprintf("%*.3f", NAME_LENGTH, 0.0)
     elsif value < 0
       raise ArgumentError.new("Negative value: #{value.inspect}")
     end
 
     scale = (Math.log10(value) / 3).to_i
-    prefix = "%#{NAME_LENGTH - 1}.3f" % (value.to_f / (1000 ** scale))
+    prefix = sprintf("%*.3f", NAME_LENGTH - 1, (value.to_f / (1000 ** scale)))
     suffix =
       case scale
       when 1; 'k'
