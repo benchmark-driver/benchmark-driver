@@ -1,3 +1,7 @@
+# v0.15.12
+
+- Show comparison on `--output=markdown` when `--output-compare` is also specified
+
 # v0.15.11
 
 - Correctly calculate an average result on `--repeat-result=average`
