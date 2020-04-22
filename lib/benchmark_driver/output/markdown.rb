@@ -1,14 +1,19 @@
 class BenchmarkDriver::Output::Markdown
   NAME_LENGTH = 8
 
+  OPTIONS = {
+    compare: ['--output-compare', 'Show comparison between results'],
+  }
+
   # @param [Array<BenchmarkDriver::Metric>] metrics
   # @param [Array<BenchmarkDriver::Job>] jobs
   # @param [Array<BenchmarkDriver::Context>] contexts
-  def initialize(metrics:, jobs:, contexts:)
+  def initialize(metrics:, jobs:, contexts:, options:)
     @metrics = metrics
     @contexts = contexts
     @context_names = contexts.map(&:name)
     @name_length = jobs.map(&:name).map(&:size).max
+    @compare = options.fetch(:compare, false)
   end
 
   def with_warmup(&block)
@@ -58,7 +63,7 @@ class BenchmarkDriver::Output::Markdown
   ensure
     if @with_benchmark
       $stdout.puts('|')
-      compare_executables if @context_names.size > 1
+      compare_executables if @compare && @context_names.size > 1
     end
   end
 
