@@ -6,6 +6,7 @@ class BenchmarkDriver::Output::Markdown
   # @param [Array<BenchmarkDriver::Context>] contexts
   def initialize(metrics:, jobs:, contexts:)
     @metrics = metrics
+    @contexts = contexts
     @context_names = contexts.map(&:name)
     @name_length = jobs.map(&:name).map(&:size).max
   end
@@ -28,14 +29,15 @@ class BenchmarkDriver::Output::Markdown
       # Show executable names
       $stdout.print("|#{' ' * @name_length}  ")
       @context_names.each do |context_name|
-        $stdout.print("|%#{NAME_LENGTH}s" % context_name) # same size as humanize
+        $stdout.printf("|%*s", NAME_LENGTH, context_name) # same size as humanize
       end
       $stdout.puts('|')
 
       # Show header separator
       $stdout.print("|:#{'-' * (@name_length - 1)}--")
       @context_names.each do |context_name|
-        $stdout.print("|#{'-' * (NAME_LENGTH - 1)}:") # same size as humanize
+        length = [context_name.length, NAME_LENGTH].max
+        $stdout.print("|#{'-' * (length - 1)}:") # same size as humanize
       end
       $stdout.puts('|')
 
@@ -48,24 +50,33 @@ class BenchmarkDriver::Output::Markdown
   # @param [BenchmarkDriver::Job] job
   def with_job(job, &block)
     if @with_benchmark
-      $stdout.print("|%-#{@name_length}s  " % job.name)
+      @job_context_result = {} if @context_names.size > 1
+
+      $stdout.printf("|%-*s  ", @name_length, job.name)
     end
     block.call
   ensure
     if @with_benchmark
       $stdout.puts('|')
+      compare_executables if @context_names.size > 1
     end
   end
 
   # @param [BenchmarkDriver::Context] context
   def with_context(context, &block)
+    @context = context
     block.call
   end
 
   # @param [BenchmarkDriver::Result] result
   def report(result)
+    if defined?(@job_context_result)
+      @job_context_result[@context] = result
+    end
+
     if @with_benchmark
-      $stdout.print("|%#{NAME_LENGTH}s" % humanize(result.values.fetch(@metrics.first)))
+      length = [NAME_LENGTH, @context.name.length].max
+      $stdout.printf("|%*s", length, humanize(result.values.fetch(@metrics.first)))
     else
       $stdout.print '.'
     end
@@ -83,15 +94,15 @@ class BenchmarkDriver::Output::Markdown
 
   def humanize(value)
     if BenchmarkDriver::Result::ERROR.equal?(value)
-      return "%#{NAME_LENGTH}s" % 'ERROR'
+      return sprintf("%*s", NAME_LENGTH, 'ERROR')
     elsif value == 0.0
-      return "%#{NAME_LENGTH}.3f" % 0.0
+      return sprintf("%*.3f", NAME_LENGTH, 0.0)
     elsif value < 0
       raise ArgumentError.new("Negative value: #{value.inspect}")
     end
 
     scale = (Math.log10(value) / 3).to_i
-    prefix = "%#{NAME_LENGTH - 1}.3f" % (value.to_f / (1000 ** scale))
+    prefix = sprintf("%*.3f", NAME_LENGTH - 1, (value.to_f / (1000 ** scale)))
     suffix =
       case scale
       when 1; 'k'
@@ -104,4 +115,30 @@ class BenchmarkDriver::Output::Markdown
       end
     "#{prefix}#{suffix}"
   end
+
+  def compare_executables
+    order = @metrics.first.larger_better ? :min_by : :max_by
+    worst, worst_result = @job_context_result.__send__(order) do |_, result|
+      result.values.first[1]
+    end
+    worst_result = worst_result.values.first[1]
+    $stdout.print("|", " " * (@name_length + 2))
+    @job_context_result.each do |context, result|
+      if context == worst
+        result = '-'
+      else
+        result = result.values.first[1]
+        if order == :min_by
+          result = result.fdiv(worst_result)
+        else
+          result = best_result.fdiv(worst_result)
+        end
+        result = sprintf("%.2fx", result)
+      end
+      length = [context.name.length, NAME_LENGTH].max
+      $stdout.printf("|%*s", length, result)
+    end
+    $stdout.puts('|')
+  end
+
 end
