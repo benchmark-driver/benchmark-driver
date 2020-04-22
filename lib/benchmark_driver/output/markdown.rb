@@ -6,6 +6,7 @@ class BenchmarkDriver::Output::Markdown
   # @param [Array<BenchmarkDriver::Context>] contexts
   def initialize(metrics:, jobs:, contexts:)
     @metrics = metrics
+    @contexts = contexts
     @context_names = contexts.map(&:name)
     @name_length = jobs.map(&:name).map(&:size).max
   end
@@ -49,12 +50,15 @@ class BenchmarkDriver::Output::Markdown
   # @param [BenchmarkDriver::Job] job
   def with_job(job, &block)
     if @with_benchmark
+      @job_context_result = {} if @context_names.size > 1
+
       $stdout.printf("|%-*s  ", @name_length, job.name)
     end
     block.call
   ensure
     if @with_benchmark
       $stdout.puts('|')
+      compare_executables if @context_names.size > 1
     end
   end
 
@@ -66,6 +70,10 @@ class BenchmarkDriver::Output::Markdown
 
   # @param [BenchmarkDriver::Result] result
   def report(result)
+    if defined?(@job_context_result)
+      @job_context_result[@context] = result
+    end
+
     if @with_benchmark
       length = [NAME_LENGTH, @context.name.length].max
       $stdout.printf("|%*s", length, humanize(result.values.fetch(@metrics.first)))
@@ -107,4 +115,30 @@ class BenchmarkDriver::Output::Markdown
       end
     "#{prefix}#{suffix}"
   end
+
+  def compare_executables
+    order = @metrics.first.larger_better ? :min_by : :max_by
+    worst, worst_result = @job_context_result.__send__(order) do |_, result|
+      result.values.first[1]
+    end
+    worst_result = worst_result.values.first[1]
+    $stdout.print("|", " " * (@name_length + 2))
+    @job_context_result.each do |context, result|
+      if context == worst
+        result = '-'
+      else
+        result = result.values.first[1]
+        if order == :min_by
+          result = result.fdiv(worst_result)
+        else
+          result = best_result.fdiv(worst_result)
+        end
+        result = sprintf("%.2fx", result)
+      end
+      length = [context.name.length, NAME_LENGTH].max
+      $stdout.printf("|%*s", length, result)
+    end
+    $stdout.puts('|')
+  end
+
 end
