@@ -107,8 +107,8 @@ class BenchmarkDriver::Runner::Ips
 
     duration = Tempfile.open(['benchmark_driver-', '.rb']) do |f|
       with_script(benchmark.render(result: f.path)) do |path|
-        IO.popen([*context.executable.command, path], &:read) # TODO: print stdout if verbose=2
-        if $?.success? && ((value = Float(f.read)) > 0)
+        success = execute(*context.executable.command, path, exception: false)
+        if success && ((value = Float(f.read)) > 0)
           value
         else
           BenchmarkDriver::Result::ERROR
@@ -137,10 +137,7 @@ class BenchmarkDriver::Runner::Ips
   end
 
   def with_script(script)
-    if @config.verbose >= 2
-      sep = '-' * 30
-      $stdout.puts "\n\n#{sep}[Script begin]#{sep}\n#{script}#{sep}[Script end]#{sep}\n\n"
-    end
+    debug_output('Script', script) if @config.verbose >= 2
 
     Tempfile.open(['benchmark_driver-', '.rb']) do |f|
       f.puts script
@@ -149,11 +146,22 @@ class BenchmarkDriver::Runner::Ips
     end
   end
 
-  def execute(*args)
-    IO.popen(args, &:read) # TODO: print stdout if verbose=2
-    unless $?.success?
-      raise "Failed to execute: #{args.shelljoin} (status: #{$?.exitstatus})"
+  def execute(*args, exception: true)
+    $stderr.puts "$ #{args.shelljoin}" if @config.verbose >= 2
+
+    output = IO.popen(args, &:read)
+    debug_output('Command output', output) if @config.verbose >= 2
+    if $?.success?
+      output
+    else
+      raise "Failed to execute: #{args.shelljoin} (status: #{$?})" if exception
+      nil
     end
+  end
+
+  def debug_output(name, text)
+    sep = '-' * 30
+    $stdout.puts "\n\n#{sep}[#{name} begin]#{sep}\n#{text}#{sep}[#{name} end]#{sep}\n\n"
   end
 
   WarmupScript = ::BenchmarkDriver::Struct.new(:preludes, :script, :teardown, :loop_count, :first_warmup_duration, :second_warmup_duration) do
