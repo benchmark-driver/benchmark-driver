@@ -10,7 +10,7 @@ module BenchmarkDriver
         @config.executables = @executables
       end
 
-      jobs = @jobs.flat_map do |job|
+      jobs = @jobs.map do |job|
         BenchmarkDriver::JobParser.parse({
           type: @config.runner_type,
           prelude: @prelude,
