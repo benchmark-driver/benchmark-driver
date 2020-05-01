@@ -89,7 +89,7 @@ config = BenchmarkDriver::Config.new.tap do |c|
     abort e.message
   end
   if c.paths.empty?
-    abort "No YAML file is specified!\n\n#{parser.help}"
+    abort "No YAML or Ruby benchmark is specified!\n\n#{parser.help}"
   end
 
   # Configs that need to be set lazily
@@ -114,10 +114,18 @@ jobs = config.paths.flat_map do |path|
 
   # Treat *.rb as a single-execution benchmark, others are considered as YAML definition
   if path.end_with?('.rb')
-    name = File.basename(path).sub(/\.rb\z/, '')
+    name = File.basename(path, '.rb')
     script = File.read(path)
-    prelude = script.slice!(/\A(^#[^\n]+\n)+/m) || '' # preserve magic comment
-    job.merge!('prelude' => prelude, 'benchmark' => { name => script }, 'loop_count' => 1)
+    if script =~ /\bBenchmark\.driver\b/
+      # raise 'Benchmark.driver DSL benchmarks currently need to be run with `ruby benchmark.rb`'
+      job.merge!(BenchmarkDriver::RubyInterface.load(path))
+    elsif script =~ /^\s*prelude\b/
+      job.merge!(BenchmarkDriver::RubyTopLevelDSL.load(path))
+    else
+      # single-execution benchmark
+      prelude = script.slice!(/\A(^#[^\n]+\n)+/m) || '' # preserve magic comment
+      job.merge!('prelude' => prelude, 'benchmark' => { name => script }, 'loop_count' => 1)
+    end
   else
     job.merge!(YAML.load_file(path))
   end

@@ -1,23 +1,65 @@
 module BenchmarkDriver
   class RubyInterface
+    @mode = :run
+    @instances = []
+
+    def self.load(path)
+      @mode = :load
+      Kernel.load path
+      raise "need exactly 1 Benchmark.driver call (got #{@instances.size})" if @instances.size != 1
+      @instances[0].build_config
+    end
+
     def self.run(**args, &block)
-      new(**args).tap { |x| block.call(x) }.run
+      instance = new(**args)
+      block.call(instance)
+      case @mode
+      when :run
+        instance.run
+      when :load
+        @instances << instance
+        nil
+      else
+        raise "Unknown mode: #{@mode}"
+      end
+    end
+
+    def build_config
+      config = {
+        prelude: @prelude,
+        benchmark: {}
+      }
+
+      config[:loop_count] = @loop_count if @loop_count
+
+      @jobs.each do |job|
+        name, script = job[:benchmark].first.values_at(:name, :script)
+        config[:benchmark][name] = script
+      end
+
+      config
     end
 
     # Build jobs and run. This is NOT interface for users.
     def run
+      config = BenchmarkDriver::Config.new
+      config.output_type = @output.to_s if @output
+      config.runner_type = @runner.to_s if @runner
+      config.repeat_count = Integer(@repeat_count) if @repeat_count
+      config.verbose = @verbose if @verbose
+
       unless @executables.empty?
-        @config.executables = @executables
+        config.executables = @executables
       end
 
       jobs = @jobs.map do |job|
         BenchmarkDriver::JobParser.parse({
-          type: @config.runner_type,
+          type: config.runner_type,
           prelude: @prelude,
           loop_count: @loop_count,
         }.merge!(job))
       end
-      BenchmarkDriver::Runner.run(jobs, config: @config)
+      BenchmarkDriver::Runner.run(jobs, config: config)
     end
 
     #
@@ -26,14 +68,13 @@ module BenchmarkDriver
 
     # @param [String,NilClass] output
     # @param [String,NilClass] runner
-    def initialize(output: nil, runner: nil, repeat_count: 1)
+    def initialize(output: nil, runner: nil, repeat_count: nil)
       @prelude = ''
       @loop_count = nil
       @jobs = []
-      @config = BenchmarkDriver::Config.new
-      @config.output_type = output.to_s if output
-      @config.runner_type = runner.to_s if runner
-      @config.repeat_count = Integer(repeat_count)
+      @output = output
+      @runner = runner
+      @repeat_count = repeat_count
       @executables = []
     end
 
@@ -49,20 +90,17 @@ module BenchmarkDriver
 
     # @param [String] name - Name shown on result output.
     # @param [String,nil] script - Benchmarked script in String. If nil, name is considered as script too.
-    def report(name, script = nil)
-      if script.nil?
-        script = name
-      end
+    def report(name, script = name)
       @jobs << { benchmark: [{ name: name, script: script }] }
     end
 
     def output(type)
-      @config.output_type = type
+      @output = type
     end
 
     # Backward compatibility. This is actually default now.
     def compare!
-      @config.output_type = 'compare'
+      @output = 'compare'
     end
 
     def rbenv(*versions)
@@ -90,7 +128,7 @@ module BenchmarkDriver
     end
 
     def verbose(level = 1)
-      @config.verbose = level
+      @verbose = level
     end
   end
 end
