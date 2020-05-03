@@ -1,3 +1,7 @@
+# v0.15.13
+
+- Show a command and stdout on `-vv` for `ips`, `time`, and `block` runner
+
 # v0.15.12
 
 - Show comparison on `--output=markdown` when `--output-compare` is also specified
