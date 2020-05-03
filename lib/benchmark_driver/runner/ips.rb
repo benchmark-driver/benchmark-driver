@@ -149,14 +149,12 @@ class BenchmarkDriver::Runner::Ips
   def execute(*args, exception: true)
     $stderr.puts "$ #{args.shelljoin}" if @config.verbose >= 2
 
-    output = IO.popen(args, &:read)
-    debug_output('Command output', output) if @config.verbose >= 2
-    if $?.success?
-      output
-    else
-      raise "Failed to execute: #{args.shelljoin} (status: #{$?})" if exception
-      nil
+    stdout = IO.popen(args, &:read)
+    debug_output('Command output', stdout) if @config.verbose >= 2
+    if exception && !$?.success?
+      raise "Failed to execute: #{args.shelljoin} (status: #{$?})"
     end
+    $?.success?
   end
 
   def debug_output(name, text)
