@@ -1,3 +1,8 @@
+# v0.15.15
+
+- An absolute path is passed to `command_stdout`'s `working_directory`
+  and v0.15.14's relative path resolution of job type
+
 # v0.15.14
 
 - YAML's `type` key allows a value with `/` to specify a relative path of a runner plugin
