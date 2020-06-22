@@ -1,3 +1,7 @@
+# v0.15.14
+
+- YAML's `type` key allows a value with `/` to specify a relative path of a runner plugin
+
 # v0.15.13
 
 - Show a command and stdout on `-vv` for `ips`, `time`, and `block` runner
