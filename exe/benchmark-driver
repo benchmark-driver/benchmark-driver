@@ -124,7 +124,7 @@ jobs = config.paths.flat_map do |path|
 
   begin
     # `working_directory` is YAML-specific special parameter, mainly for "command_stdout"
-    BenchmarkDriver::JobParser.parse(job, working_directory: File.dirname(path))
+    BenchmarkDriver::JobParser.parse(job, working_directory: File.expand_path(File.dirname(path)))
   rescue ArgumentError
     $stderr.puts "benchmark-driver: Failed to parse #{path.dump}."
     $stderr.puts '  YAML format may be wrong. See error below:'
