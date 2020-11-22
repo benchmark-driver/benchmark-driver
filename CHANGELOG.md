@@ -1,3 +1,8 @@
+# v0.15.16
+
+- Add `--alternate` runner option to run executables alternately.
+  This is supported only for `ruby_stdout` runner for now.
+
 # v0.15.15
 
 - An absolute path is passed to `command_stdout`'s `working_directory`
