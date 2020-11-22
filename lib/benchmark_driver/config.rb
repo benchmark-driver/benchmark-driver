@@ -13,6 +13,7 @@ module BenchmarkDriver
     :filters,       # @param [Array<Regexp>]
     :repeat_count,  # @param [Integer]
     :repeat_result, # @param [String]
+    :alternate,     # @param [TrueClass,FalseClass]
     :run_duration,  # @param [Float]
     :timeout,       # @param [Float,nil]
     :verbose,       # @param [Integer]
@@ -23,15 +24,17 @@ module BenchmarkDriver
       filters: [],
       repeat_count: 1,
       repeat_result: 'best',
+      alternate: false,
       run_duration: 3.0,
       verbose: 0,
     },
   )
 
-  # Subset of FullConfig passed to JobRunner
+  # Subset of Config passed to JobRunner
   Config::RunnerConfig = ::BenchmarkDriver::Struct.new(
     :repeat_count,  # @param [Integer]
     :repeat_result, # @param [String]
+    :alternate,     # @param [TrueClass,FalseClass]
     :run_duration,  # @param [Float]
     :timeout,       # @param [Float,nil]
     :verbose,       # @param [Integer]

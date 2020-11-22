@@ -67,6 +67,9 @@ config = BenchmarkDriver::Config.new.tap do |c|
       end
       c.repeat_result = v
     end
+    o.on('--alternate', 'Alternate executables instead of running the same executable in a row with --repeat-count') do |v|
+      c.alternate = v
+    end
     o.on('--bundler', 'Install and use gems specified in Gemfile') do |v|
       bundler = v
     end

@@ -77,6 +77,63 @@ class BenchmarkDriver::Runner::RubyStdout
   # This method is dynamically called by `BenchmarkDriver::JobRunner.run`
   # @param [Array<BenchmarkDriver::Default::Job>] jobs
   def run(jobs)
+    if @config.alternate
+      alternated_run(jobs)
+    else
+      incremental_run(jobs)
+    end
+  end
+
+  private
+
+  # Special mode. Execution order: RubyA, RubyB, ..., RubyA, RubyB, ...
+  def alternated_run(jobs)
+    metric = jobs.first.metrics.first
+
+    @output.with_benchmark do
+      jobs.each do |job|
+        @output.with_job(name: job.name) do
+          # Running benchmarks in an alternated manner is NOT compatible with two things:
+          #   * Output plugins. They expect RubyA, RubyA, RubyB, RubyB, ...
+          #   * BenchmarkDriver::Repeater. It should be used for results of the same condition.
+          #
+          # Therefore, we run all benchmarks with executables alternated first here, and then
+          # aggregate the results as if the same executable were repeated in a row.
+          context_results = Hash.new do |hash, context|
+            hash[context] = []
+          end
+          jobs.each do |job|
+            @config.repeat_count.times do
+              @contexts.each do |context|
+                context_results[context] << run_job(job, exec: context.executable)
+              end
+            end
+          end
+
+          # Aggregate reslts by BenchmarkDriver::Repeater and pass them to output.
+          @contexts.each do |context|
+            repeat_params = { config: @config, larger_better: metric.larger_better }
+            result = BenchmarkDriver::Repeater.with_repeat(**repeat_params) do
+              context_results[context].shift
+            end
+            value, environment = result.value
+
+            exec = context.executable
+            @output.with_context(name: exec.name, executable: exec) do
+              @output.report(
+                values: { metric => value },
+                all_values: { metric => result.all_values },
+                environment: environment,
+              )
+            end
+          end
+        end
+      end
+    end
+  end
+
+  # Default mode. Execution order: RubyA, RubyA, RubyB, RubyB, ...
+  def incremental_run(jobs)
     metric = jobs.first.metrics.first
 
     @output.with_benchmark do
@@ -86,20 +143,7 @@ class BenchmarkDriver::Runner::RubyStdout
             exec = context.executable
             repeat_params = { config: @config, larger_better: metric.larger_better }
             result = BenchmarkDriver::Repeater.with_repeat(**repeat_params) do
-              begin
-                stdout = with_chdir(job.working_directory) do
-                  with_ruby_prefix(exec) { execute(*exec.command, *job.command) }
-                end
-                script = StdoutToMetrics.new(
-                  stdout: stdout,
-                  value_from_stdout: job.value_from_stdout,
-                  environment_from_stdout: job.environment_from_stdout,
-                )
-                [script.value, script.environment]
-              rescue CommandFailure => e
-                $stderr.puts("\n```\n#{e.message}```\n")
-                [BenchmarkDriver::Result::ERROR, {}]
-              end
+              run_job(job, exec: exec)
             end
             value, environment = result.value
 
@@ -116,7 +160,21 @@ class BenchmarkDriver::Runner::RubyStdout
     end
   end
 
-  private
+  # Run a job and return what BenchmarkDriver::Repeater.with_repeat takes.
+  def run_job(job, exec:)
+    stdout = with_chdir(job.working_directory) do
+      with_ruby_prefix(exec) { execute(*exec.command, *job.command) }
+    end
+    script = StdoutToMetrics.new(
+      stdout: stdout,
+      value_from_stdout: job.value_from_stdout,
+      environment_from_stdout: job.environment_from_stdout,
+    )
+    [script.value, script.environment]
+  rescue CommandFailure => e
+    $stderr.puts("\n```\n#{e.message}```\n")
+    [BenchmarkDriver::Result::ERROR, {}]
+  end
 
   def with_ruby_prefix(executable, &block)
     env = ENV.to_h.dup

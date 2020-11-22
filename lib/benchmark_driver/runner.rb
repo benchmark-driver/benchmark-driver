@@ -30,6 +30,10 @@ module BenchmarkDriver
         contexts_jobs.group_by(&:metrics).each do |metrics, metrics_jobs|
           metrics_jobs.group_by(&:class).each do |klass, klass_jobs|
             runner = runner_for(klass)
+            if runner_config.alternate && runner != BenchmarkDriver::Runner::RubyStdout
+              abort "--alternate is supported only for ruby_stdout runner for now"
+            end
+
             contexts = build_contexts(contexts, executables: config.executables)
             output = Output.new(
               type: config.output_type,

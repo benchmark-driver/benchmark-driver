@@ -8,6 +8,7 @@ class BenchmarkDriver::Output::Markdown
   # @param [Array<BenchmarkDriver::Metric>] metrics
   # @param [Array<BenchmarkDriver::Job>] jobs
   # @param [Array<BenchmarkDriver::Context>] contexts
+  # @param [Hash{ Symbol => Object }] options
   def initialize(metrics:, jobs:, contexts:, options:)
     @metrics = metrics
     @contexts = contexts
