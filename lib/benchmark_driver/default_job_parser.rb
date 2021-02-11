@@ -26,7 +26,7 @@ module BenchmarkDriver
         job.teardown.prepend("#{teardown}\n") if teardown
         job.loop_count ||= loop_count
         job.required_ruby_version ||= required_ruby_version
-      end.each(&:freeze)
+      end
     end
 
     private

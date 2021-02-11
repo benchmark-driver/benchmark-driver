@@ -40,8 +40,8 @@ class BenchmarkDriver::Runner::Ips
               @output.report(values: { metric => value }, duration: duration, loop_count: loop_count)
             end
 
-            loop_count = (loop_count.to_f * @config.run_duration / duration).floor
-            Job.new(**job.to_h.merge(loop_count: loop_count))
+            job.loop_count = (loop_count.to_f * @config.run_duration / duration).floor
+            job
           end
         end
       end
