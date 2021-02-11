@@ -1,3 +1,7 @@
+# v0.15.17
+
+- Jobs returned from job parsers are made mutable for plugins
+
 # v0.15.16
 
 - Add `--alternate` runner option to run executables alternately.
