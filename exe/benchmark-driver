@@ -18,7 +18,7 @@ config = BenchmarkDriver::Config.new.tap do |c|
     o.on('-r', '--runner TYPE', String, 'Specify runner type: ips, time, memory, once, block (default: ips)') do |d|
       c.runner_type = d
     end
-    o.on('-o', '--output TYPE', String, 'Specify output type: compare, simple, markdown, record (default: compare)') do |out|
+    o.on('-o', '--output TYPE', String, 'Specify output type: compare, simple, markdown, record, all (default: compare)') do |out|
       c.output_type = out
       begin
         plugin_options = BenchmarkDriver::Output.get(out).const_get('OPTIONS', false)
