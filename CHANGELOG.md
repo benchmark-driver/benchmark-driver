@@ -1,3 +1,7 @@
+# v0.15.18
+
+- Mention `--output=all` in help
+
 # v0.15.17
 
 - Jobs returned from job parsers are made mutable for plugins
