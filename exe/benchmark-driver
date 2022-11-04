@@ -122,7 +122,7 @@ jobs = config.paths.flat_map do |path|
     prelude = script.slice!(/\A(^#[^\n]+\n)+/m) || '' # preserve magic comment
     job.merge!('prelude' => prelude, 'benchmark' => { name => script }, 'loop_count' => 1)
   else
-    job.merge!(YAML.load_file(path))
+    job.merge!(YAML.unsafe_load(File.read(path)))
   end
 
   begin
