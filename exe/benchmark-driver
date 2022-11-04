@@ -87,11 +87,11 @@ config = BenchmarkDriver::Config.new.tap do |c|
     end
   end
   begin
-    c.paths = parser.parse!(ARGV)
+    c.args = parser.parse!(ARGV)
   rescue OptionParser::InvalidArgument => e
     abort e.message
   end
-  if c.paths.empty?
+  if c.args.empty?
     abort "No YAML file is specified!\n\n#{parser.help}"
   end
 
@@ -112,25 +112,32 @@ config = BenchmarkDriver::Config.new.tap do |c|
 end
 
 # Parse benchmark job definitions
-jobs = config.paths.flat_map do |path|
+jobs = config.args.flat_map do |arg|
   job = { 'type' => config.runner_type }
 
-  # Treat *.rb as a single-execution benchmark, others are considered as YAML definition
-  if path.end_with?('.rb')
-    name = File.basename(path).sub(/\.rb\z/, '')
-    script = File.read(path)
+  # Three types of input:
+  #   * YAML file (*.yml, *.yaml): a regular benchmark with various params
+  #   * Ruby file (*.rb): a single-execution benchmark
+  #   * Ruby inline (any other argument): a multi-execution benchmark
+  if arg.end_with?('.yml') || arg.end_with?('.yaml')
+    yaml = File.read(arg)
+    job.merge!(YAML.respond_to?(:unsafe_load) ? YAML.unsafe_load(yaml) : YAML.load(yaml))
+  elsif arg.end_with?('.rb')
+    name = File.basename(arg).sub(/\.rb\z/, '')
+    script = File.read(arg)
     prelude = script.slice!(/\A(^#[^\n]+\n)+/m) || '' # preserve magic comment
     job.merge!('prelude' => prelude, 'benchmark' => { name => script }, 'loop_count' => 1)
-  else
-    yaml = File.read(path)
-    job.merge!(YAML.respond_to?(:unsafe_load) ? YAML.unsafe_load(yaml) : YAML.load(yaml))
+  else # Ruby inline
+    job.merge!('benchmark' => { arg => arg })
+    working_directory = Dir.pwd
   end
+  working_directory ||= File.expand_path(File.dirname(arg))
 
   begin
     # `working_directory` is YAML-specific special parameter, mainly for "command_stdout"
-    BenchmarkDriver::JobParser.parse(job, working_directory: File.expand_path(File.dirname(path)))
+    BenchmarkDriver::JobParser.parse(job, working_directory: working_directory)
   rescue ArgumentError
-    $stderr.puts "benchmark-driver: Failed to parse #{path.dump}."
+    $stderr.puts "benchmark-driver: Failed to parse #{arg.dump}."
     $stderr.puts '  YAML format may be wrong. See error below:'
     $stderr.puts
     raise
