@@ -8,7 +8,7 @@ module BenchmarkDriver
     :runner_type,   # @param [String]
     :output_type,   # @param [String]
     :output_opts,   # @param [Hash{ Symbol => Object }]
-    :paths,         # @param [Array<String>]
+    :args,          # @param [Array<String>]
     :executables,   # @param [Array<BenchmarkDriver::Config::Executable>]
     :filters,       # @param [Array<Regexp>]
     :repeat_count,  # @param [Integer]

@@ -56,6 +56,10 @@ describe 'benchmark-driver command' do
     benchmark_driver fixture_extra('single.rb'), '-v'
   end
 
+  it 'runs an inline Ruby script' do
+    benchmark_driver 'nil.to_i', '-v'
+  end
+
   if RbConfig::CONFIG['host_os'].match(/linux/)
     it 'timeouts command execution' do
       benchmark_driver fixture_extra('sleep.rb'), '--timeout', '0.1'
