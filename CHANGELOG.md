@@ -1,3 +1,9 @@
+# v0.16.0
+
+- Support benchmarking inline Ruby scripts [#75](https://github.com/benchmark-driver/benchmark-driver/pull/75)
+- Require Ruby 2.5+
+- Fix `recorded` runner for Ruby 3.1's Psych
+
 # v0.15.18
 
 - Mention `--output=all` in help
