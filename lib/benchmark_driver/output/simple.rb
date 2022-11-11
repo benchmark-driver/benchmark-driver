@@ -1,13 +1,18 @@
 class BenchmarkDriver::Output::Simple
   NAME_LENGTH = 10
 
+  OPTIONS = {
+    humanize: ['--output-humanize true|false', TrueClass, 'Humanize result numbers (default: true)'],
+  }
+
   # @param [Array<BenchmarkDriver::Metric>] metrics
   # @param [Array<BenchmarkDriver::Job>] jobs
   # @param [Array<BenchmarkDriver::Context>] contexts
-  def initialize(metrics:, jobs:, contexts:)
+  def initialize(metrics:, jobs:, contexts:, options:)
     @metrics = metrics
     @context_names = contexts.map(&:name)
     @name_length = jobs.map(&:name).map(&:size).max
+    @humanize = options.fetch(:humanize, true)
   end
 
   def with_warmup(&block)
@@ -78,6 +83,8 @@ class BenchmarkDriver::Output::Simple
   end
 
   def humanize(value)
+    return value unless @humanize
+
     if BenchmarkDriver::Result::ERROR.equal?(value)
       return " %#{NAME_LENGTH}s" % 'ERROR'
     elsif value == 0.0
