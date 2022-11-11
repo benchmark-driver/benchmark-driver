@@ -1,3 +1,7 @@
+# v0.16.1
+
+- Add --output-humanize option to --output=simple
+
 # v0.16.0
 
 - Support benchmarking inline Ruby scripts [#75](https://github.com/benchmark-driver/benchmark-driver/pull/75)
