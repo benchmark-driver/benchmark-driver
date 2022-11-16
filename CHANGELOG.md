@@ -1,3 +1,7 @@
+# v0.16.2
+
+- Add --chruby option to use a Ruby managed by chruby
+
 # v0.16.1
 
 - Add --output-humanize option to --output=simple
