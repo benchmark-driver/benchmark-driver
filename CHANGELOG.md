@@ -1,3 +1,7 @@
+# v0.16.3
+
+- Unset `GEM_PATH` and `GEM_HOME` in child processes to avoid warnings when using chruby
+
 # v0.16.2
 
 - Add --chruby option to use a Ruby managed by chruby
