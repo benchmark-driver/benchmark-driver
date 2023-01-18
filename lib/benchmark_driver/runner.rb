@@ -98,6 +98,16 @@ module BenchmarkDriver
     end
 
     def with_clean_env(&block)
+      # chruby sets GEM_HOME and GEM_PATH in your shell. We have to unset it in the child
+      # process to avoid installing gems to the version that is running benchmark-driver.
+      env = nil
+      ['GEM_HOME', 'GEM_PATH'].each do |var|
+        if ENV.key?(var)
+          env ||= ENV.to_h
+          ENV.delete(var)
+        end
+      end
+
       unless defined?(Gem::Version)
         # default-gem Bundler can be loaded and broken with --disable-gems
         return block.call
@@ -115,6 +125,10 @@ module BenchmarkDriver
       end
     rescue LoadError
       block.call
+    ensure
+      if env
+        ENV.replace(env)
+      end
     end
   end
 end
