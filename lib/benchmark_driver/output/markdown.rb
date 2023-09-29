@@ -133,13 +133,9 @@ class BenchmarkDriver::Output::Markdown
       if context == worst
         result = '-'
       else
-        result = result.values.first[1]
-        if order == :min_by
-          result = result.fdiv(worst_result)
-        else
-          result = best_result.fdiv(worst_result)
-        end
-        result = sprintf("%.2fx", result)
+        val = result.values.first[1]
+        ratio = val.fdiv(worst_result)
+        result = sprintf("%.2fx", ratio)
       end
       length = [context.name.length, NAME_LENGTH].max
       $stdout.printf("|%*s", length, result)
