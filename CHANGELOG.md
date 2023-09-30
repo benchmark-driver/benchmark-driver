@@ -1,3 +1,7 @@
+# v0.16.4
+
+- Fix broken output on `-o markdown --output-compare`
+
 # v0.16.3
 
 - Unset `GEM_PATH` and `GEM_HOME` in child processes to avoid warnings when using chruby
