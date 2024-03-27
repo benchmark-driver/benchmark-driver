@@ -99,7 +99,7 @@ class BenchmarkDriver::Output::Compare
       result = @job_results.first
       sec = result.duration
       iter = result.loop_count
-      if File.exist?('/proc/cpuinfo') && (clks = estimate_clock(sec, iter)) < 1_000
+      if File.exist?('/proc/cpuinfo') && (clks = estimate_clock(sec, iter)) && (clks < 1_000)
         $stdout.print(" (#{pretty_sec(sec, iter)}/i, #{clks}clocks/i)")
       else
         $stdout.print(" (#{pretty_sec(sec, iter)}/i)")
@@ -156,7 +156,11 @@ class BenchmarkDriver::Output::Compare
   end
 
   def estimate_clock sec, iter
-    hz = File.read('/proc/cpuinfo').scan(/cpu MHz\s+:\s+([\d\.]+)/){|(f)| break hz = Rational(f.to_f) * 1_000_000}
+    hz = nil
+
+    File.read('/proc/cpuinfo').scan(/cpu MHz\s+:\s+([\d\.]+)/){|(f)| break hz = Rational(f.to_f) * 1_000_000}
+    return unless hz
+
     r = Rational(sec, iter)
     Integer(r/(1/hz))
   end
