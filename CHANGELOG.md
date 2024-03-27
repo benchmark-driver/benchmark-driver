@@ -1,3 +1,7 @@
+# v0.16.5
+
+- Handle cpuinfo without MHz [#79](https://github.com/benchmark-driver/benchmark-driver/pull/79)
+
 # v0.16.4
 
 - Fix broken output on `-o markdown --output-compare`
