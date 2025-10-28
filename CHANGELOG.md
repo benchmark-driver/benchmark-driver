@@ -1,3 +1,7 @@
+# v0.17.0
+
+- Bump required Ruby version to 2.3
+
 # v0.16.5
 
 - Handle cpuinfo without MHz [#79](https://github.com/benchmark-driver/benchmark-driver/pull/79)
