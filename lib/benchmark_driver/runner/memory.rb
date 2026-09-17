@@ -8,7 +8,8 @@ require 'shellwords'
 # Max resident set size
 class BenchmarkDriver::Runner::Memory
   METRIC = BenchmarkDriver::Metric.new(
-    name: 'Max resident set size', unit: 'bytes', larger_better: false, worse_word: 'larger',
+    name: Etc.uname.fetch(:sysname) == 'Windows_NT' ? 'Max private memory size' : 'Max resident set size',
+    unit: 'bytes', larger_better: false, worse_word: 'larger',
   )
 
   # JobParser returns this, `BenchmarkDriver::Runner.runner_for` searches "*::Job"
@@ -31,9 +32,43 @@ class BenchmarkDriver::Runner::Memory
     # Currently Linux's time(1) support only...
     case Etc.uname.fetch(:sysname)
     when 'Linux'
-      @time_command = ['/usr/bin/time']
+      @time_command = ->(executable_command, path) do
+        ['/usr/bin/time', *executable_command, path]
+      end
     when 'Darwin'
-      @time_command = ['/usr/bin/time', '-l']
+      @time_command = ->(executable_command, path) do
+        ['/usr/bin/time', '-l', *executable_command, path]
+      end
+    when 'Windows_NT'
+      @time_command = ->(executable_command, path) do
+        ary = executable_command + [path]
+        exe = ary[0]
+        args = ary[1..-1].map do |arg|
+          escaped = arg.gsub(/(\\*)"/) { "#{Regexp.last_match(1) * 2}\\\"" }
+          escaped = escaped.sub(/\\+\z/) { |slashes| slashes * 2 }
+          %Q("#{escaped}").gsub("'", "''")
+        end.join(' ')
+        [
+          "powershell",
+          "-Command",
+          <<-POWERSHELL.each_line.map { |l| l.strip}.join(" ")
+$psi = [System.Diagnostics.ProcessStartInfo]::new('#{exe.gsub("'", "''")}', '#{args}');
+$psi.UseShellExecute = $false;
+$p = [System.Diagnostics.Process]::Start($psi);
+$peak = $p.PrivateMemorySize64;
+while(-not $p.WaitForExit(0)) {
+  $p.Refresh();
+  try {
+    if($p.PrivateMemorySize64 -gt $peak){
+      $peak = $p.PrivateMemorySize64
+    }
+  } catch {};
+};
+Write-Host $peak;
+exit $p.ExitCode;
+          POWERSHELL
+        ]
+      end
     else
       raise "memory output is not supported for '#{Etc.uname[:sysname]}' for now"
     end
@@ -74,7 +109,7 @@ class BenchmarkDriver::Runner::Memory
     )
 
     with_script(benchmark.render) do |path|
-      output = IO.popen([*@time_command, *context.executable.command, path], err: [:child, :out], &:read)
+      output = IO.popen(@time_command.call(context.executable.command, path), err: [:child, :out], &:read)
       if $?.success?
         extract_maxresident_from_time_output(output)
       else
@@ -91,6 +126,9 @@ class BenchmarkDriver::Runner::Memory
       scale = 1000.0 # kilobytes -> bytes
     when 'Darwin'
       pattern = /^\s+(?<real>\d+\.\d+)\s+real\s+(?<user>\d+\.\d+)\s+user\s+(?<system>\d+\.\d+)\s+sys$\s+(?<maxresident>\d+)\s+maximum resident set size$/
+      scale = 1.0
+    when 'Windows_NT'
+      pattern = /^(?<maxresident>\d+)$/
       scale = 1.0
     end
     match_data = pattern.match(output)
@@ -122,6 +160,7 @@ class BenchmarkDriver::Runner::Memory
 #{prelude}
 #{while_loop(script, loop_count)}
 #{teardown}
+#{sleep 0.1 if Etc.uname.fetch(:sysname) == "Windows_NT"}
       RUBY
     end
 
