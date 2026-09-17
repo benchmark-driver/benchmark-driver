@@ -3,6 +3,7 @@ class BenchmarkDriver::Output::Markdown
 
   OPTIONS = {
     compare: ['--output-compare', 'Show comparison between results'],
+    compare_sxs: ['--output-compare-sxs', 'Show comparison side-by-side'],
   }
 
   # @param [Array<BenchmarkDriver::Metric>] metrics
@@ -15,6 +16,7 @@ class BenchmarkDriver::Output::Markdown
     @context_names = contexts.map(&:name)
     @name_length = jobs.map(&:name).map(&:size).max
     @compare = options.fetch(:compare, false)
+    @compare_sxs = options.fetch(:compare_sxs, false)
   end
 
   def with_warmup(&block)
@@ -37,6 +39,14 @@ class BenchmarkDriver::Output::Markdown
       @context_names.each do |context_name|
         $stdout.printf("|%*s", NAME_LENGTH, context_name) # same size as humanize
       end
+
+      # Show comparision header
+      if @compare_sxs && @context_names.size > 1
+        @context_names[0..-2].each do |context_name|
+          $stdout.printf("|vs %*s", NAME_LENGTH - 3, context_name)
+        end
+      end
+
       $stdout.puts('|')
 
       # Show header separator
@@ -44,6 +54,12 @@ class BenchmarkDriver::Output::Markdown
       @context_names.each do |context_name|
         length = [context_name.length, NAME_LENGTH].max
         $stdout.print("|#{'-' * (length - 1)}:") # same size as humanize
+      end
+      if @compare_sxs && @context_names.size > 1
+        @context_names[0..-2].each do |context_name|
+          length = [context_name.length, NAME_LENGTH].max + 3
+          $stdout.print("|#{'-' * (length - 1)}:")
+        end
       end
       $stdout.puts('|')
 
@@ -63,8 +79,12 @@ class BenchmarkDriver::Output::Markdown
     block.call
   ensure
     if @with_benchmark
-      $stdout.puts('|')
-      compare_executables if @compare && @context_names.size > 1
+      if @compare_sxs && @context_names.size > 1
+        compare_sxs_executables
+      else
+        $stdout.puts('|')
+        compare_executables if @compare && @context_names.size > 1
+      end
     end
   end
 
@@ -139,6 +159,27 @@ class BenchmarkDriver::Output::Markdown
       end
       length = [context.name.length, NAME_LENGTH].max
       $stdout.printf("|%*s", length, result)
+    end
+    $stdout.puts('|')
+  end
+
+  def compare_sxs_executables
+    order = @metrics.first.larger_better ? :min_by : :max_by
+    job_context_result = @job_context_result.to_a
+    target = job_context_result.last[1].values.first[1]
+    job_context_result[0..-2].each do |context, result|
+      val = result.values.first[1]
+      ratio = target > 0 && val > 0 ? target.fdiv(val) : nil
+      comparable = ratio && ratio.finite? && ratio > 0
+      text = comparable ? sprintf("%.2fx", ratio) : 'N/A'
+      length = [context.name.length, NAME_LENGTH].max + 3
+      str = "%*s" % [length, text]
+      if comparable && !ENV.has_key?("NO_COLOR") && $stdout.tty?
+        bars = (Math.log2(ratio < 1 ? 1.0/ratio : ratio)*16).floor
+        color = (order == :min_by ? ratio > 1 : ratio < 1) ? "\e[42m" : "\e[41m"
+        str = color + "#{str[0, bars]}" + "\e[49m" + ((str.length > bars) ? str[bars..-1] : "")
+      end
+      $stdout.printf("|%s", str)
     end
     $stdout.puts('|')
   end
